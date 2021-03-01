@@ -32,6 +32,7 @@ header {
 			text-align: center;
 			width: 100%;
 			padding: 12pt 4pt;
+			transition: background-color 300ms;
 
 			&.active {
 				background: $red !important;
