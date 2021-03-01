@@ -1,0 +1,15 @@
+.login-page {
+	align-self: center;
+	.login-card {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		max-width: 400pt;
+		margin: auto;
+		.site-logo {
+			max-height: 100pt;
+			max-width: 100%;
+		}
+	}
+}

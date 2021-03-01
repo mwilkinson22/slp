@@ -1,0 +1,9 @@
+#npm modules
+node_modules
+
+#webstorm project settings
+.idea
+
+src/config/dev.ts
+
+dist

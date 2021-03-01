@@ -1,0 +1,34 @@
+//Bucket
+$googleBucket: "https://storage.googleapis.com/superleaguepod/";
+$fonts: "#{$googleBucket}fonts/";
+$imagePath: "#{$googleBucket}images/";
+
+//Media queries
+$mobile-only: "only screen and (max-width:699px)";
+$mobile-and-tablet: "only screen and (max-width: 777px)";
+$desktop-and-tablet: "only screen and (min-width: 700px)";
+$desktop-only: "only screen and (min-width: 778px)";
+
+//Utility Classes
+@mixin mobileOnly {
+	@media #{$desktop-only} {
+		display: none;
+	}
+}
+@mixin desktopOnly {
+	@media #{$mobile-and-tablet} {
+		display: none;
+	}
+}
+
+@mixin pseudoImage {
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+@mixin boxShadow($pt: 4pt) {
+	box-shadow: $pt $pt $pt rgba(black, 0.4);
+}
+
+$red: #800;
