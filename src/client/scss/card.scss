@@ -14,3 +14,9 @@
 		box-shadow: none;
 	}
 }
+
+.nav-card {
+	&:hover {
+		background: #f4f4f4;
+	}
+}
