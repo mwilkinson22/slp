@@ -29,7 +29,7 @@ import "./client/scss/styles.scss";
 
 //Actions
 import { getCoreConfig } from "./client/actions/configActions";
-import { fetchUser } from "./client/actions/userActions";
+import { fetchCurrentUser } from "./client/actions/userActions";
 
 //Create Express App with middleware
 const app = express();
@@ -65,7 +65,7 @@ app.get("*", async (req, res) => {
 
 	//Get Basic Config
 	await store.dispatch(getCoreConfig(req));
-	await store.dispatch(fetchUser());
+	await store.dispatch(fetchCurrentUser());
 
 	const context: any = {};
 

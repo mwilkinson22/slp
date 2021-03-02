@@ -27,7 +27,7 @@ $desktop-only: "only screen and (min-width: 778px)";
 	background-repeat: no-repeat;
 }
 
-@mixin boxShadow($pt: 4pt) {
+@mixin boxShadow($pt: 3pt) {
 	box-shadow: $pt $pt $pt rgba(black, 0.4);
 }
 

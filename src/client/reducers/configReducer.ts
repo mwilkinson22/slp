@@ -5,7 +5,7 @@ import { UserAction } from "~/client/actions/userActions";
 export type ConfigState = IConfigObject | null;
 export default function(state: ConfigState = null, action: ConfigAction | UserAction): ConfigState {
 	switch (action.type) {
-		case ActionTypes.FETCH_USER:
+		case ActionTypes.FETCH_CURRENT_USER:
 			if (state) {
 				return { ...state, authUser: action.payload || undefined };
 			} else {

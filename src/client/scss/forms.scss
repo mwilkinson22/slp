@@ -219,10 +219,3 @@
 		}
 	}
 }
-
-.card {
-	padding: 20pt;
-	background: #f4f4f4;
-	border-left: solid $red 8pt;
-	@include boxShadow();
-}

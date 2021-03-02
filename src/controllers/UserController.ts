@@ -1,4 +1,5 @@
 //Modules
+import _ from "lodash";
 import { Request, Response } from "express";
 import passport from "passport";
 
@@ -28,6 +29,14 @@ class UserController {
 
 		await user.save();
 		res.send(user);
+	}
+
+	//Get all existing users
+	@get("/users")
+	@use(requireAdmin)
+	async getAllUsers(req: Request, res: Response) {
+		const users = await User.find({}).lean();
+		res.send(_.keyBy(users, "_id"));
 	}
 
 	//Get User

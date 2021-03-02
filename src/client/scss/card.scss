@@ -1,0 +1,16 @@
+.card {
+	padding: 12pt;
+	background: #fff;
+	border-left: solid $red 8pt;
+	margin-bottom: 10pt;
+	display: block;
+	@include boxShadow();
+
+	&.no-margin {
+		margin: 0;
+	}
+
+	&.no-shadow {
+		box-shadow: none;
+	}
+}

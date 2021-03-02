@@ -6,7 +6,6 @@ import { Link, NavLink } from "react-router-dom";
 
 //Interfaces
 import { StoreState } from "~/client/reducers";
-import { SiteLogo } from "~/client/components/images/SiteLogo";
 interface IProps {
 	authUser: StoreState["config"]["authUser"];
 }
@@ -21,6 +20,7 @@ function mapStateToProps({ config }: StoreState) {
 }
 
 //Component
+import { SiteLogo } from "~/client/components/images/SiteLogo";
 class _Header extends Component<IProps, IState> {
 	state = { mobileNavActive: false };
 

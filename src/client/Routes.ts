@@ -1,7 +1,7 @@
-import React from "react";
 import { App } from "./App";
 import { Logout } from "~/client/components/auth/Logout";
 import { NotFoundPage } from "~/client/components/global/NotFoundPage";
+import { UserList } from "~/client/pages/UserList";
 
 export default [
 	{
@@ -13,8 +13,8 @@ export default [
 				exact: true
 			},
 			{
-				component: () => React.createElement("p", { children: "Hello World" }),
-				path: "/",
+				component: UserList,
+				path: "/users",
 				exact: true
 			},
 			{

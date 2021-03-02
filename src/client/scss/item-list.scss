@@ -1,0 +1,13 @@
+.item-list {
+	@include boxShadow();
+	width: 100%;
+	background: white;
+	li {
+		width: 100%;
+		a {
+			&:hover {
+				background: #f4f4f4;
+			}
+		}
+	}
+}
