@@ -3,7 +3,6 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { renderRoutes, RouteConfigComponentProps } from "react-router-config";
 import { RouteComponentProps } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 
 //Components
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
@@ -53,7 +52,6 @@ class _App extends Component<IProps, IState> {
 
 		return (
 			<ScrollToTop>
-				<ToastContainer />
 				<HelmetBuilder />
 				<Header />
 				<div className="main">{renderRoutes(route?.routes)}</div>

@@ -3,6 +3,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
+import { ToastContainer, Slide } from "react-toastify";
 
 //Interfaces
 import { StoreState } from "~/client/reducers";
@@ -66,6 +67,7 @@ class _Header extends Component<IProps, IState> {
 				</div>
 				<div className={`nav-wrapper${mobileNavActive ? " active" : ""}`}>
 					{this.renderPageLinks()}
+					<ToastContainer className={"toast-wrapper"} position={"bottom-left"} transition={Slide} />
 					<Link to={`/users/${authUser!.username}`} onClick={() => this.setState({ mobileNavActive: false })}>
 						<span>{authUser!.name.first}</span>
 					</Link>

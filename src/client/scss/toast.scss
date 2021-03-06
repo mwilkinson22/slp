@@ -1,0 +1,28 @@
+.toast-wrapper {
+	width: 100%;
+	padding: 0;
+	& > div {
+		margin: 0;
+		box-shadow: none;
+		font-family: "Open Sans";
+		font-weight: bold;
+	}
+
+	@media #{$mobile-and-tablet} {
+		left: 0;
+		right: 0;
+		bottom: 0;
+		margin: auto;
+	}
+	@media #{$desktop-only} {
+		position: static;
+		text-align: center;
+	}
+
+	.Toastify__toast--success {
+		background: #245f25;
+	}
+	.Toastify__toast--error {
+		background: $red;
+	}
+}
