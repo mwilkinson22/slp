@@ -11,7 +11,7 @@ type DeserializeDone = (error: Error | null, user: IUser_Mongoose | false) => vo
 
 //Save user id to session
 passport.serializeUser((user: IUser_Mongoose, done: SerializeDone) => {
-	done(null, user._id);
+	done(null, user._id.toString());
 });
 
 //Pull user object from id saved to session

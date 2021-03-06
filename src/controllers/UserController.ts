@@ -111,7 +111,6 @@ class UserController {
 		if (!user) {
 			return UserController.send404(_id, res);
 		}
-		console.log(user.password);
 
 		//Get values
 		const values = { ...req.body };
@@ -127,10 +126,7 @@ class UserController {
 		}
 
 		//Update user
-		await user.update(values);
-
-		//Get updated user
-		const newUser = await User.findById(_id);
+		const newUser = await User.findByIdAndUpdate(_id, values, { new: true });
 		res.send(newUser);
 	}
 

@@ -1,9 +1,10 @@
 //Modules
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Types } from "mongoose";
 const bcrypt = require("bcryptjs");
 
 //Interfaces
-export interface IUser extends Document {
+interface IUser_Root {
+	_id: string | Types.ObjectId;
 	username: string;
 	password: string;
 	name: {
@@ -12,7 +13,11 @@ export interface IUser extends Document {
 	};
 	isAdmin: boolean;
 }
-export interface IUser_Mongoose extends IUser {
+export interface IUser extends IUser_Root {
+	_id: string;
+}
+export interface IUser_Mongoose extends IUser_Root, Document {
+	_id: IUser_Root["_id"];
 	generateHash(password: string): string;
 	validatePassword(password: string): boolean;
 }
