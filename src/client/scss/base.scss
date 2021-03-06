@@ -179,7 +179,7 @@ body {
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
+		justify-content: flex-start;
 	}
 	@media #{$mobile-and-tablet} {
 		flex-direction: column;
@@ -191,6 +191,9 @@ body {
 	@media #{$desktop-only} {
 		flex-direction: row;
 		align-items: stretch;
+		.main {
+			padding: 20pt;
+		}
 	}
 }
 
