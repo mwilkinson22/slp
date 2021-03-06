@@ -1,15 +1,25 @@
 .item-list {
-	@include boxShadow();
-	width: 100%;
-	background: white;
-	li {
+	input {
 		width: 100%;
-		&:not(:last-child) {
-			border-bottom: solid 1pt rgba(black, 0.2);
-		}
-		a {
-			&:hover {
-				background: #f4f4f4;
+		padding: 4pt;
+		margin: 10pt 0;
+		border: solid 1pt #ccc;
+		border-radius: 4pt;
+		outline: none !important;
+	}
+	ul {
+		@include boxShadow();
+		width: 100%;
+		background: white;
+		li {
+			width: 100%;
+			&:not(:last-child) {
+				border-bottom: solid 1pt rgba(black, 0.2);
+			}
+			a {
+				&:hover {
+					background: #f4f4f4;
+				}
 			}
 		}
 	}

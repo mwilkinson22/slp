@@ -62,6 +62,7 @@ class _UserList extends Component<IProps, IState> {
 					<ItemList<IUser>
 						display={user => `${user.name.first} ${user.name.last}`}
 						items={this.state.users}
+						searchable={false}
 						sortBy={user => user.name.first}
 						url={user => `/users/${user.username}`}
 					/>
