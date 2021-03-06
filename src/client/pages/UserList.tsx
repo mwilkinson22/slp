@@ -14,6 +14,7 @@ import { fetchAllUsers } from "~/client/actions/userActions";
 //Interfaces
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
+import { NotFoundPage } from "~/client/components/global/NotFoundPage";
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
 	users: IProps["users"];
@@ -22,7 +23,7 @@ interface IState {
 //Redux
 function mapStateToProps({ config, users }: StoreState) {
 	const { authUser } = config;
-	return { authUser, users };
+	return { authUser: authUser as IUser, users };
 }
 const mapDispatchToProps = { fetchAllUsers };
 const connector = connect(mapStateToProps, mapDispatchToProps);
@@ -33,7 +34,7 @@ class _UserList extends Component<IProps, IState> {
 		super(props);
 
 		const { authUser, users, fetchAllUsers } = props;
-		if (authUser!.isAdmin && !props.users) {
+		if (authUser.isAdmin && !props.users) {
 			fetchAllUsers();
 		}
 
@@ -46,6 +47,11 @@ class _UserList extends Component<IProps, IState> {
 	}
 
 	render() {
+		const { authUser } = this.props;
+		if (!authUser.isAdmin) {
+			return <NotFoundPage />;
+		}
+
 		const title = "Users";
 		if (this.state.users) {
 			return (
