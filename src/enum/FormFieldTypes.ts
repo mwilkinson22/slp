@@ -33,6 +33,7 @@ interface IField {
 	max?: number | Date;
 	step?: number;
 	placeholder?: string;
+	disabled?: boolean;
 }
 
 export interface IFieldBasic extends IField {

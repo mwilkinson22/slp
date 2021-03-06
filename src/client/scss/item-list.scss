@@ -4,6 +4,9 @@
 	background: white;
 	li {
 		width: 100%;
+		&:not(:last-child) {
+			border-bottom: solid 1pt rgba(black, 0.2);
+		}
 		a {
 			&:hover {
 				background: #f4f4f4;

@@ -29,10 +29,10 @@ const UserSchema = new Schema<IUser_Mongoose>({
 });
 
 //Password methods
-UserSchema.methods.generateHash = function(password: string) {
+UserSchema.methods.generateHash = function(password: string): string {
 	return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
-UserSchema.methods.validatePassword = function(password: string) {
+UserSchema.methods.validatePassword = function(password: string): boolean {
 	return bcrypt.compareSync(password, this.password);
 };
 

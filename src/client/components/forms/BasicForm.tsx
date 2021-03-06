@@ -26,8 +26,8 @@ interface IProps extends RouteComponentProps {
 	isInitialValid?: boolean;
 	isNew: boolean;
 	itemType: string;
-	onDelete?: () => {};
-	onReset?: () => {};
+	onDelete?: () => any;
+	onReset?: () => any;
 	onSubmit: (values: any, formikProps: FormikHelpers<IFormikValues>) => any;
 	promptOnExit?: boolean;
 	redirectOnDelete?: string;
@@ -35,6 +35,7 @@ interface IProps extends RouteComponentProps {
 	showErrorSummary?: boolean;
 	submitButtonText?: string;
 	testMode?: boolean;
+	useCard?: boolean;
 	useGrid?: boolean;
 	validationSchema: ObjectSchema;
 }
@@ -55,6 +56,7 @@ class _BasicForm extends Component<IProps, IState> {
 		redirectOnDelete: `/admin/`,
 		showErrorSummary: true,
 		testMode: false,
+		useCard: true,
 		useGrid: true
 	};
 
@@ -205,6 +207,10 @@ class _BasicForm extends Component<IProps, IState> {
 		if (onDelete && !testMode) {
 			const success = await onDelete();
 
+			if (success === undefined) {
+				console.error("Delete action returned undefined. It should return true or false.");
+			}
+
 			if (success && redirectOnDelete) {
 				history.replace(redirectOnDelete);
 			}
@@ -317,7 +323,7 @@ class _BasicForm extends Component<IProps, IState> {
 		const { onDelete } = this.props;
 		if (onDelete) {
 			return (
-				<div className="form-card">
+				<div className="card form-card">
 					<DeleteButtons onDelete={() => this.handleDelete()} />
 				</div>
 			);
@@ -325,10 +331,15 @@ class _BasicForm extends Component<IProps, IState> {
 	}
 
 	render() {
-		const { formClassName, isInitialValid, onReset, promptOnExit, useGrid } = this.props;
+		const { formClassName, isInitialValid, onReset, promptOnExit, useCard, useGrid } = this.props;
 		const { initialValues, validationSchema } = this.state;
 
 		const classNames = ["form-card"];
+
+		if (useCard) {
+			classNames.push("card");
+		}
+
 		if (formClassName) {
 			classNames.push(formClassName);
 		}

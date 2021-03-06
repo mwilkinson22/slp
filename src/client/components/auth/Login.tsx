@@ -96,6 +96,7 @@ class _Login extends Component<IProps, IState> {
 							onSubmit={(values: IFormikValues) => this.handleSubmit(values)}
 							showErrorSummary={false}
 							submitButtonText={"Log In"}
+							useCard={false}
 							validationSchema={validationSchema}
 						/>
 					</div>

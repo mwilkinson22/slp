@@ -1,3 +1,6 @@
+//Modules
+import { toast } from "react-toastify";
+
 //Interfaces
 import { Dispatch } from "redux";
 import { AxiosInstance } from "axios";
@@ -6,6 +9,7 @@ import { IUser } from "~/models/User";
 //Enum
 import { ActionTypes } from "./types";
 import { KeyedCollection } from "~/types";
+import { StoreState } from "~/client/reducers";
 
 //Action Interfaces
 interface FetchCurrentUserAction {
@@ -16,6 +20,10 @@ interface FetchUserAction {
 	type: ActionTypes.FETCH_USER;
 	payload: IUser;
 }
+interface DeleteUserAction {
+	type: ActionTypes.DELETE_USER;
+	payload: string;
+}
 interface FetchAllUsersAction {
 	type: ActionTypes.FETCH_ALL_USERS;
 	payload: KeyedCollection<IUser>;
@@ -23,7 +31,12 @@ interface FetchAllUsersAction {
 interface LogoutAction {
 	type: ActionTypes.LOGOUT;
 }
-export type UserAction = FetchCurrentUserAction | LogoutAction | FetchUserAction | FetchAllUsersAction;
+export type UserAction =
+	| FetchCurrentUserAction
+	| LogoutAction
+	| FetchUserAction
+	| DeleteUserAction
+	| FetchAllUsersAction;
 
 export const fetchCurrentUser = () => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
@@ -49,6 +62,56 @@ export const fetchAllUsers = () => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.get<KeyedCollection<IUser>>("/users");
 		dispatch<FetchAllUsersAction>({ type: ActionTypes.FETCH_ALL_USERS, payload: res.data });
+	};
+};
+
+export const createUser = (values: Partial<IUser>) => {
+	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
+		const res = await api.post<IUser>("/user", values);
+		if (res.data) {
+			dispatch<FetchUserAction>({ type: ActionTypes.FETCH_USER, payload: res.data });
+			toast.success("User Updated Successfully");
+
+			return res.data;
+		} else {
+			return false;
+		}
+	};
+};
+
+export const updateUser = (id: string, values: Partial<IUser>) => {
+	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
+		const res = await api.put<IUser>(`/user/${id}`, values);
+		if (res.data) {
+			const authUser = getState().config.authUser!;
+			//If we're updating the active user, update the config reducer
+			if (authUser._id === id) {
+				dispatch<FetchCurrentUserAction>({ type: ActionTypes.FETCH_CURRENT_USER, payload: res.data });
+			}
+
+			//For admins, also update user list
+			if (authUser.isAdmin) {
+				dispatch<FetchUserAction>({ type: ActionTypes.FETCH_USER, payload: res.data });
+			}
+
+			toast.success("User Updated Successfully");
+
+			return res.data;
+		} else {
+			return false;
+		}
+	};
+};
+
+export const deleteUser = (id: string) => {
+	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
+		const res = await api.delete<{}>(`/user/${id}`);
+		if (res.data) {
+			dispatch<DeleteUserAction>({ type: ActionTypes.DELETE_USER, payload: id });
+			toast.success("User Deleted");
+			return true;
+		}
+		return false;
 	};
 };
 

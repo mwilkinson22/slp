@@ -9,6 +9,18 @@ export default function(state: UserState = null, action: UserAction): UserState 
 		case ActionTypes.FETCH_ALL_USERS:
 			return action.payload;
 
+		case ActionTypes.FETCH_USER:
+			return {
+				...state,
+				[action.payload._id]: action.payload
+			};
+
+		case ActionTypes.DELETE_USER: {
+			const newState = { ...state };
+			delete newState[action.payload];
+			return newState;
+		}
+
 		default:
 			return state;
 	}
