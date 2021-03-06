@@ -117,6 +117,7 @@ header {
 	@media #{$desktop-only} {
 		border-right: solid 6pt $red;
 		width: 160pt;
+		min-width: 160pt;
 		.site-logo {
 			max-width: 120pt;
 			padding: 10pt;
