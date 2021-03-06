@@ -6,8 +6,9 @@ import { RouteComponentProps } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 //Components
-import { Header } from "./components/global/Header";
+import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
 import { ScrollToTop } from "./components/hoc/ScrollToTop";
+import { Header } from "./components/global/Header";
 import { Login } from "./components/auth/Login";
 
 //Interfaces
@@ -53,6 +54,7 @@ class _App extends Component<IProps, IState> {
 		return (
 			<ScrollToTop>
 				<ToastContainer />
+				<HelmetBuilder />
 				<Header />
 				<div className="main">{renderRoutes(route?.routes)}</div>
 			</ScrollToTop>
