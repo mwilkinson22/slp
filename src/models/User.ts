@@ -1,6 +1,6 @@
 //Modules
 import mongoose, { Schema, Document, Types } from "mongoose";
-const bcrypt = require("bcryptjs");
+import bcrypt from "bcryptjs";
 
 //Interfaces
 interface IUser_Root {
@@ -34,10 +34,10 @@ const UserSchema = new Schema<IUser_Mongoose>({
 });
 
 //Password methods
-UserSchema.methods.generateHash = function(password: string): string {
-	return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+UserSchema.methods.generateHash = function (password: string): string {
+	return bcrypt.hashSync(password, bcrypt.genSaltSync(8));
 };
-UserSchema.methods.validatePassword = function(password: string): boolean {
+UserSchema.methods.validatePassword = function (password: string): boolean {
 	return bcrypt.compareSync(password, this.password);
 };
 

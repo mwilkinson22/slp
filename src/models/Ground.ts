@@ -5,7 +5,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 interface IGround_Root {
 	_id: string | Types.ObjectId;
 	name: string;
-	addTheToTweets: string;
+	addTheToTweets: boolean;
 	city: string;
 	hasImage: boolean;
 }

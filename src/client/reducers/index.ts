@@ -1,10 +1,12 @@
 import { combineReducers } from "redux";
 import configReducer, { ConfigState } from "./configReducer";
 import userReducer, { UserState } from "~/client/reducers/userReducer";
+import groundReducer, { GroundState } from "~/client/reducers/groundReducer";
 import { IConfigObject } from "~/client/actions/configActions";
 
 interface InitialStoreState {
 	config: ConfigState;
+	grounds: GroundState;
 	users: UserState;
 }
 
@@ -16,5 +18,6 @@ export interface StoreState extends InitialStoreState {
 
 export default combineReducers<InitialStoreState>({
 	config: configReducer,
+	grounds: groundReducer,
 	users: userReducer
 });

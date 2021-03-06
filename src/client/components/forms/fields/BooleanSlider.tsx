@@ -8,19 +8,20 @@ interface IProps {
 }
 
 export function BooleanSlider(PassedProps: IProps) {
-		const { value, ...props} = PassedProps;
-		const { name } = props;
-		return (
-			<div className="boolean">
-				<input
-					{...props}
-					name={name}
-					defaultChecked={value}
-					type="checkbox"
-					className="boolean-checkbox"
-					id={`bool-${name}`}
-				/>
-				<label className="boolean-slider" htmlFor={`bool-${name}`} />
-			</div>
-		);
+	const { value, ...props } = PassedProps;
+	const { name } = props;
+	return (
+		<div className="boolean">
+			<input
+				{...props}
+				name={name}
+				defaultChecked={value}
+				type="checkbox"
+				className="boolean-checkbox"
+				id={`bool-${name}`}
+			/>
+
+			<label className="boolean-slider" htmlFor={`bool-${name}`} />
+		</div>
+	);
 }

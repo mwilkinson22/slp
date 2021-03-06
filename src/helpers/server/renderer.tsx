@@ -12,7 +12,7 @@ import { Helmet } from "react-helmet";
 //Routes
 import Routes from "~/client/Routes";
 
-export default (req: Request, store: Store, context: {}) => {
+export default (req: Request, store: Store, context: Record<string, unknown>) => {
 	const content = renderToString(
 		<Provider store={store}>
 			<StaticRouter location={req.path} context={context}>

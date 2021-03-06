@@ -83,7 +83,7 @@ export const updateUser = (id: string, values: Partial<IUser>) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<IUser>(`/user/${id}`, values);
 		if (res.data) {
-			const authUser = getState().config.authUser!;
+			const authUser = getState().config.authUser as IUser;
 			//If we're updating the active user, update the config reducer
 			if (authUser._id === id) {
 				dispatch<FetchCurrentUserAction>({ type: ActionTypes.FETCH_CURRENT_USER, payload: res.data });
@@ -105,7 +105,7 @@ export const updateUser = (id: string, values: Partial<IUser>) => {
 
 export const deleteUser = (id: string) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
-		const res = await api.delete<{}>(`/user/${id}`);
+		const res = await api.delete<Record<string, never>>(`/user/${id}`);
 		if (res.data) {
 			dispatch<DeleteUserAction>({ type: ActionTypes.DELETE_USER, payload: id });
 			toast.success("User Deleted");

@@ -5,9 +5,9 @@ import { MetadataKeys } from "../enums/MetadataKeys";
 import { Response } from "express";
 
 export function controller(routePrefix: string) {
-	return function(target: Function) {
+	return function (target: Record<string, any>) {
 		const router = AppRouter.getInstance();
-		for (let key in target.prototype) {
+		for (const key in target.prototype) {
 			const routeHandler = target.prototype[key];
 			const path = Reflect.getMetadata(MetadataKeys.path, target.prototype, key);
 			const method: Methods = Reflect.getMetadata(MetadataKeys.method, target.prototype, key);

@@ -30,12 +30,8 @@ class _Login extends Component<IProps, IState> {
 		this.state = {
 			loginHasFailed: false,
 			validationSchema: Yup.object().shape({
-				username: Yup.string()
-					.required()
-					.label("Username"),
-				password: Yup.string()
-					.required()
-					.label("Password")
+				username: Yup.string().required().label("Username"),
+				password: Yup.string().required().label("Password")
 			})
 		};
 	}

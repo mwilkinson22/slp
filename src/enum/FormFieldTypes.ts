@@ -83,7 +83,7 @@ export interface IField_Select extends IField_Select_Root {
 
 export interface IField_AsyncSelect extends IField_Select_Root {
 	type: FormFieldTypes.asyncSelect;
-	loadOptions: () => {};
+	loadOptions: () => { label: string; value: string };
 }
 
 export type IFieldAny = IFieldBasic | IField_Array | IField_Radio | IField_Select | IField_AsyncSelect;

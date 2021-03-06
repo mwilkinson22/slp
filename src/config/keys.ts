@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 export interface IConfigKeys {
 	apiUrl: string;
 	authGuid: string;

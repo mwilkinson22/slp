@@ -1,15 +1,17 @@
 //Modules
 import _ from "lodash";
 import React, { Component } from "react";
-import { connect } from "react-redux";
+import { connect, ConnectedProps } from "react-redux";
 import { Link, NavLink } from "react-router-dom";
 import { ToastContainer, Slide } from "react-toastify";
 
+//Components
+import { SiteLogo } from "~/client/components/images/SiteLogo";
+
 //Interfaces
 import { StoreState } from "~/client/reducers";
-interface IProps {
-	authUser: StoreState["config"]["authUser"];
-}
+import { IUser } from "~/models/User";
+interface IProps extends ConnectedProps<typeof connector> {}
 interface IState {
 	mobileNavActive: boolean;
 }
@@ -17,11 +19,11 @@ interface IState {
 //Redux
 function mapStateToProps({ config }: StoreState) {
 	const { authUser } = config;
-	return { authUser };
+	return { authUser: authUser as IUser };
 }
+const connector = connect(mapStateToProps);
 
-//Component
-import { SiteLogo } from "~/client/components/images/SiteLogo";
+//Class
 class _Header extends Component<IProps, IState> {
 	state = { mobileNavActive: false };
 
@@ -35,7 +37,7 @@ class _Header extends Component<IProps, IState> {
 			Teams: "/teams"
 		};
 
-		if (authUser!.isAdmin) {
+		if (authUser.isAdmin) {
 			Object.assign(pages, {
 				Users: "/users",
 				Settings: "/settings"
@@ -68,8 +70,8 @@ class _Header extends Component<IProps, IState> {
 				<div className={`nav-wrapper${mobileNavActive ? " active" : ""}`}>
 					{this.renderPageLinks()}
 					<ToastContainer className={"toast-wrapper"} position={"bottom-left"} transition={Slide} />
-					<Link to={`/users/${authUser!.username}`} onClick={() => this.setState({ mobileNavActive: false })}>
-						<span>{authUser!.name.first}</span>
+					<Link to={`/users/${authUser.username}`} onClick={() => this.setState({ mobileNavActive: false })}>
+						<span>{authUser.name.first}</span>
 					</Link>
 					<Link to="/logout">
 						<span>Logout</span>
@@ -81,4 +83,4 @@ class _Header extends Component<IProps, IState> {
 	}
 }
 
-export const Header = connect(mapStateToProps)(_Header);
+export const Header = connector(_Header);

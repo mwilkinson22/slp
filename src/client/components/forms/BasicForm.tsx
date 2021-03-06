@@ -31,7 +31,7 @@ interface IProps extends RouteComponentProps {
 	onSubmit: (values: any, formikProps: FormikHelpers<IFormikValues>) => any;
 	promptOnExit?: boolean;
 	redirectOnDelete?: string;
-	redirectOnSubmit?: string | ((values: IFormikValues) => {});
+	redirectOnSubmit?: string | ((values: IFormikValues) => string);
 	showErrorSummary?: boolean;
 	submitButtonText?: string;
 	testMode?: boolean;
@@ -163,11 +163,7 @@ class _BasicForm extends Component<IProps, IState> {
 		const fieldGroups = this.getFieldGroups(fValues);
 
 		//Get flat field list
-		const fields = _.chain(fieldGroups)
-			.map("fields")
-			.flatten()
-			.keyBy("name")
-			.value();
+		const fields = _.chain(fieldGroups).map("fields").flatten().keyBy("name").value();
 
 		//Process values (pull value from select fields, convert empty strings to null, etc)
 		let values = this.processValues(_.cloneDeep(fValues), fields);
@@ -245,7 +241,7 @@ class _BasicForm extends Component<IProps, IState> {
 				if ("render" in fieldGroup) {
 					//Custom Render
 					content.push(fieldGroup.render(values, formikProps));
-				} else if (fieldGroup.hasOwnProperty("fields")) {
+				} else if (fieldGroup.fields) {
 					//Standard fields
 					content.push(renderFieldGroup(fieldGroup.fields, validationSchema, fastFieldByDefault));
 				}
@@ -278,7 +274,8 @@ class _BasicForm extends Component<IProps, IState> {
 	}
 
 	renderSubmitButtons(formHasChanged: boolean, isSubmitting: boolean) {
-		let { includeResetButton, isInitialValid, itemType, submitButtonText } = this.props;
+		const { includeResetButton, isInitialValid, itemType } = this.props;
+		let { submitButtonText } = this.props;
 		const { isNew } = this.state;
 
 		if (!submitButtonText) {

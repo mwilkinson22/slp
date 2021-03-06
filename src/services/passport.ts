@@ -1,5 +1,5 @@
 //Passport
-const passport = require("passport");
+import passport from "passport";
 import { Strategy } from "passport-local";
 
 //User Model
@@ -10,8 +10,8 @@ type SerializeDone = (error: Error | null, id: string) => void;
 type DeserializeDone = (error: Error | null, user: IUser_Mongoose | false) => void;
 
 //Save user id to session
-passport.serializeUser((user: IUser_Mongoose, done: SerializeDone) => {
-	done(null, user._id.toString());
+passport.serializeUser((user, done: SerializeDone) => {
+	done(null, (user as IUser_Mongoose)._id.toString());
 });
 
 //Pull user object from id saved to session

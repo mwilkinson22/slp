@@ -1,16 +1,14 @@
 declare global {
-	namespace NodeJS {
-		interface ProcessEnv {
-			API_URL: string;
-			AUTH_GUID: string;
-			ENABLE_SCHEDULED_TASKS: string;
-			MONGO_URI: string;
-			COOKIE_KEY: string;
-			GITHUB_AUTH_TOKEN: string;
-			NODE_ENV: "development" | "production";
-			PORT?: string;
-			PWD: string;
-		}
+	interface ProcessEnv {
+		API_URL: string;
+		AUTH_GUID: string;
+		ENABLE_SCHEDULED_TASKS: string;
+		MONGO_URI: string;
+		COOKIE_KEY: string;
+		GITHUB_AUTH_TOKEN: string;
+		NODE_ENV: "development" | "production";
+		PORT?: string;
+		PWD: string;
 	}
 }
 

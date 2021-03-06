@@ -14,6 +14,7 @@ import { Ground } from "~/models/Ground";
 
 //Controller
 @controller("/api/grounds")
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class GroundController {
 	/* --------------------------------- */
 	/* Utility Methods

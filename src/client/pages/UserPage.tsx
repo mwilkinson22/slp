@@ -60,7 +60,7 @@ class _UserPage extends Component<IProps, IState> {
 				.required()
 				.test({
 					name: "is-valid-username",
-					test: function(value) {
+					test: function (value) {
 						const error = getUsernameErrors(value || "");
 						if (error) {
 							return this.createError({
@@ -74,7 +74,7 @@ class _UserPage extends Component<IProps, IState> {
 				.label("Username"),
 			password: Yup.string().test({
 				name: "is-valid-password",
-				test: function(value) {
+				test: function (value) {
 					//Not required on edit
 					if (!isNew && !value) {
 						return true;
@@ -94,18 +94,14 @@ class _UserPage extends Component<IProps, IState> {
 				.test({
 					name: "passwords-match",
 					message: "Passwords Must Match",
-					test: function(value) {
+					test: function (value) {
 						return value === this.parent.password;
 					}
 				})
 				.label("Confirm Password"),
 			name: Yup.object().shape({
-				first: Yup.string()
-					.required()
-					.label("First Name"),
-				last: Yup.string()
-					.required()
-					.label("Last Name")
+				first: Yup.string().required().label("First Name"),
+				last: Yup.string().required().label("Last Name")
 			})
 		};
 
@@ -217,15 +213,15 @@ class _UserPage extends Component<IProps, IState> {
 		//Set submit behaviour
 		let onSubmit, redirectOnSubmit;
 
-		if (isNew) {
+		if (user) {
+			onSubmit = (values: IFormikValues) => updateUser(user._id, values);
+		} else {
 			onSubmit = (values: IFormikValues) => createUser(values);
 			redirectOnSubmit = (values: IFormikValues) => `/users/${values.username}`;
-		} else {
-			onSubmit = (values: IFormikValues) => updateUser(user!._id, values);
 		}
 
 		//Get Header
-		const header = isNew ? "Add New User" : `Edit ${user!.username}`;
+		const header = user ? `Edit ${user.username}` : "Add New User";
 		return (
 			<section className="admin-page user-page">
 				<HelmetBuilder title={header} />

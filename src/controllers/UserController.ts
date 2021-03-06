@@ -18,6 +18,7 @@ import { IUser, User } from "~/models/User";
 
 //Controller
 @controller("/api")
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class UserController {
 	/* --------------------------------- */
 	/* Utility Methods

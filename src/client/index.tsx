@@ -12,7 +12,7 @@ import Routes from "./Routes";
 import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import thunk from "redux-thunk";
-import reducers from "./reducers";
+import reducers, { StoreState } from "./reducers";
 
 //Polyfills
 import "@babel/polyfill";
@@ -28,10 +28,10 @@ const axiosInstance = axios.create({
 	baseURL: "/api"
 });
 axiosInstance.interceptors.response.use(
-	function(response: AxiosResponse) {
+	function (response: AxiosResponse) {
 		return response;
 	},
-	function(error) {
+	function (error) {
 		if (error.response) {
 			if (error.response.status === 401) {
 				console.error("401 Authentication error");
@@ -56,12 +56,12 @@ axiosInstance.interceptors.response.use(
 	}
 );
 
-const store = createStore(
-	reducers,
-	//@ts-ignore
-	window.INITIAL_STATE,
-	applyMiddleware(thunk.withExtraArgument(axiosInstance))
-);
+declare global {
+	interface Window {
+		INITIAL_STATE: StoreState;
+	}
+}
+const store = createStore(reducers, window.INITIAL_STATE, applyMiddleware(thunk.withExtraArgument(axiosInstance)));
 
 ReactDOM.hydrate(
 	<Provider store={store}>

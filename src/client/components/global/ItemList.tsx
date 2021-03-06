@@ -25,7 +25,7 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 		itemAsPlural: "Results"
 	};
 
-	renderSearchBar() {
+	renderSearchBar(): ReactNode | void {
 		const { itemAsPlural, searchable } = this.props;
 		const { searchTerm } = this.state;
 		if (searchable) {
@@ -40,7 +40,7 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 		}
 	}
 
-	renderList() {
+	renderList(): ReactNode {
 		const { display, itemAsPlural, items, sortBy, url } = this.props;
 		const { searchTerm } = this.state;
 		const listItemClassName = "card no-margin no-shadow";
@@ -70,7 +70,7 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 					//Something has gone wrong, and we shouldn't display this item
 					return false;
 				}
-				console.log(content);
+
 				return (content as string).toLowerCase().includes(searchTerm.toLowerCase());
 			})
 			//Convert to elements
@@ -91,7 +91,7 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 		}
 	}
 
-	render() {
+	render(): ReactNode {
 		return (
 			<div className="item-list">
 				{this.renderSearchBar()}
