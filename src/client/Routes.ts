@@ -1,38 +1,38 @@
+import _ from "lodash";
+import { RouteConfig } from "react-router-config";
 import { App } from "./App";
+
+//Pages
 import { Logout } from "~/client/components/auth/Logout";
 import { NotFoundPage } from "~/client/components/global/NotFoundPage";
 
-import { UserPage } from "~/client/pages/UserPage";
+import { GroundPage } from "~/client/pages/GroundPage";
+import { GroundList } from "~/client/pages/GroundList";
+
 import { UserList } from "~/client/pages/UserList";
+import { UserPage } from "~/client/pages/UserPage";
+
+const routeMap = {
+	"/logout": Logout,
+
+	"/grounds/new": GroundPage,
+	"/grounds/:_id": GroundPage,
+	"/grounds": GroundList,
+
+	"/users/new": UserPage,
+	"/users/:username": UserPage,
+	"/users": UserList
+};
+
+const routes: RouteConfig[] = _.map(routeMap, (component, path) => ({ component, path, exact: true }));
+routes.push({
+	component: () => NotFoundPage({}),
+	path: "/"
+});
 
 export default [
 	{
 		component: App,
-		routes: [
-			{
-				component: Logout,
-				path: "/logout",
-				exact: true
-			},
-			{
-				component: UserPage,
-				path: "/users/new",
-				exact: true
-			},
-			{
-				component: UserPage,
-				path: "/users/:username",
-				exact: true
-			},
-			{
-				component: UserList,
-				path: "/users",
-				exact: true
-			},
-			{
-				component: () => NotFoundPage({}),
-				path: "/"
-			}
-		]
+		routes
 	}
 ];
