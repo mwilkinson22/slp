@@ -1,10 +1,9 @@
 import { ActionTypes } from "../actions/types";
 import { GroundAction } from "~/client/actions/groundActions";
-import { KeyedCollection } from "~/types";
 import { IGround } from "~/models/Ground";
 
-export type GroundState = KeyedCollection<IGround> | null;
-export default function(state: GroundState = null, action: GroundAction): GroundState {
+export type GroundState = Record<IGround["_id"], IGround> | null;
+export default function (state: GroundState = null, action: GroundAction): GroundState {
 	switch (action.type) {
 		case ActionTypes.FETCH_ALL_GROUNDS:
 			return action.payload;

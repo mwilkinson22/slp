@@ -8,7 +8,6 @@ import { IUser } from "~/models/User";
 
 //Enum
 import { ActionTypes } from "./types";
-import { KeyedCollection } from "~/types";
 import { StoreState } from "~/client/reducers";
 
 //Action Interfaces
@@ -26,7 +25,7 @@ interface DeleteUserAction {
 }
 interface FetchAllUsersAction {
 	type: ActionTypes.FETCH_ALL_USERS;
-	payload: KeyedCollection<IUser>;
+	payload: Record<IUser["_id"], IUser>;
 }
 interface LogoutAction {
 	type: ActionTypes.LOGOUT;
@@ -60,7 +59,7 @@ export const login = (data: LoginParams) => {
 
 export const fetchAllUsers = () => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
-		const res = await api.get<KeyedCollection<IUser>>("/users");
+		const res = await api.get<Record<IUser["_id"], IUser>>("/users");
 		dispatch<FetchAllUsersAction>({ type: ActionTypes.FETCH_ALL_USERS, payload: res.data });
 	};
 };

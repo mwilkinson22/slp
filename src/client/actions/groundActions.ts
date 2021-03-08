@@ -7,7 +7,6 @@ import { AxiosInstance } from "axios";
 
 //Enum
 import { ActionTypes } from "./types";
-import { KeyedCollection } from "~/types";
 import { StoreState } from "~/client/reducers";
 import { IGround } from "~/models/Ground";
 
@@ -22,13 +21,13 @@ interface DeleteGroundAction {
 }
 interface FetchAllGroundsAction {
 	type: ActionTypes.FETCH_ALL_GROUNDS;
-	payload: KeyedCollection<IGround>;
+	payload: Record<IGround["_id"], IGround>;
 }
 export type GroundAction = FetchGroundAction | FetchAllGroundsAction | DeleteGroundAction;
 
 export const fetchAllGrounds = () => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
-		const res = await api.get<KeyedCollection<IGround>>("/grounds");
+		const res = await api.get<Record<IGround["_id"], IGround>>("/grounds");
 		dispatch<FetchAllGroundsAction>({ type: ActionTypes.FETCH_ALL_GROUNDS, payload: res.data });
 	};
 };

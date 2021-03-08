@@ -4,10 +4,9 @@ import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 //Interfaces
-import { KeyedCollection } from "~/types";
 interface IProps<T> {
 	display: keyof T | ((o: T) => ReactNode);
-	items: KeyedCollection<T>;
+	items: Record<string | number, T>;
 	itemAsPlural: string;
 	searchable: boolean;
 	sortBy: keyof T | ((o: T) => string | number);
