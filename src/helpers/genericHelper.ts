@@ -40,3 +40,7 @@ export function stringToProper(string: string, everyWord: boolean = false): stri
 		return fixSingleWord(string);
 	}
 }
+
+export function validateHashtag(string: string): boolean {
+	return !string.match(/[^0-9A-Za-z_]/);
+}

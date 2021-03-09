@@ -6,6 +6,9 @@ import { App } from "./App";
 import { Logout } from "~/client/components/auth/Logout";
 import { NotFoundPage } from "~/client/components/global/NotFoundPage";
 
+import { CompetitionPage } from "~/client/pages/CompetitionPage";
+import { CompetitionList } from "~/client/pages/CompetitionList";
+
 import { GroundPage } from "~/client/pages/GroundPage";
 import { GroundList } from "~/client/pages/GroundList";
 
@@ -14,6 +17,10 @@ import { UserPage } from "~/client/pages/UserPage";
 
 const routeMap = {
 	"/logout": Logout,
+
+	"/competitions/new": CompetitionPage,
+	"/competitions/:_id": CompetitionPage,
+	"/competitions": CompetitionList,
 
 	"/grounds/new": GroundPage,
 	"/grounds/:_id": GroundPage,

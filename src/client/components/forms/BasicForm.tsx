@@ -19,7 +19,7 @@ import { extractYupData, renderFieldGroup, getTouchedNestedErrors } from "~/help
 interface IProps extends RouteComponentProps {
 	alterValuesBeforeSubmit?: (values: IFormikValues) => IFormikValues | void;
 	fastFieldByDefault?: boolean;
-	fieldGroups: IFieldGroup[] | ((values?: IFormikValues) => IFieldGroup[]);
+	fieldGroups: IFieldGroup[] | ((values: IFormikValues) => IFieldGroup[]);
 	formClassName?: string;
 	includeResetButton?: boolean;
 	initialValues: IFormikValues;
