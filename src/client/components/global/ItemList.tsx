@@ -9,7 +9,7 @@ interface IProps<T> {
 	items: Record<string | number, T>;
 	itemAsPlural: string;
 	searchable: boolean;
-	sortBy: keyof T | ((o: T) => string | number);
+	sortBy?: keyof T | ((o: T) => string | number);
 	url: (o: T) => string;
 }
 
@@ -45,14 +45,6 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 		const listItemClassName = "card no-margin no-shadow";
 
 		const listItems = _.chain(items)
-			//Order
-			.sortBy(item => {
-				if (typeof sortBy === "function") {
-					return sortBy(item);
-				} else {
-					return item[sortBy];
-				}
-			})
 			//Convert to object
 			.map((item, key: keyof typeof items) => {
 				let content;
@@ -61,8 +53,20 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 				} else {
 					content = item[display];
 				}
-				return { key, url: url(item), content };
+
+				let sortValue;
+				if (typeof sortBy === "function") {
+					sortValue = sortBy(item);
+				} else if (sortBy) {
+					sortValue = item[sortBy];
+				} else {
+					sortValue = content;
+				}
+
+				return { key, url: url(item), content, sortValue };
 			})
+			//Order
+			.sortBy("sortValue")
 			//Filter on search term
 			.filter(({ content }) => {
 				if (!content) {

@@ -56,7 +56,6 @@ class _GroundList extends Component<IProps, IState> {
 						display={({ name, city }) => `${name}, ${city}`}
 						itemAsPlural={"Grounds"}
 						items={this.state.grounds}
-						sortBy={"name"}
 						url={ground => `/grounds/${ground._id}`}
 					/>
 				</div>
