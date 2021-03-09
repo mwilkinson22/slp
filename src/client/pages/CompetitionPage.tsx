@@ -73,7 +73,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 			name: Yup.string().required().label("Name"),
 			hashtagPrefix: Yup.string().required().test(hashtagTest).label("Hashtag Prefix"),
 			competitionHashtag: Yup.string().test(hashtagTest).label("Competition Hashtag"),
-			image: Yup.string().label("Image")
+			image: Yup.string().required().label("Image")
 		});
 
 		this.state = { isNew, show404: false, validationSchema };
