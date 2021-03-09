@@ -30,7 +30,7 @@ class GroundController {
 	//Get all grounds
 	@get("/")
 	@use(requireAuth)
-	async getCurrentGrounds(req: Request, res: Response) {
+	async getAllGrounds(req: Request, res: Response) {
 		const grounds = await Ground.find({}).lean();
 		res.send(_.keyBy(grounds, "_id"));
 	}
