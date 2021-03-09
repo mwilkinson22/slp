@@ -7,6 +7,7 @@ interface IGround_Root {
 	name: string;
 	addTheToTweets: boolean;
 	city: string;
+	image: string;
 }
 export interface IGround extends IGround_Root {
 	_id: string;
@@ -19,7 +20,8 @@ export interface IGround_Mongoose extends IGround_Root, Document {
 const GroundSchema = new Schema<IGround_Mongoose>({
 	name: { type: String, required: true },
 	addTheToTweets: { type: Boolean, required: true, default: false },
-	city: { type: String, required: true }
+	city: { type: String, required: true },
+	image: { type: String, default: null }
 });
 
 //Assign to mongoose

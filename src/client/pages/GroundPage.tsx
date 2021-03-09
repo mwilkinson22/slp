@@ -12,7 +12,7 @@ import { NavCard } from "~/client/components/global/NavCard";
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
 
 //Actions
-import { fetchAllGrounds, createGround, updateGround, deleteGround } from "~/client/actions/groundActions";
+import { createGround, deleteGround, fetchAllGrounds, updateGround } from "~/client/actions/groundActions";
 
 //Interfaces & Enums
 import { RouteComponentProps } from "react-router-dom";
@@ -56,7 +56,8 @@ class _GroundPage extends Component<IProps, IState> {
 		const validationSchema = Yup.object().shape({
 			name: Yup.string().required().label("Name"),
 			addTheToTweets: Yup.boolean().label("Add 'the' to tweets"),
-			city: Yup.string().required().label("City")
+			city: Yup.string().required().label("City"),
+			image: Yup.string().label("Image")
 		});
 
 		this.state = { isNew, show404: false, validationSchema };
@@ -90,7 +91,8 @@ class _GroundPage extends Component<IProps, IState> {
 		const defaultValues: Partial<IGround> = {
 			name: "",
 			addTheToTweets: false,
-			city: ""
+			city: "",
+			image: ""
 		};
 
 		if (ground) {
@@ -103,10 +105,41 @@ class _GroundPage extends Component<IProps, IState> {
 	}
 
 	getFieldGroups(): IFieldGroup[] {
+		const { grounds } = this.props;
+		const { ground } = this.state;
+
+		//Create image dependency check
+		let dependentCheck;
+		if (grounds) {
+			dependentCheck = (filename: string) => {
+				const dependents = Object.values(grounds)
+					//If we have a ground object, exclude it from this check
+					.filter(({ _id }) => !ground || _id !== ground._id)
+					//Look for any grounds using this image
+					.filter(({ image }) => image === filename)
+					//Pull off the ground name
+					.map(({ name }) => name);
+				return {
+					dataType: "Grounds",
+					dependents
+				};
+			};
+		}
+
 		const fields: IFieldAny[] = [
 			{ name: "name", type: FormFieldTypes.text },
 			{ name: "addTheToTweets", type: FormFieldTypes.boolean },
-			{ name: "city", type: FormFieldTypes.text }
+			{ name: "city", type: FormFieldTypes.text },
+			{
+				name: "image",
+				type: FormFieldTypes.image,
+				path: "images/grounds/",
+				sizeForSelector: "thumbnail",
+				dependentCheck,
+				resize: {
+					thumbnail: { width: 200 }
+				}
+			}
 		];
 
 		return [{ fields }];
