@@ -28,7 +28,7 @@
 		overflow: auto;
 		margin: 10pt 0;
 		.no-results {
-			grid-row: 1 / -1;
+			grid-column: 1 / -1;
 		}
 		.file-list {
 			display: grid;
