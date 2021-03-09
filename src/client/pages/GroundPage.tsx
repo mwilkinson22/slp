@@ -55,7 +55,7 @@ class _GroundPage extends Component<IProps, IState> {
 		//Create a validation schema
 		const validationSchema = Yup.object().shape({
 			name: Yup.string().required().label("Name"),
-			addTheToTweets: Yup.boolean().label("Add 'the' to tweets"),
+			tweetName: Yup.string().required().label("Name in Tweets"),
 			city: Yup.string().required().label("City"),
 			image: Yup.string().label("Image")
 		});
@@ -90,7 +90,7 @@ class _GroundPage extends Component<IProps, IState> {
 
 		const defaultValues: Partial<IGround> = {
 			name: "",
-			addTheToTweets: false,
+			tweetName: "",
 			city: "",
 			image: ""
 		};
@@ -127,8 +127,8 @@ class _GroundPage extends Component<IProps, IState> {
 		}
 
 		const fields: IFieldAny[] = [
-			{ name: "name", type: FormFieldTypes.text },
-			{ name: "addTheToTweets", type: FormFieldTypes.boolean },
+			{ name: "name", type: FormFieldTypes.text, placeholder: "John Smith's Stadium" },
+			{ name: "tweetName", type: FormFieldTypes.text, placeholder: "the John Smith's" },
 			{ name: "city", type: FormFieldTypes.text },
 			{
 				name: "image",
