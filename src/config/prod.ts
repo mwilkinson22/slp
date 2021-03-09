@@ -6,6 +6,9 @@ declare global {
 		MONGO_URI: string;
 		COOKIE_KEY: string;
 		GITHUB_AUTH_TOKEN: string;
+		GOOGLE_BUCKET_NAME: string;
+		GOOGLE_CLOUD_EMAIL: string;
+		GOGLE_CLOUD_KEY: string;
 		NODE_ENV: "development" | "production";
 		PORT?: string;
 		PWD: string;
@@ -15,8 +18,12 @@ declare global {
 export default {
 	apiUrl: process.env.API_URL,
 	authGuid: process.env.AUTH_GUID,
-	enableScheduledTasks: process.env.ENABLE_SCHEDULED_TASKS === "true",
-	mongoURI: process.env.MONGO_URI,
 	cookieKey: process.env.COOKIE_KEY,
-	contactEmail: process.env.CONTACT_EMAIL
+	enableScheduledTasks: process.env.ENABLE_SCHEDULED_TASKS === "true",
+	googleBucketName: process.env.GOOGLE_BUCKET_NAME,
+	googleCloudAccount: {
+		client_email: process.env.GOOGLE_CLOUD_EMAIL,
+		private_key: process.env.GOGLE_CLOUD_KEY
+	},
+	mongoURI: process.env.MONGO_URI
 };

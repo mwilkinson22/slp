@@ -10,6 +10,7 @@ import { ObjectSchema } from "yup";
 //Input Components
 import { BooleanSlider } from "~/client/components/forms/fields/BooleanSlider";
 import { RadioButtons } from "~/client/components/forms/fields/RadioButtons";
+import { ImageField } from "~/client/components/forms/fields/ImageField";
 
 //Enums & Interfaces
 import { FormFieldTypes, IFieldAny, SelectOption, SelectOptionGroup } from "~/enum/FormFieldTypes";
@@ -136,6 +137,7 @@ export function renderInput(field: IFieldAny) {
 				};
 				break;
 			case FormFieldTypes.asyncSelect:
+			case FormFieldTypes.image:
 				//See above - we have to call option as any and then cast it
 				formikProps.field.onChange = (option: any) => {
 					formikProps.form.setFieldTouched(field.name, true);
@@ -219,6 +221,8 @@ export function renderInput(field: IFieldAny) {
 				return <AsyncSelect className="react-select" cacheOptions {...mainProps} />;
 			case FormFieldTypes.textarea:
 				return <textarea className="form-textarea" rows={10} {...mainProps} />;
+			case FormFieldTypes.image:
+				return <ImageField {...mainProps} />;
 			default:
 				return <input {...mainProps} type={type} />;
 		}

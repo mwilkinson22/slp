@@ -17,6 +17,7 @@ export function controller(routePrefix: string) {
 				try {
 					await routeHandler(...args);
 				} catch (e) {
+					console.error(e);
 					const res: Response = args[1];
 					res.status(500).send({ toLog: `Uncaught Error: ${e.toString()}` });
 				}

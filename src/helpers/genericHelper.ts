@@ -32,14 +32,10 @@ export function listToString(list: string[] | number[]) {
 }
 
 export function stringToProper(string: string, everyWord: boolean = false): string {
-	const fixSingleWord = (str: string): string =>
-		str.substr(0, 1).toUpperCase() + str.substr(1).toLowerCase();
+	const fixSingleWord = (str: string): string => str.substr(0, 1).toUpperCase() + str.substr(1).toLowerCase();
 
 	if (everyWord) {
-		return string
-			.split(" ")
-			.map(fixSingleWord)
-			.join(" ");
+		return string.split(" ").map(fixSingleWord).join(" ");
 	} else {
 		return fixSingleWord(string);
 	}

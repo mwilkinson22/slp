@@ -6,6 +6,11 @@ export interface IConfigKeys {
 	contactEmail: string;
 	cookieKey: string;
 	enableScheduledTasks: boolean;
+	googleBucketName: string;
+	googleCloudAccount: {
+		client_email: string;
+		private_key: string;
+	};
 	IFTTT: string;
 	mapsKey: string;
 	mongoURI: string;

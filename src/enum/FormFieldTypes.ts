@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import { FieldArrayRenderProps, FieldProps, FormikProps } from "formik";
 
+import { ImageFieldProps } from "~/client/components/forms/fields/ImageField";
+
 export enum FormFieldTypes {
 	//Standard HTML Inputs
 	colour = "colour",
@@ -19,7 +21,10 @@ export enum FormFieldTypes {
 	asyncSelect = "asyncSelect",
 
 	//Maps into Formik's fieldArray component, requires a render method
-	fieldArray = "fieldArray"
+	fieldArray = "fieldArray",
+
+	//Image Uploader
+	image = "image"
 }
 
 interface IField {
@@ -86,7 +91,16 @@ export interface IField_AsyncSelect extends IField_Select_Root {
 	loadOptions: () => { label: string; value: string };
 }
 
-export type IFieldAny = IFieldBasic | IField_Array | IField_Radio | IField_Select | IField_AsyncSelect;
+export interface IField_Image extends IField {
+	acceptSVG?: ImageFieldProps["acceptSVG"];
+	dependentCheck?: ImageFieldProps["dependentCheck"];
+	path: ImageFieldProps["path"];
+	resize?: ImageFieldProps["resize"];
+	sizeForSelector?: ImageFieldProps["sizeForSelector"];
+	type: FormFieldTypes.image;
+}
+
+export type IFieldAny = IFieldBasic | IField_Array | IField_Radio | IField_Select | IField_AsyncSelect | IField_Image;
 
 type FieldGroupWithFields = {
 	fields: IFieldAny[];

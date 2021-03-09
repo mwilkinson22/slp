@@ -2,11 +2,13 @@
 
 @import "base";
 @import "card";
+@import "files";
 @import "forms";
 @import "header";
 @import "item-list";
 @import "loading";
 @import "login";
+@import "popup";
 
 @import "../../../node_modules/react-toastify/dist/ReactToastify.css";
 @import "toast";
