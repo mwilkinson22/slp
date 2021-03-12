@@ -11,6 +11,7 @@ import { requireAdmin } from "~/middleware/requireAdmin";
 
 //Models
 import { Ground } from "~/models/Ground";
+import { Team } from "~/models/Team";
 
 //Controller
 @controller("/api/grounds")
@@ -69,7 +70,20 @@ class GroundController {
 			return GroundController.send404(_id, res);
 		}
 
-		//TODO check it's not required for a game or team
+		// TODO check it's not required for a game
+
+		//Ensure it's not used for any teams
+		const teamsBasedAtThisGround = await Team.find({ _ground: _id }, "name").lean();
+		if (teamsBasedAtThisGround.length) {
+			const error = `Cannot delete this ground as ${teamsBasedAtThisGround.length} ${
+				teamsBasedAtThisGround.length === 1 ? "team depends" : "teams depend"
+			} on it`;
+			const toLog = {
+				error,
+				teams: teamsBasedAtThisGround.map(t => t.name.long)
+			};
+			return res.status(406).send({ error, toLog });
+		}
 
 		//Remove
 		await ground.remove();
