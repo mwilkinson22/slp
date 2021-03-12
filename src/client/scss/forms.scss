@@ -76,16 +76,12 @@
 		}
 	}
 
-	input {
+	input:not([type="color"]) {
 		padding: 4pt 8pt;
 		font-size: 11pt;
 		outline: none;
 		border: solid thin #222;
 		border-radius: 4pt;
-
-		&[type="color"] {
-			padding: 0 1pt;
-		}
 	}
 
 	label {

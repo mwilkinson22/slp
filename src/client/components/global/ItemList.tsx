@@ -6,7 +6,7 @@ import { KeyOfType } from "~/types/KeyOfType";
 
 //Interfaces
 interface IProps<T> {
-	display: KeyOfType<T, string> | ((o: T) => ReactNode);
+	display: KeyOfType<T, string> | ((o: T) => string | { content: ReactNode; textValue: string });
 	items: Record<string | number, T>;
 	itemAsPlural: string;
 	searchable: boolean;
@@ -48,11 +48,18 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 		const listItems = _.chain(items)
 			//Convert to object
 			.map((item, key: keyof typeof items) => {
-				let content;
+				let content, textValue;
 				if (typeof display === "function") {
-					content = display(item);
+					const result = display(item);
+					if (typeof result === "string") {
+						content = textValue = result;
+					} else {
+						content = result.content;
+						textValue = result.textValue;
+					}
 				} else {
 					content = item[display];
+					textValue = content;
 				}
 
 				let sortValue;
@@ -61,21 +68,21 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 				} else if (sortBy) {
 					sortValue = item[sortBy];
 				} else {
-					sortValue = content;
+					sortValue = textValue;
 				}
 
-				return { key, url: url(item), content, sortValue };
+				return { key, url: url(item), content, sortValue, textValue };
 			})
 			//Order
 			.sortBy("sortValue")
 			//Filter on search term
-			.filter(({ content }) => {
-				if (!content) {
+			.filter(({ textValue }) => {
+				if (!textValue) {
 					//Something has gone wrong, and we shouldn't display this item
 					return false;
 				}
 
-				return (content as string).toLowerCase().includes(searchTerm.toLowerCase());
+				return (textValue as string).toLowerCase().includes(searchTerm.toLowerCase());
 			})
 			//Convert to elements
 			.map(({ key, url, content }) => {

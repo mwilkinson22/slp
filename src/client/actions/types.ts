@@ -18,5 +18,10 @@ export enum ActionTypes {
 	//Grounds
 	FETCH_GROUND,
 	FETCH_ALL_GROUNDS,
-	DELETE_GROUND
+	DELETE_GROUND,
+
+	//Teams
+	FETCH_TEAM,
+	FETCH_ALL_TEAMS,
+	DELETE_TEAM
 }

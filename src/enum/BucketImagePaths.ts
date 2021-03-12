@@ -4,5 +4,6 @@ export enum BucketImagePaths {
 	grounds,
 	layout,
 	root,
+	teams,
 	users
 }

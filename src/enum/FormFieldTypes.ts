@@ -5,7 +5,7 @@ import { ImageFieldProps } from "~/client/components/forms/fields/ImageField";
 
 export enum FormFieldTypes {
 	//Standard HTML Inputs
-	colour = "colour",
+	colour = "color",
 	date = "date",
 	number = "number",
 	password = "password",

@@ -12,11 +12,47 @@ import { BooleanSlider } from "~/client/components/forms/fields/BooleanSlider";
 import { RadioButtons } from "~/client/components/forms/fields/RadioButtons";
 import { ImageField } from "~/client/components/forms/fields/ImageField";
 
-//Enums & Interfaces
+//Enums, Types & Interfaces
 import { FormFieldTypes, IFieldAny, SelectOption, SelectOptionGroup } from "~/enum/FormFieldTypes";
+import { KeyOfType } from "~/types/KeyOfType";
 
 //Helpers
 import { nestedObjectToDot } from "./genericHelper";
+
+type KeyOrFunction<T> = KeyOfType<T, string> | ((obj: T) => string);
+export function convertRecordToSelectOptions<T extends { _id: string }>(
+	collection: Record<string, T>,
+	display: KeyOrFunction<T>,
+	sortBy?: KeyOrFunction<T>
+): SelectOption[] {
+	return _.chain(collection)
+		.map(object => {
+			let label;
+
+			//Get label
+			if (typeof display === "function") {
+				label = display(object);
+			} else {
+				label = object[display];
+			}
+
+			//Get sort value
+			let sortValue;
+			if (typeof sortBy === "function") {
+				sortValue = sortBy(object);
+			} else if (typeof sortBy === "string") {
+				sortValue = object[sortBy];
+			} else {
+				//Default to label;
+				sortValue = label;
+			}
+
+			return { value: object._id, label, sortValue };
+		})
+		.sortBy("sortValue")
+		.map(({ value, label }) => ({ value, label: label as string }))
+		.value();
+}
 
 export function extractYupData(name: string, validationSchema: ObjectSchema) {
 	return (

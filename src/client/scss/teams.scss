@@ -1,0 +1,26 @@
+.team-list-entry {
+	display: flex;
+	align-items: center;
+	.image-wrapper {
+		height: 50pt;
+		width: 50pt;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		img {
+			max-height: 100%;
+			max-width: 100%;
+		}
+	}
+
+	@media #{$mobile-only} {
+		flex-direction: column;
+		text-align: center;
+	}
+
+	@media #{$desktop-and-tablet} {
+		.image-wrapper {
+			margin-right: 8pt;
+		}
+	}
+}

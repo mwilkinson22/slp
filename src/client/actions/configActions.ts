@@ -49,12 +49,13 @@ export const getCoreConfig = ({ headers, useragent }: Request) => async (dispatc
 	//Get bucket paths
 	const bucketPathRoot = `https://storage.googleapis.com/${googleBucketName}/`;
 	const imageBucketPaths: BucketPaths["images"] = {
-		competitions: "/competitions",
-		games: "/games",
-		grounds: "/grounds",
-		layout: "/layout",
+		competitions: "competitions/",
+		games: "games/",
+		grounds: "grounds/",
+		layout: "layout/",
 		root: "",
-		users: "/users"
+		teams: "teams/",
+		users: "users/"
 	};
 
 	const config: IConfigObject = {

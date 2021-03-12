@@ -12,6 +12,9 @@ import { CompetitionList } from "~/client/pages/CompetitionList";
 import { GroundPage } from "~/client/pages/GroundPage";
 import { GroundList } from "~/client/pages/GroundList";
 
+import { TeamPage } from "~/client/pages/TeamPage";
+import { TeamList } from "~/client/pages/TeamList";
+
 import { UserList } from "~/client/pages/UserList";
 import { UserPage } from "~/client/pages/UserPage";
 
@@ -25,6 +28,10 @@ const routeMap = {
 	"/grounds/new": GroundPage,
 	"/grounds/:_id": GroundPage,
 	"/grounds": GroundList,
+
+	"/teams/new": TeamPage,
+	"/teams/:_id": TeamPage,
+	"/teams": TeamList,
 
 	"/users/new": UserPage,
 	"/users/:username": UserPage,

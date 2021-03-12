@@ -4,10 +4,10 @@ $fonts: "#{$googleBucket}fonts/";
 $imagePath: "#{$googleBucket}images/";
 
 //Media queries
-$mobile-only: "only screen and (max-width:699px)";
+$mobile-only: "only screen and (max-width:700px)";
 $mobile-and-tablet: "only screen and (max-width: 777px)";
 $desktop-and-tablet: "only screen and (min-width: 700px)";
-$desktop-only: "only screen and (min-width: 778px)";
+$desktop-only: "only screen and (min-width: 777px)";
 
 //Utility Classes
 @mixin mobileOnly {
