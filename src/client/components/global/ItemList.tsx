@@ -2,10 +2,11 @@
 import _ from "lodash";
 import React, { Component, ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { KeyOfType } from "~/types/KeyOfType";
 
 //Interfaces
 interface IProps<T> {
-	display: keyof T | ((o: T) => ReactNode);
+	display: KeyOfType<T, string> | ((o: T) => ReactNode);
 	items: Record<string | number, T>;
 	itemAsPlural: string;
 	searchable: boolean;
