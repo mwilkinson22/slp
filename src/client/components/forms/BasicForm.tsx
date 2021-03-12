@@ -231,11 +231,11 @@ class _BasicForm extends Component<IProps, IState> {
 		}
 
 		return _.flatten(
-			fieldGroups.map(fieldGroup => {
+			fieldGroups.map((fieldGroup: IFieldGroup, i: number) => {
 				const content = [];
 
 				if (fieldGroup.label) {
-					content.push(<h6 key="label">{fieldGroup.label}</h6>);
+					content.push(<h6 key={`label-${i}`}>{fieldGroup.label}</h6>);
 				}
 
 				if ("render" in fieldGroup) {
