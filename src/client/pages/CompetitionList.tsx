@@ -4,6 +4,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 
 //Components
+import { LoadingPage } from "~/client/components/global/LoadingPage";
 import { ItemList } from "~/client/components/global/ItemList";
 import { NavCard } from "~/client/components/global/NavCard";
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
@@ -46,22 +47,22 @@ class _CompetitionList extends Component<IProps, IState> {
 
 	render() {
 		const title = "Competitions";
-		if (this.state.competitions) {
-			return (
-				<div className="container">
-					<HelmetBuilder title={title} />
-					<h1>{title}</h1>
-					<NavCard to={`/competitions/new`}>Add New Competition</NavCard>
-					<ItemList<ICompetition>
-						display="name"
-						itemAsPlural={"Competitions"}
-						items={this.state.competitions}
-						url={competition => `/competitions/${competition._id}`}
-					/>
-				</div>
-			);
+		if (!this.state.competitions) {
+			return <LoadingPage />;
 		}
-		return null;
+		return (
+			<div className="container">
+				<HelmetBuilder title={title} />
+				<h1>{title}</h1>
+				<NavCard to={`/competitions/new`}>Add New Competition</NavCard>
+				<ItemList<ICompetition>
+					display="name"
+					itemAsPlural={"Competitions"}
+					items={this.state.competitions}
+					url={competition => `/competitions/${competition._id}`}
+				/>
+			</div>
+		);
 	}
 }
 

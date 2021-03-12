@@ -4,6 +4,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 
 //Components
+import { LoadingPage } from "~/client/components/global/LoadingPage";
 import { ItemList } from "~/client/components/global/ItemList";
 import { NavCard } from "~/client/components/global/NavCard";
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
@@ -48,37 +49,38 @@ class _TeamList extends Component<IProps, IState> {
 	render() {
 		const { bucketPaths } = this.props;
 		const title = "Teams";
-		if (this.state.teams) {
-			return (
-				<div className="container">
-					<HelmetBuilder title={title} />
-					<h1>{title}</h1>
-					<NavCard to={`/teams/new`}>Add New Team</NavCard>
-					<ItemList<ITeam>
-						display={t => {
-							const textValue = t.name.long;
-							const content = (
-								<div className="team-list-entry">
-									<div className="image-wrapper">
-										<img
-											src={`${bucketPaths.images.teams}thumbnail/${t.image}`}
-											alt={`${t.name.long} Badge`}
-										/>
-									</div>
-									<span>{t.name.long}</span>
-								</div>
-							);
-							return { textValue, content };
-						}}
-						itemAsPlural={"Teams"}
-						items={this.state.teams}
-						sortBy={t => t.name.long}
-						url={team => `/teams/${team._id}`}
-					/>
-				</div>
-			);
+		if (!this.state.teams) {
+			return <LoadingPage />;
 		}
-		return null;
+
+		return (
+			<div className="container">
+				<HelmetBuilder title={title} />
+				<h1>{title}</h1>
+				<NavCard to={`/teams/new`}>Add New Team</NavCard>
+				<ItemList<ITeam>
+					display={t => {
+						const textValue = t.name.long;
+						const content = (
+							<div className="team-list-entry">
+								<div className="image-wrapper">
+									<img
+										src={`${bucketPaths.images.teams}thumbnail/${t.image}`}
+										alt={`${t.name.long} Badge`}
+									/>
+								</div>
+								<span>{t.name.long}</span>
+							</div>
+						);
+						return { textValue, content };
+					}}
+					itemAsPlural={"Teams"}
+					items={this.state.teams}
+					sortBy={t => t.name.long}
+					url={team => `/teams/${team._id}`}
+				/>
+			</div>
+		);
 	}
 }
 

@@ -4,6 +4,7 @@ import { connect, ConnectedProps } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 
 //Components
+import { LoadingPage } from "~/client/components/global/LoadingPage";
 import { ItemList } from "~/client/components/global/ItemList";
 import { NavCard } from "~/client/components/global/NavCard";
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
@@ -46,22 +47,22 @@ class _GroundList extends Component<IProps, IState> {
 
 	render() {
 		const title = "Grounds";
-		if (this.state.grounds) {
-			return (
-				<div className="container">
-					<HelmetBuilder title={title} />
-					<h1>{title}</h1>
-					<NavCard to={`/grounds/new`}>Add New Ground</NavCard>
-					<ItemList<IGround>
-						display={({ name, city }) => `${name}, ${city}`}
-						itemAsPlural={"Grounds"}
-						items={this.state.grounds}
-						url={ground => `/grounds/${ground._id}`}
-					/>
-				</div>
-			);
+		if (!this.state.grounds) {
+			return <LoadingPage />;
 		}
-		return null;
+		return (
+			<div className="container">
+				<HelmetBuilder title={title} />
+				<h1>{title}</h1>
+				<NavCard to={`/grounds/new`}>Add New Ground</NavCard>
+				<ItemList<IGround>
+					display={({ name, city }) => `${name}, ${city}`}
+					itemAsPlural={"Grounds"}
+					items={this.state.grounds}
+					url={ground => `/grounds/${ground._id}`}
+				/>
+			</div>
+		);
 	}
 }
 

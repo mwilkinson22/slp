@@ -4,6 +4,8 @@ import { connect, ConnectedProps } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
 
 //Components
+import { NotFoundPage } from "~/client/components/global/NotFoundPage";
+import { LoadingPage } from "~/client/components/global/LoadingPage";
 import { ItemList } from "~/client/components/global/ItemList";
 import { NavCard } from "~/client/components/global/NavCard";
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
@@ -14,7 +16,6 @@ import { fetchAllUsers } from "~/client/actions/userActions";
 //Interfaces
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
-import { NotFoundPage } from "~/client/components/global/NotFoundPage";
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
 	users: IProps["users"];
@@ -53,22 +54,22 @@ class _UserList extends Component<IProps, IState> {
 		}
 
 		const title = "Users";
-		if (this.state.users) {
-			return (
-				<div className="container">
-					<HelmetBuilder title={title} />
-					<h1>{title}</h1>
-					<NavCard to={`/users/new`}>Add New User</NavCard>
-					<ItemList<IUser>
-						display={user => `${user.name.first} ${user.name.last}`}
-						items={this.state.users}
-						searchable={false}
-						url={user => `/users/${user.username}`}
-					/>
-				</div>
-			);
+		if (!this.state.users) {
+			return <LoadingPage />;
 		}
-		return null;
+		return (
+			<div className="container">
+				<HelmetBuilder title={title} />
+				<h1>{title}</h1>
+				<NavCard to={`/users/new`}>Add New User</NavCard>
+				<ItemList<IUser>
+					display={user => `${user.name.first} ${user.name.last}`}
+					items={this.state.users}
+					searchable={false}
+					url={user => `/users/${user.username}`}
+				/>
+			</div>
+		);
 	}
 }
 
