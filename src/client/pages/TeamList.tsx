@@ -61,7 +61,7 @@ class _TeamList extends Component<IProps, IState> {
 								<div className="team-list-entry">
 									<div className="image-wrapper">
 										<img
-											src={`${bucketPaths.images.teams}${t.image}`}
+											src={`${bucketPaths.images.teams}thumbnail/${t.image}`}
 											alt={`${t.name.long} Badge`}
 										/>
 									</div>

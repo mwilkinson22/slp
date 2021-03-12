@@ -2,8 +2,8 @@
 	display: flex;
 	align-items: center;
 	.image-wrapper {
-		height: 50pt;
-		width: 50pt;
+		height: 40pt;
+		width: 60pt;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -20,7 +20,7 @@
 
 	@media #{$desktop-and-tablet} {
 		.image-wrapper {
-			margin-right: 8pt;
+			margin-right: 12pt;
 		}
 	}
 }
