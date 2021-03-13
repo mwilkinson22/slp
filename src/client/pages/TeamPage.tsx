@@ -30,6 +30,7 @@ import { IGround } from "~/models/Ground";
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
 	groundOptions: SelectOption[];
+	isLoadingDependents: boolean;
 	isNew: boolean;
 	show404: boolean;
 	team?: ITeam;
@@ -52,13 +53,16 @@ class _TeamPage extends Component<IProps, IState> {
 		const { fetchAllGrounds, fetchAllTeams, grounds, match, teams } = props;
 
 		//Ensure we have teams list
+		let isLoadingDependents = false;
 		if (!teams) {
 			fetchAllTeams();
+			isLoadingDependents = true;
 		}
 
 		//Ensure we have grounds list
 		if (!grounds) {
 			fetchAllGrounds();
+			isLoadingDependents = true;
 		}
 
 		//Work out if it's a new user form
@@ -91,7 +95,7 @@ class _TeamPage extends Component<IProps, IState> {
 			image: Yup.string().required().label("Badge")
 		});
 
-		this.state = { groundOptions: [], isNew, show404: false, validationSchema };
+		this.state = { groundOptions: [], isLoadingDependents, isNew, show404: false, validationSchema };
 	}
 
 	static getDerivedStateFromProps(nextProps: IProps, prevState: IState): Partial<IState> | null {
@@ -102,6 +106,7 @@ class _TeamPage extends Component<IProps, IState> {
 		if (!teams || !grounds) {
 			return null;
 		}
+		newState.isLoadingDependents = false;
 
 		//Convert ground list to options
 		newState.groundOptions = convertRecordToSelectOptions<IGround>(grounds, ({ name, city }) => `${name}, ${city}`);
@@ -208,15 +213,15 @@ class _TeamPage extends Component<IProps, IState> {
 
 	render() {
 		const { authUser, createTeam, updateTeam, deleteTeam } = this.props;
-		const { isNew, team, show404, validationSchema } = this.state;
+		const { isLoadingDependents, isNew, team, show404, validationSchema } = this.state;
 
 		//If we've explicitly set the user to false, show a 404 page
 		if (show404) {
 			return <NotFoundPage message="Team not found" />;
 		}
 
-		//Otherwise if team is undefined, show a loading spinner
-		if (!isNew && !team) {
+		//Otherwise if we're waiting on teams or grounds, show a loading spinner
+		if (isLoadingDependents) {
 			return <LoadingPage />;
 		}
 
