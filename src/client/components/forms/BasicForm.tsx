@@ -243,7 +243,9 @@ class _BasicForm extends Component<IProps, IState> {
 					content.push(fieldGroup.render(values, formikProps));
 				} else if (fieldGroup.fields) {
 					//Standard fields
-					content.push(renderFieldGroup(fieldGroup.fields, validationSchema, fastFieldByDefault));
+					//Remove anything with the hide flag, and then set the property to undefined
+					const fields = fieldGroup.fields.filter(f => !f.hide).map(f => ({ ...f, hide: undefined }));
+					content.push(renderFieldGroup(fields, validationSchema, fastFieldByDefault));
 				}
 
 				return content;

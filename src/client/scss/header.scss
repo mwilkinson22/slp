@@ -118,6 +118,10 @@ header {
 		border-right: solid 6pt $red;
 		width: 160pt;
 		min-width: 160pt;
+		position: sticky;
+		left: 0;
+		top: 0;
+		height: 100vh;
 		.site-logo {
 			max-width: 120pt;
 			padding: 10pt;

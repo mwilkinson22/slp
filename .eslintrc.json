@@ -17,6 +17,7 @@
 		"indent": ["warn", "tab", { "SwitchCase": 1 }],
 		"no-debugger": ["warn"],
 		"no-console": ["warn", { "allow": ["info", "warn", "error"] }],
+		"@typescript-eslint/no-non-null-assertion": ["off"],
 		"@typescript-eslint/no-explicit-any": ["off"],
 		"@typescript-eslint/no-empty-interface": ["off"],
 		"@typescript-eslint/explicit-module-boundary-types": ["off"],

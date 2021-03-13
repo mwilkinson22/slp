@@ -9,6 +9,9 @@ import { NotFoundPage } from "~/client/components/global/NotFoundPage";
 import { CompetitionPage } from "~/client/pages/CompetitionPage";
 import { CompetitionList } from "~/client/pages/CompetitionList";
 
+import { GamePage } from "~/client/pages/GamePage";
+import { GameList } from "~/client/pages/GameList";
+
 import { GroundPage } from "~/client/pages/GroundPage";
 import { GroundList } from "~/client/pages/GroundList";
 
@@ -24,6 +27,10 @@ const routeMap = {
 	"/competitions/new": CompetitionPage,
 	"/competitions/:_id": CompetitionPage,
 	"/competitions": CompetitionList,
+
+	"/games/new": GamePage,
+	"/games/:_id": GamePage,
+	"/games": GameList,
 
 	"/grounds/new": GroundPage,
 	"/grounds/:_id": GroundPage,

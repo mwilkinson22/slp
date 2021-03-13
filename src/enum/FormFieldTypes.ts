@@ -36,6 +36,7 @@ interface IField {
 	customOnChange?: (value: any, formik?: FieldProps) => void;
 	min?: number | Date;
 	max?: number | Date;
+	hide?: boolean;
 	step?: number;
 	placeholder?: string;
 	disabled?: boolean;
@@ -78,6 +79,7 @@ interface IField_Select_Root extends IField {
 	options: (SelectOption | SelectOptionGroup)[];
 	isMulti?: boolean;
 	isNested?: boolean;
+	isClearable?: boolean;
 	closeMenuOnSelect?: boolean;
 	showDropdown?: boolean;
 }

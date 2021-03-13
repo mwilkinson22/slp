@@ -3,15 +3,16 @@ import React from "react";
 interface IProps {
 	name: string;
 	value: boolean;
+	disabled?: boolean;
 	onChange: () => any;
 	onBlur?: () => any;
 }
 
 export function BooleanSlider(PassedProps: IProps) {
 	const { value, ...props } = PassedProps;
-	const { name } = props;
+	const { disabled, name } = props;
 	return (
-		<div className="boolean">
+		<div className={`boolean${disabled ? " read-only" : ""}`}>
 			<input
 				{...props}
 				name={name}

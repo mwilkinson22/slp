@@ -2,7 +2,7 @@
 import _ from "lodash";
 import React from "react";
 import { ErrorMessage, FastField, Field, FieldArray, FieldProps } from "formik";
-import Select from "react-select";
+import Select, { Props as ReactSelectProps } from "react-select";
 import AsyncSelect from "react-select/async";
 import CreatableSelect from "react-select/creatable";
 import { ObjectSchema } from "yup";
@@ -126,7 +126,7 @@ export function renderField(field: IFieldAny, validationSchema: ObjectSchema, fa
 		}
 
 		//Render Field Input
-		const input = renderInput(field);
+		const input = renderInput(field, required);
 
 		//Error Message
 		const error = (
@@ -139,7 +139,7 @@ export function renderField(field: IFieldAny, validationSchema: ObjectSchema, fa
 	}
 }
 
-export function renderInput(field: IFieldAny) {
+export function renderInput(field: IFieldAny, required?: boolean) {
 	const { label, type, name, fastField, customOnChange, ...props } = field;
 
 	if (!_.find(FormFieldTypes, t => t == type)) {
@@ -200,6 +200,28 @@ export function renderInput(field: IFieldAny) {
 			...props
 		};
 
+		//Define additional react-select props
+		switch (field.type) {
+			case FormFieldTypes.select:
+			case FormFieldTypes.asyncSelect:
+			case FormFieldTypes.creatableSelect: {
+				const selectProps: Partial<ReactSelectProps> = {};
+
+				//Add classname
+				const className = ["react-select"];
+				if (mainProps.className) {
+					className.push(mainProps.className);
+				}
+				selectProps.className = className.join(" ");
+
+				//Add clearable status
+				selectProps.isClearable = !required;
+
+				//Add to main props
+				Object.assign(mainProps, selectProps);
+			}
+		}
+
 		//Get the main component
 		switch (field.type) {
 			case FormFieldTypes.boolean:
@@ -224,7 +246,7 @@ export function renderInput(field: IFieldAny) {
 				} else {
 					mainProps.value = { value: mainProps.value, label: mainProps.value };
 				}
-				return <CreatableSelect className="react-select" {...mainProps} value={mainProps.value || ""} />;
+				return <CreatableSelect {...mainProps} value={mainProps.value || ""} />;
 			case FormFieldTypes.select: {
 				let value: SelectOption | SelectOption[] | "";
 				//Used to get value
@@ -251,10 +273,10 @@ export function renderInput(field: IFieldAny) {
 					value = flatOptions.find(({ value }) => value == mainProps.value) || "";
 				}
 
-				return <Select className="react-select" {...mainProps} value={value || ""} />;
+				return <Select {...mainProps} value={value || ""} />;
 			}
 			case FormFieldTypes.asyncSelect:
-				return <AsyncSelect className="react-select" cacheOptions {...mainProps} />;
+				return <AsyncSelect cacheOptions {...mainProps} />;
 			case FormFieldTypes.textarea:
 				return <textarea className="form-textarea" rows={10} {...mainProps} />;
 			case FormFieldTypes.image:

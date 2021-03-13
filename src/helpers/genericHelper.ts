@@ -44,3 +44,13 @@ export function stringToProper(string: string, everyWord: boolean = false): stri
 export function validateHashtag(string: string): boolean {
 	return !string.match(/[^0-9A-Za-z_]/);
 }
+
+export function dateToYMD(date: Date): string {
+	//Adjust for timezones
+	const offset = date.getTimezoneOffset();
+	date = new Date(date.getTime() - offset * 60 * 1000);
+
+	//Return ISO string and split before the "T" character,
+	//giving us yyyy-MM-dd
+	return date.toISOString().split("T")[0];
+}
