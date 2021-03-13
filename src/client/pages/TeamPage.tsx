@@ -15,6 +15,9 @@ import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
 import { fetchAllGrounds } from "~/client/actions/groundActions";
 import { createTeam, deleteTeam, fetchAllTeams, updateTeam } from "~/client/actions/teamActions";
 
+//Helpers
+import { validateHashtag } from "~/helpers/genericHelper";
+
 //Interfaces & Enums
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
@@ -62,13 +65,23 @@ class _TeamPage extends Component<IProps, IState> {
 		const isNew = !match.params._id;
 
 		//Create a validation schema
+		const hashtagTest = {
+			name: "is-valid-hashtag",
+			message: "Hashtags can only contain letters, numbers and underscores",
+			test: (value: any) => {
+				if (value) {
+					return validateHashtag(value);
+				}
+				return true;
+			}
+		};
 		const validationSchema = Yup.object().shape({
 			name: Yup.object().shape({
 				short: Yup.string().required().label("Short Name"),
 				long: Yup.string().required().label("Long Name")
 			}),
 			nickname: Yup.string().required().label("Nickname"),
-			hashtag: Yup.string().required().label("Hashtag"),
+			hashtag: Yup.string().required().test(hashtagTest).label("Hashtag"),
 			_ground: Yup.string().required().label("Home Ground"),
 			colours: Yup.object().shape({
 				main: Yup.string().required().label("Main"),
