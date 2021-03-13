@@ -69,14 +69,17 @@ class _TeamList extends Component<IProps, IState> {
 										alt={`${t.name.long} Badge`}
 									/>
 								</div>
-								<span>{t.name.long}</span>
+								<span>
+									{t.isFavourite ? "\u2b50 " : ""}
+									{t.name.long}
+								</span>
 							</div>
 						);
 						return { textValue, content };
 					}}
 					itemAsPlural={"Teams"}
 					items={this.state.teams}
-					sortBy={t => t.name.long}
+					sortBy={t => `${t.isFavourite ? "A" : "B"}${t.name.long}`}
 					url={team => `/teams/${team._id}`}
 				/>
 			</div>

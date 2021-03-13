@@ -92,7 +92,8 @@ class _TeamPage extends Component<IProps, IState> {
 				trim: Yup.string().required().label("Trim"),
 				text: Yup.string().required().label("Text")
 			}),
-			image: Yup.string().required().label("Badge")
+			image: Yup.string().required().label("Badge"),
+			isFavourite: Yup.boolean().label("Mark as favourite?")
 		});
 
 		this.state = { groundOptions: [], isLoadingDependents, isNew, show404: false, validationSchema };
@@ -141,7 +142,8 @@ class _TeamPage extends Component<IProps, IState> {
 				trim: "#220000"
 			},
 			_ground: "",
-			image: ""
+			image: "",
+			isFavourite: false
 		};
 
 		if (team) {
@@ -182,7 +184,8 @@ class _TeamPage extends Component<IProps, IState> {
 					{ name: "name.long", type: FormFieldTypes.text, placeholder: "Wigan Warriors" },
 					{ name: "nickname", type: FormFieldTypes.text, placeholder: "the Grubs" },
 					{ name: "hashtag", type: FormFieldTypes.text, placeholder: "Wig" },
-					{ name: "_ground", type: FormFieldTypes.select, options: groundOptions }
+					{ name: "_ground", type: FormFieldTypes.select, options: groundOptions },
+					{ name: "isFavourite", type: FormFieldTypes.boolean }
 				]
 			},
 			{

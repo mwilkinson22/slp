@@ -17,6 +17,7 @@ interface ITeam_Root {
 		trim: string;
 	};
 	image: string;
+	isFavourite: boolean;
 }
 export interface ITeam extends ITeam_Root {
 	_id: string;
@@ -39,7 +40,8 @@ const TeamSchema = new Schema<ITeam_Mongoose>({
 		text: { type: String, required: true },
 		trim: { type: String, required: true }
 	},
-	image: { type: String, required: true }
+	image: { type: String, required: true },
+	isFavourite: { type: Boolean, default: false }
 });
 
 //Assign to mongoose
