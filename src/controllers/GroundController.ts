@@ -10,6 +10,7 @@ import { requireAuth } from "~/middleware/requireAuth";
 import { requireAdmin } from "~/middleware/requireAdmin";
 
 //Models
+import { Game } from "~/models/Game";
 import { Ground } from "~/models/Ground";
 import { Team } from "~/models/Team";
 
@@ -70,8 +71,6 @@ class GroundController {
 			return GroundController.send404(_id, res);
 		}
 
-		// TODO check it's not required for a game
-
 		//Ensure it's not used for any teams
 		const teamsBasedAtThisGround = await Team.find({ _ground: _id }, "name").lean();
 		if (teamsBasedAtThisGround.length) {
@@ -81,6 +80,18 @@ class GroundController {
 			const toLog = {
 				error,
 				teams: teamsBasedAtThisGround.map(t => t.name.long)
+			};
+			return res.status(406).send({ error, toLog });
+		}
+
+		//Ensure it's not used for any teams
+		const gamesBasedAtThisGround = await Game.find({ _ground: _id }, "_id").lean();
+		if (gamesBasedAtThisGround.length) {
+			const error = `Cannot delete this ground as ${gamesBasedAtThisGround.length} ${
+				gamesBasedAtThisGround.length === 1 ? "game depends" : "games depend"
+			} on it`;
+			const toLog = {
+				error
 			};
 			return res.status(406).send({ error, toLog });
 		}
