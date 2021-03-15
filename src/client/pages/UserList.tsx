@@ -63,7 +63,7 @@ class _UserList extends Component<IProps, IState> {
 				<h1>{title}</h1>
 				<NavCard to={`/users/new`}>Add New User</NavCard>
 				<ItemList<IUser>
-					display={user => `${user.name.first} ${user.name.last}`}
+					display={user => `${user.name.first} ${user.name.last} (${user.username})`}
 					items={this.state.users}
 					searchable={false}
 					url={user => `/users/${user.username}`}
