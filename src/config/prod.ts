@@ -1,5 +1,5 @@
-declare global {
-	interface ProcessEnv {
+declare const process: {
+	env: {
 		API_URL: string;
 		AUTH_GUID: string;
 		ENABLE_SCHEDULED_TASKS: string;
@@ -8,12 +8,12 @@ declare global {
 		GITHUB_AUTH_TOKEN: string;
 		GOOGLE_BUCKET_NAME: string;
 		GOOGLE_CLOUD_EMAIL: string;
-		GOGLE_CLOUD_KEY: string;
+		GOOGLE_CLOUD_KEY: string;
 		NODE_ENV: "development" | "production";
 		PORT?: string;
 		PWD: string;
-	}
-}
+	};
+};
 
 export default {
 	apiUrl: process.env.API_URL,
@@ -23,7 +23,7 @@ export default {
 	googleBucketName: process.env.GOOGLE_BUCKET_NAME,
 	googleCloudAccount: {
 		client_email: process.env.GOOGLE_CLOUD_EMAIL,
-		private_key: process.env.GOGLE_CLOUD_KEY
+		private_key: process.env.GOOGLE_CLOUD_KEY
 	},
 	mongoURI: process.env.MONGO_URI
 };
