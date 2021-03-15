@@ -73,6 +73,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 			name: Yup.string().required().label("Name"),
 			hashtagPrefix: Yup.string().required().test(hashtagTest).label("Hashtag Prefix"),
 			competitionHashtag: Yup.string().test(hashtagTest).label("Competition Hashtag"),
+			isFavourite: Yup.bool().label("Mark as favourite?"),
 			image: Yup.string().required().label("Image")
 		});
 
@@ -108,6 +109,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 			name: "",
 			hashtagPrefix: "",
 			competitionHashtag: "",
+			isFavourite: false,
 			image: ""
 		};
 
@@ -149,6 +151,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 				type: FormFieldTypes.text,
 				placeholder: "Auto-generated if left blank"
 			},
+			{ name: "isFavourite", type: FormFieldTypes.boolean },
 			{
 				name: "image",
 				type: FormFieldTypes.image,

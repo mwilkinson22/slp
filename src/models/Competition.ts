@@ -8,6 +8,7 @@ interface ICompetition_Root {
 	hashtagPrefix: string;
 	competitionHashtag?: string;
 	image: string;
+	isFavourite: boolean;
 }
 export interface ICompetition extends ICompetition_Root {
 	_id: string;
@@ -21,7 +22,8 @@ const CompetitionSchema = new Schema<ICompetition_Mongoose>({
 	name: { type: String, required: true },
 	hashtagPrefix: { type: String, required: true },
 	competitionHashtag: { type: String, default: null },
-	image: { type: String, required: true }
+	image: { type: String, required: true },
+	isFavourite: { type: Boolean, default: false }
 });
 
 //Assign to mongoose
