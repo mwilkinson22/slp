@@ -31,7 +31,6 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 		if (searchable) {
 			return (
 				<input
-					autoFocus={true}
 					onChange={ev => this.setState({ searchTerm: ev.target.value })}
 					placeholder={`Filter ${itemAsPlural}`}
 					value={searchTerm}
