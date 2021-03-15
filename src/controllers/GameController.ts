@@ -71,7 +71,7 @@ class GameController {
 
 	//Delete existing game
 	@use(requireAdmin)
-	@del("/:_id")
+	@del("/single/:_id")
 	async deleteGame(req: Request, res: Response) {
 		const { _id } = req.params;
 
@@ -83,6 +83,21 @@ class GameController {
 
 		//Remove
 		await game.remove();
+		res.send({});
+	}
+
+	//Delete games over a week old
+	@use(requireAdmin)
+	@del("/old")
+	async deleteOldGames(req: Request, res: Response) {
+		//Get current date
+		const date = new Date();
+		//Subtract one week
+		const oneWeekInMs = 7 * 24 * 3600000;
+		date.setTime(date.getTime() - oneWeekInMs);
+
+		//Remove
+		await Game.remove({ date: { $lt: date } });
 		res.send({});
 	}
 }

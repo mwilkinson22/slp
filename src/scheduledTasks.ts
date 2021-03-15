@@ -1,12 +1,31 @@
 import schedule from "node-schedule";
 import axios, { AxiosResponse } from "axios";
 import { keys } from "~/config/keys";
+import { Methods } from "~/controllers/enums/Methods";
 
 //Helper Function
-async function apiCall(path: string) {
+async function apiCall(method: Methods, path: string, extraData?: any) {
 	let response: AxiosResponse | undefined;
 	try {
-		response = await axios.get(`${keys.apiUrl}${path}?authGuid=${keys.authGuid}`);
+		const url = `${keys.apiUrl}${path}?authGuid=${keys.authGuid}`;
+		switch (method) {
+			case Methods.get:
+				response = await axios.get(url);
+				break;
+			case Methods.post:
+				response = await axios.post(url, extraData);
+				break;
+			case Methods.put:
+				response = await axios.put(url, extraData);
+				break;
+			case Methods.del:
+				response = await axios.delete(url);
+				break;
+			default: {
+				console.error("Invalid method supplied");
+				break;
+			}
+		}
 	} catch (e) {
 		console.error("Error", e);
 	}
@@ -14,7 +33,8 @@ async function apiCall(path: string) {
 	return response?.data;
 }
 
-//Example Job
-// schedule.scheduleJob("0 7 1 * *", async function() {
-// 	await apiCall("payees/upcoming/thisMonth");
-// });
+//Delete old jobs
+//Every day at midnight
+schedule.scheduleJob("0 0 * * *", async function () {
+	await apiCall(Methods.del, "games/old");
+});

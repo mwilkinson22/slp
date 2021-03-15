@@ -62,7 +62,7 @@ export const updateGame = (id: string, values: Partial<IGame>) => {
 
 export const deleteGame = (id: string) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
-		const res = await api.delete<Record<string, never>>(`/games/${id}`);
+		const res = await api.delete<Record<string, never>>(`/games/single/${id}`);
 		if (res.data) {
 			dispatch<DeleteGameAction>({ type: ActionTypes.DELETE_GAME, payload: id });
 			toast.success("Game Deleted");
