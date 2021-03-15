@@ -18,20 +18,22 @@ import { fetchAllTeams } from "~/client/actions/teamActions";
 import { createGame, deleteGame, fetchAllGames, updateGame } from "~/client/actions/gameActions";
 
 //Helpers
-import { dateToYMD, dateToHMS, validateHashtag } from "~/helpers/genericHelper";
+import { dateToHMS, dateToYMD, validateHashtag } from "~/helpers/genericHelper";
 
 //Interfaces & Enums
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IGame } from "~/models/Game";
-import { FormFieldTypes, IFieldGroup, IFormikValues, SelectOption, IField_Select } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IField_Select, IFieldGroup, IFormikValues, SelectOption } from "~/enum/FormFieldTypes";
 import { convertRecordToSelectOptions } from "~/helpers/formHelper";
 import { ICompetition } from "~/models/Competition";
 import { IGround } from "~/models/Ground";
 import { ITeam } from "~/models/Team";
 import { gameAsString } from "~/helpers/gameHelper";
+
 interface IGameFormValues extends Partial<IGame> {
 	time: string;
+	disableRedirectOnAdd?: boolean;
 }
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
@@ -125,9 +127,9 @@ class _GamePage extends Component<IProps, IState> {
 			overwriteHashtag: Yup.boolean().label("Overwrite Default?"),
 			isOnTv: Yup.boolean().label("Televised?"),
 			image: Yup.string().label("Custom Logo"),
-
 			postAfterGame: Yup.boolean().label("Autopost After Game?"),
-			includeInWeeklyPost: Yup.boolean().label("Include in Weekly Post?")
+			includeInWeeklyPost: Yup.boolean().label("Include in Weekly Post?"),
+			disableRedirectOnAdd: Yup.boolean().label("Enable")
 		});
 
 		this.state = {
@@ -196,7 +198,8 @@ class _GamePage extends Component<IProps, IState> {
 			isOnTv: false,
 			image: "",
 			postAfterGame: true,
-			includeInWeeklyPost: true
+			includeInWeeklyPost: true,
+			disableRedirectOnAdd: false
 		};
 
 		if (game) {
@@ -208,6 +211,8 @@ class _GamePage extends Component<IProps, IState> {
 						return dateToYMD(new Date(game.date));
 					case "time":
 						return dateToHMS(new Date(game.date));
+					case "disableRedirectOnAdd":
+						return false;
 					default:
 						return game[field] ?? defaultValue;
 				}
@@ -219,7 +224,7 @@ class _GamePage extends Component<IProps, IState> {
 
 	getFieldGroups(values: IFormikValues): IFieldGroup[] {
 		const { games, teams } = this.props;
-		const { game, options } = this.state;
+		const { game, isNew, options } = this.state;
 
 		//Create image dependency check
 		let dependentCheck;
@@ -239,7 +244,7 @@ class _GamePage extends Component<IProps, IState> {
 			};
 		}
 
-		return [
+		const fieldGroups: IFieldGroup[] = [
 			{
 				label: "Basic Game Data",
 				fields: [
@@ -283,6 +288,15 @@ class _GamePage extends Component<IProps, IState> {
 				]
 			}
 		];
+
+		if (isNew) {
+			fieldGroups.push({
+				label: "Re-use Values (Quick Multi-Add)",
+				fields: [{ name: "disableRedirectOnAdd", type: FormFieldTypes.boolean }]
+			});
+		}
+
+		return fieldGroups;
 	}
 
 	alterValuesBeforeSubmit(values: IFormikValues) {
@@ -316,7 +330,12 @@ class _GamePage extends Component<IProps, IState> {
 			onSubmit = (values: IFormikValues) => updateGame(game._id, values);
 		} else {
 			onSubmit = (values: IFormikValues) => createGame(values);
-			redirectOnSubmit = (values: IFormikValues) => `/games/${values._id}`;
+			redirectOnSubmit = (game: IFormikValues, values: IFormikValues) => {
+				if (values.disableRedirectOnAdd) {
+					return false;
+				}
+				return `/games/${game._id}`;
+			};
 		}
 
 		//Get Header

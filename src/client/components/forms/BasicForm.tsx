@@ -31,7 +31,7 @@ interface IProps extends RouteComponentProps {
 	onSubmit: (values: any, formikProps: FormikHelpers<IFormikValues>) => any;
 	promptOnExit?: boolean;
 	redirectOnDelete?: string;
-	redirectOnSubmit?: string | ((values: IFormikValues) => string);
+	redirectOnSubmit?: string | ((returnedObject: IFormikValues, originalValues: IFormikValues) => string | false);
 	showErrorSummary?: boolean;
 	submitButtonText?: string;
 	testMode?: boolean;
@@ -186,8 +186,11 @@ class _BasicForm extends Component<IProps, IState> {
 			const result = await onSubmit(values, formikProps);
 
 			//Redirect
-			if (typeof redirectOnSubmit === "function" && result && redirectOnSubmit(result)) {
-				history.push(redirectOnSubmit(result));
+			if (typeof redirectOnSubmit === "function" && result) {
+				const redirectPage = redirectOnSubmit(result, fValues);
+				if (redirectPage) {
+					history.push(redirectPage);
+				}
 			} else if (typeof redirectOnSubmit === "string") {
 				history.push(redirectOnSubmit);
 			}

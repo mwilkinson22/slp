@@ -37,7 +37,7 @@ export const createGame = (values: Partial<IGame>) => {
 		const res = await api.post<IGame>("/games", values);
 		if (res.data) {
 			dispatch<FetchGameAction>({ type: ActionTypes.FETCH_GAME, payload: res.data });
-			toast.success("Game Updated Successfully");
+			toast.success("Game Created Successfully");
 
 			return res.data;
 		} else {
