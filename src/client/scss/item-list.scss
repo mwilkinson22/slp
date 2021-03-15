@@ -17,8 +17,16 @@
 				border-bottom: solid 1pt rgba(black, 0.2);
 			}
 			a {
+				display: flex;
+				align-items: center;
 				&:hover {
 					background: #f4f4f4;
+				}
+				& > *:not(.fav-star) {
+					flex-grow: 1;
+				}
+				@media #{$mobile-only} {
+					flex-direction: column;
 				}
 			}
 		}

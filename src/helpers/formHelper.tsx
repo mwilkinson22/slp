@@ -20,38 +20,57 @@ import { KeyOfType } from "~/types/KeyOfType";
 import { nestedObjectToDot } from "./genericHelper";
 
 type KeyOrFunction<T> = KeyOfType<T, string> | ((obj: T) => string);
-export function convertRecordToSelectOptions<T extends { _id: string }>(
+export function convertRecordToSelectOptions<T extends { _id: string; isFavourite?: boolean }>(
 	collection: Record<string, T>,
 	display: KeyOrFunction<T>,
 	sortBy?: KeyOrFunction<T>
-): SelectOption[] {
-	return _.chain(collection)
-		.map(object => {
-			let label;
+): SelectOption[] | SelectOptionGroup[] {
+	//Work out if we need to group by favourites
+	const groupedOptions = _.chain(collection)
+		.groupBy(i => (i.isFavourite ? "Favourites" : "Others"))
+		.map((items, isFavourite) => {
+			const options = _.chain(items)
+				.map(object => {
+					let label;
 
-			//Get label
-			if (typeof display === "function") {
-				label = display(object);
-			} else {
-				label = object[display];
-			}
+					//Get label
+					if (typeof display === "function") {
+						label = display(object);
+					} else {
+						label = object[display];
+					}
 
-			//Get sort value
-			let sortValue;
-			if (typeof sortBy === "function") {
-				sortValue = sortBy(object);
-			} else if (typeof sortBy === "string") {
-				sortValue = object[sortBy];
-			} else {
-				//Default to label;
-				sortValue = label;
-			}
+					//Get sort value
+					let sortValue;
+					if (typeof sortBy === "function") {
+						sortValue = sortBy(object);
+					} else if (typeof sortBy === "string") {
+						sortValue = object[sortBy];
+					} else {
+						//Default to label;
+						sortValue = label;
+					}
 
-			return { value: object._id, label, sortValue };
+					//Check for favourite
+					const isFavourite = object.isFavourite ?? false;
+
+					return { value: object._id, label, sortValue, isFavourite };
+				})
+				.orderBy(["isFavourite", "sortValue"], ["desc", "asc"])
+				.map(({ value, label }) => ({ value, label: label as string }))
+				.value();
+			return { label: isFavourite, options };
 		})
-		.sortBy("sortValue")
-		.map(({ value, label }) => ({ value, label: label as string }))
+		.sortBy("label")
 		.value();
+
+	if (groupedOptions.length > 1) {
+		return groupedOptions;
+	} else if (groupedOptions.length) {
+		return groupedOptions[0].options;
+	} else {
+		return [];
+	}
 }
 
 export function extractYupData(name: string, validationSchema: ObjectSchema) {
@@ -253,7 +272,9 @@ export function renderInput(field: IFieldAny, required?: boolean) {
 				let flatOptions: SelectOption[];
 
 				//Flatten Options if nested
-				if (mainProps.isNested) {
+				const isNested =
+					mainProps.options.length && Object.prototype.hasOwnProperty.call(mainProps.options[0], "options");
+				if (isNested) {
 					const nestedOptions: SelectOptionGroup[] = mainProps.options;
 					flatOptions = _.flatten(nestedOptions.map(o => o.options || o));
 				} else {

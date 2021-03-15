@@ -24,7 +24,7 @@ import { dateToYMD, dateToHMS, validateHashtag } from "~/helpers/genericHelper";
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IGame } from "~/models/Game";
-import { FormFieldTypes, IFieldGroup, IFormikValues, SelectOption } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IFieldGroup, IFormikValues, SelectOption, IField_Select } from "~/enum/FormFieldTypes";
 import { convertRecordToSelectOptions } from "~/helpers/formHelper";
 import { ICompetition } from "~/models/Competition";
 import { IGround } from "~/models/Ground";
@@ -37,9 +37,9 @@ interface IGameFormValues extends Partial<IGame> {
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
 	options: {
-		competitions: SelectOption[];
-		grounds: SelectOption[];
-		teams: SelectOption[];
+		competitions: IField_Select["options"];
+		grounds: IField_Select["options"];
+		teams: IField_Select["options"];
 	};
 	isLoadingDependents: boolean;
 	isNew: boolean;
@@ -157,13 +157,9 @@ class _GamePage extends Component<IProps, IState> {
 		const competitionOptions = convertRecordToSelectOptions<ICompetition>(competitions, "name");
 
 		const groundOptions = convertRecordToSelectOptions<IGround>(grounds, ({ name, city }) => `${name}, ${city}`);
-		groundOptions.unshift({ label: "Home Team's Ground", value: "auto" });
+		(groundOptions as SelectOption[]).unshift({ label: "Home Team's Ground", value: "auto" });
 
-		const teamOptions = convertRecordToSelectOptions<ITeam>(
-			teams,
-			({ name }) => name.long,
-			team => `${team.isFavourite ? "A" : "B"}${team.name.long}`
-		);
+		const teamOptions = convertRecordToSelectOptions<ITeam>(teams, ({ name }) => name.long);
 		newState.options = {
 			competitions: competitionOptions,
 			grounds: groundOptions,

@@ -23,13 +23,13 @@ import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
 import { ITeam } from "~/models/Team";
-import { FormFieldTypes, IFieldGroup, IFormikValues, SelectOption } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IFieldGroup, IFormikValues, IField_Select } from "~/enum/FormFieldTypes";
 import { convertRecordToSelectOptions } from "~/helpers/formHelper";
 import { IGround } from "~/models/Ground";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
-	groundOptions: SelectOption[];
+	groundOptions: IField_Select["options"];
 	isLoadingDependents: boolean;
 	isNew: boolean;
 	show404: boolean;

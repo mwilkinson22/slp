@@ -17,8 +17,9 @@ interface IProps<T> {
 interface IState {
 	searchTerm: string;
 }
+
 //Component
-export class ItemList<T> extends Component<IProps<T>, IState> {
+export class ItemList<T extends Record<string, any>> extends Component<IProps<T>, IState> {
 	state = { searchTerm: "" };
 	static defaultProps = {
 		searchable: true,
@@ -61,6 +62,11 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 					textValue = content;
 				}
 
+				//Wrap plain text in spam
+				if (typeof content === "string") {
+					content = <span>{content}</span>;
+				}
+
 				let sortValue;
 				if (typeof sortBy === "function") {
 					sortValue = sortBy(item);
@@ -70,10 +76,13 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 					sortValue = textValue;
 				}
 
-				return { key, url: url(item), content, sortValue, textValue };
+				//Check for favourite
+				const isFavourite = item.isFavourite ?? false;
+
+				return { key, url: url(item), content, sortValue, textValue, isFavourite };
 			})
 			//Order
-			.sortBy("sortValue")
+			.orderBy(["isFavourite", "sortValue"], ["desc", "asc"])
 			//Filter on search term
 			.filter(({ textValue }) => {
 				if (!textValue) {
@@ -84,11 +93,16 @@ export class ItemList<T> extends Component<IProps<T>, IState> {
 				return (textValue as string).toLowerCase().includes(searchTerm.toLowerCase());
 			})
 			//Convert to elements
-			.map(({ key, url, content }) => {
+			.map(({ key, url, content, isFavourite }) => {
+				let favouriteStar;
+				if (isFavourite) {
+					favouriteStar = <span className="fav-star">{"\u2b50"}</span>;
+				}
 				return (
 					<li key={key}>
 						<Link to={url} className={listItemClassName}>
 							{content}
+							{favouriteStar}
 						</Link>
 					</li>
 				);

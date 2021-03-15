@@ -78,7 +78,6 @@ interface IField_Select_Root extends IField {
 	type: FormFieldTypes.select | FormFieldTypes.creatableSelect | FormFieldTypes.asyncSelect;
 	options: (SelectOption | SelectOptionGroup)[];
 	isMulti?: boolean;
-	isNested?: boolean;
 	isClearable?: boolean;
 	closeMenuOnSelect?: boolean;
 	showDropdown?: boolean;
