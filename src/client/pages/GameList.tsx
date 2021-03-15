@@ -67,7 +67,7 @@ class _GameList extends Component<IProps, IState> {
 				<h1>{title}</h1>
 				<NavCard to={`/games/new`}>Add New Game</NavCard>
 				<ItemList<IGame>
-					display={game => gameAsString(game, teams)}
+					display={game => gameAsString(game, teams, true)}
 					itemAsPlural={"Games"}
 					items={games}
 					url={game => `/games/${game._id}`}

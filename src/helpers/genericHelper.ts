@@ -45,12 +45,24 @@ export function validateHashtag(string: string): boolean {
 	return !string.match(/[^0-9A-Za-z_]/);
 }
 
-export function dateToYMD(date: Date): string {
+function dateToISO(date: Date): string {
 	//Adjust for timezones
 	const offset = date.getTimezoneOffset();
 	date = new Date(date.getTime() - offset * 60 * 1000);
 
 	//Return ISO string and split before the "T" character,
 	//giving us yyyy-MM-dd
-	return date.toISOString().split("T")[0];
+	return date.toISOString();
+}
+
+export function dateToYMD(date: Date): string {
+	//Return ISO string and split before the "T" character,
+	//giving us yyyy-MM-dd
+	return dateToISO(date).split("T")[0];
+}
+
+export function dateToHMS(date: Date): string {
+	//Return ISO string and split on the "T" character,
+	//giving us the time, then grab the first 8 chars
+	return dateToISO(date).split("T")[1].substr(0, 8);
 }

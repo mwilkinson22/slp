@@ -18,7 +18,7 @@ import { fetchAllTeams } from "~/client/actions/teamActions";
 import { createGame, deleteGame, fetchAllGames, updateGame } from "~/client/actions/gameActions";
 
 //Helpers
-import { dateToYMD, validateHashtag } from "~/helpers/genericHelper";
+import { dateToYMD, dateToHMS, validateHashtag } from "~/helpers/genericHelper";
 
 //Interfaces & Enums
 import { RouteComponentProps } from "react-router-dom";
@@ -30,6 +30,9 @@ import { ICompetition } from "~/models/Competition";
 import { IGround } from "~/models/Ground";
 import { ITeam } from "~/models/Team";
 import { gameAsString } from "~/helpers/gameHelper";
+interface IGameFormValues extends Partial<IGame> {
+	time: string;
+}
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
@@ -116,6 +119,7 @@ class _GamePage extends Component<IProps, IState> {
 			_ground: Yup.string().label("Ground"),
 			_competition: Yup.string().required().label("Competition"),
 			date: Yup.string().required().label("Date"),
+			time: Yup.string().required().label("Time"),
 			round: Yup.string().label("Round"),
 			customHashtag: Yup.string().test(hashtagTest).label("Hashtag"),
 			overwriteHashtag: Yup.boolean().label("Overwrite Default?"),
@@ -183,12 +187,13 @@ class _GamePage extends Component<IProps, IState> {
 	getInitialValues(): IFormikValues {
 		const { game } = this.state;
 
-		const defaultValues: Partial<IGame> = {
+		const defaultValues: IGameFormValues = {
 			_homeTeam: "",
 			_awayTeam: "",
 			_ground: "auto",
 			_competition: "",
 			date: "",
+			time: "",
 			round: "",
 			customHashtag: "",
 			overwriteHashtag: false,
@@ -201,10 +206,12 @@ class _GamePage extends Component<IProps, IState> {
 		if (game) {
 			//Set _ground back to empty string
 			defaultValues._ground = "";
-			return _.mapValues(defaultValues, (defaultValue, field: keyof IGame) => {
+			return _.mapValues(defaultValues, (defaultValue, field: keyof IGameFormValues) => {
 				switch (field) {
 					case "date":
 						return dateToYMD(new Date(game.date));
+					case "time":
+						return dateToHMS(new Date(game.date));
 					default:
 						return game[field] ?? defaultValue;
 				}
@@ -245,6 +252,7 @@ class _GamePage extends Component<IProps, IState> {
 					{ name: "_ground", type: FormFieldTypes.select, options: options.grounds },
 					{ name: "_competition", type: FormFieldTypes.select, options: options.competitions },
 					{ name: "date", type: FormFieldTypes.date },
+					{ name: "time", type: FormFieldTypes.time },
 					{ name: "round", type: FormFieldTypes.text },
 					{ name: "isOnTv", type: FormFieldTypes.boolean },
 					{
@@ -279,6 +287,11 @@ class _GamePage extends Component<IProps, IState> {
 				]
 			}
 		];
+	}
+
+	alterValuesBeforeSubmit(values: IFormikValues) {
+		values.date = `${values.date} ${values.time}`;
+		delete values.time;
 	}
 
 	render() {
@@ -319,6 +332,7 @@ class _GamePage extends Component<IProps, IState> {
 					<NavCard to={`/games`}>Return to game list</NavCard>
 					<h1>{header}</h1>
 					<BasicForm
+						alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
 						fieldGroups={values => this.getFieldGroups(values)}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}
