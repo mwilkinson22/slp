@@ -1,37 +1,45 @@
 //Modules
 import _ from "lodash";
-import React, { Component, ReactNode } from "react";
+import React, { Component, ComponentType, ReactNode } from "react";
+import { connect, ConnectedProps } from "react-redux";
 import { Link } from "react-router-dom";
 import { KeyOfType } from "~/types/KeyOfType";
+import { StoreState } from "~/client/reducers";
 
 //Interfaces
-interface IProps<T> {
+interface IPassedProps<T> {
 	display: KeyOfType<T, string> | ((o: T) => string | { content: ReactNode; textValue: string });
 	items: Record<string | number, T>;
-	itemAsPlural: string;
-	searchable: boolean;
+	itemAsPlural?: string;
+	searchable?: boolean;
 	sortBy?: keyof T | ((o: T) => string | number);
 	url: (o: T) => string;
 }
+interface IProps<T> extends IPassedProps<T>, ConnectedProps<typeof connector> {}
 
 interface IState {
 	searchTerm: string;
 }
 
+//Redux
+function mapStateToProps({ config }: StoreState) {
+	const { deviceType } = config;
+	return { deviceType };
+}
+
+const connector = connect(mapStateToProps);
+
 //Component
-export class ItemList<T extends Record<string, any>> extends Component<IProps<T>, IState> {
+class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, IState> {
 	state = { searchTerm: "" };
-	static defaultProps = {
-		searchable: true,
-		itemAsPlural: "Results"
-	};
 
 	renderSearchBar(): ReactNode | void {
-		const { itemAsPlural, searchable } = this.props;
+		const { deviceType, itemAsPlural, searchable } = this.props;
 		const { searchTerm } = this.state;
 		if (searchable) {
 			return (
 				<input
+					autoFocus={deviceType === "desktop"}
 					onChange={ev => this.setState({ searchTerm: ev.target.value })}
 					placeholder={`Filter ${itemAsPlural}`}
 					value={searchTerm}
@@ -123,4 +131,16 @@ export class ItemList<T extends Record<string, any>> extends Component<IProps<T>
 			</div>
 		);
 	}
+}
+
+export function ItemList<T>(passedProps: IPassedProps<T>) {
+	const defaultProps = {
+		searchable: true,
+		itemAsPlural: "Results"
+	};
+	const props = {
+		...defaultProps,
+		...passedProps
+	};
+	return React.createElement(connector(_ItemList as ComponentType<IProps<T>>), props);
 }
