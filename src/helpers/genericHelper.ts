@@ -1,4 +1,28 @@
-export function nestedObjectToDot(object: any, pullObjectsContaining: string | null = null) {
+//Take a nested object and convert it to dot notation,
+//e.g. - Pass In { name: { first: "John", last: "Smith" }, age: 25 }
+// Get back { "name.first": "John", "name.last": "Smith" }
+
+//We also have an ObjectToDot typescript type
+//First, PathsToProps runs recursively and gets all the paths to any fields of
+//type V
+type PathsToProps<T, V = string | boolean | number> = T extends V
+	? []
+	: { [K in Extract<keyof T, V>]: [K, ...PathsToProps<T[K]>] }[Extract<keyof T, V>];
+
+//Then we pass in this array of paths to Join and return a single-depth object with the
+//correct types
+type JoinPaths<T extends string[], D extends string> = T extends []
+	? never
+	: T extends [infer F]
+	? F
+	: T extends [infer F, ...infer R]
+	? F extends string
+		? `${F}${D}${JoinPaths<Extract<R, string[]>, D>}`
+		: never
+	: string;
+export type ObjectToDot<T extends Record<string, any>> = JoinPaths<PathsToProps<T>, ".">;
+
+export function nestedObjectToDot<T = any>(object: T, pullObjectsContaining: string | null = null): ObjectToDot<T> {
 	const result: any = {};
 	(function recurse(obj: any, current: string | null) {
 		for (const key in obj) {

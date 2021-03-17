@@ -7,7 +7,7 @@ import * as Yup from "yup";
 import { BasicForm } from "../forms/BasicForm";
 
 //Enums
-import { FormFieldTypes, IFieldGroup, IFormikValues } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IFieldGroup } from "~/enum/FormFieldTypes";
 
 //Actions
 import { login, LoginParams } from "../../actions/userActions";
@@ -18,6 +18,10 @@ interface IProps extends ConnectedProps<typeof connector> {}
 interface IState {
 	loginHasFailed: boolean;
 	validationSchema: Yup.ObjectSchema;
+}
+interface Fields {
+	username: string;
+	password: string;
 }
 
 //Redux
@@ -43,30 +47,31 @@ class _Login extends Component<IProps, IState> {
 		};
 	}
 
-	getFieldGroups(): IFieldGroup[] {
+	getFieldGroups(): IFieldGroup<Fields>[] {
 		const { loginHasFailed } = this.state;
-		const fields: IFieldGroup[] = [
+		return [
 			{
 				fields: [
 					{ name: "username", type: FormFieldTypes.text },
 					{ name: "password", type: FormFieldTypes.password }
 				]
+			},
+			{
+				render: () => {
+					if (loginHasFailed) {
+						return (
+							<p className="error" key="error">
+								Invalid credentials, please try again
+							</p>
+						);
+					}
+					return null;
+				}
 			}
 		];
-
-		if (loginHasFailed) {
-			fields.push({
-				render: () => (
-					<p className="error" key="error">
-						Invalid credentials, please try again
-					</p>
-				)
-			});
-		}
-		return fields;
 	}
 
-	async handleSubmit(values: IFormikValues) {
+	async handleSubmit(values: Fields) {
 		this.setState({ loginHasFailed: false });
 
 		const result = await this.props.login(values as LoginParams);
@@ -83,13 +88,13 @@ class _Login extends Component<IProps, IState> {
 				<div className="container">
 					<div className="card login-card">
 						<SiteLogo withShadow={true} />
-						<BasicForm
+						<BasicForm<Fields>
 							fieldGroups={this.getFieldGroups()}
 							includeResetButton={false}
 							initialValues={this.getInitialValues()}
 							itemType="User"
 							isNew={false}
-							onSubmit={(values: IFormikValues) => this.handleSubmit(values)}
+							onSubmit={(values: Fields) => this.handleSubmit(values)}
 							showErrorSummary={false}
 							submitButtonText={"Log In"}
 							useCard={false}

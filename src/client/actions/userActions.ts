@@ -10,6 +10,9 @@ import { IUser } from "~/models/User";
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
 
+//Form Fields
+import { UserFields } from "~/client/pages/UserPage";
+
 //Action Interfaces
 interface FetchCurrentUserAction {
 	type: ActionTypes.FETCH_CURRENT_USER;
@@ -64,7 +67,7 @@ export const fetchAllUsers = () => {
 	};
 };
 
-export const createUser = (values: Partial<IUser>) => {
+export const createUser = (values: UserFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<IUser>("/user", values);
 		if (res.data) {
@@ -78,7 +81,7 @@ export const createUser = (values: Partial<IUser>) => {
 	};
 };
 
-export const updateUser = (id: string, values: Partial<IUser>) => {
+export const updateUser = (id: string, values: UserFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<IUser>(`/user/${id}`, values);
 		if (res.data) {

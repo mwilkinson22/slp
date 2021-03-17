@@ -10,6 +10,9 @@ import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
 import { IGround } from "~/models/Ground";
 
+//Form Fields
+import { GroundFields } from "~/client/pages/GroundPage";
+
 //Action Interfaces
 interface FetchGroundAction {
 	type: ActionTypes.FETCH_GROUND;
@@ -32,7 +35,7 @@ export const fetchAllGrounds = () => {
 	};
 };
 
-export const createGround = (values: Partial<IGround>) => {
+export const createGround = (values: GroundFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<IGround>("/grounds", values);
 		if (res.data) {
@@ -46,7 +49,7 @@ export const createGround = (values: Partial<IGround>) => {
 	};
 };
 
-export const updateGround = (id: string, values: Partial<IGround>) => {
+export const updateGround = (id: string, values: GroundFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<IGround>(`/grounds/${id}`, values);
 		if (res.data) {

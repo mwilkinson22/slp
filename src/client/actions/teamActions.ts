@@ -10,6 +10,9 @@ import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
 import { ITeam } from "~/models/Team";
 
+//Form Fields
+import { TeamFields } from "~/client/pages/TeamPage";
+
 //Action Interfaces
 interface FetchTeamAction {
 	type: ActionTypes.FETCH_TEAM;
@@ -32,7 +35,7 @@ export const fetchAllTeams = () => {
 	};
 };
 
-export const createTeam = (values: Partial<ITeam>) => {
+export const createTeam = (values: TeamFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<ITeam>("/teams", values);
 		if (res.data) {
@@ -46,7 +49,7 @@ export const createTeam = (values: Partial<ITeam>) => {
 	};
 };
 
-export const updateTeam = (id: string, values: Partial<ITeam>) => {
+export const updateTeam = (id: string, values: TeamFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<ITeam>(`/teams/${id}`, values);
 		if (res.data) {

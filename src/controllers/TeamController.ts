@@ -9,6 +9,9 @@ import { controller, use, get, post, put, del } from "./decorators";
 import { requireAuth } from "~/middleware/requireAuth";
 import { requireAdmin } from "~/middleware/requireAdmin";
 
+//Form Fields
+import { TeamFields } from "~/client/pages/TeamPage";
+
 //Models
 import { Team } from "~/models/Team";
 
@@ -39,7 +42,8 @@ class TeamController {
 	@use(requireAuth)
 	@post("/")
 	async createNewTeam(req: Request, res: Response) {
-		const team = new Team(req.body);
+		const values: TeamFields = req.body;
+		const team = new Team(values);
 		await team.save();
 		res.send(team);
 	}
@@ -49,7 +53,8 @@ class TeamController {
 	@put("/:_id")
 	async updateTeam(req: Request, res: Response) {
 		const { _id } = req.params;
-		const team = await Team.findByIdAndUpdate(_id, req.body, { new: true });
+		const values: TeamFields = req.body;
+		const team = await Team.findByIdAndUpdate(_id, values, { new: true });
 		if (team) {
 			res.send(team);
 		} else {

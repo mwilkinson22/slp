@@ -1,5 +1,4 @@
 //Modules
-import _ from "lodash";
 import React, { Component } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import * as Yup from "yup";
@@ -23,19 +22,20 @@ import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
 import { ITeam } from "~/models/Team";
-import { FormFieldTypes, IFieldGroup, IFormikValues, IField_Select } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IFieldGroup, IField_Select } from "~/enum/FormFieldTypes";
 import { convertRecordToSelectOptions } from "~/helpers/formHelper";
 import { IGround } from "~/models/Ground";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
-	groundOptions: IField_Select["options"];
+	groundOptions: IField_Select<TeamFields>["options"];
 	isLoadingDependents: boolean;
 	isNew: boolean;
 	show404: boolean;
 	team?: ITeam;
 	validationSchema: Yup.ObjectSchema;
 }
+export interface TeamFields extends Required<Omit<ITeam, "_id">> {}
 
 //Redux
 function mapStateToProps({ config, grounds, teams }: StoreState) {
@@ -126,36 +126,40 @@ class _TeamPage extends Component<IProps, IState> {
 		return newState;
 	}
 
-	getInitialValues(): IFormikValues {
+	getInitialValues(): TeamFields {
 		const { team } = this.state;
 
-		const defaultValues: Partial<ITeam> = {
-			name: {
-				short: "",
-				long: ""
-			},
-			nickname: "",
-			hashtag: "",
-			colours: {
-				main: "#880000",
-				text: "#FFFFFF",
-				trim: "#220000"
-			},
-			_ground: "",
-			image: "",
-			isFavourite: false
-		};
-
 		if (team) {
-			return _.mapValues(defaultValues, (defaultValue, field: keyof ITeam) => {
-				return team[field] ?? defaultValue;
-			});
+			return {
+				name: team.name,
+				nickname: team.nickname,
+				hashtag: team.hashtag,
+				colours: team.colours,
+				_ground: team._ground,
+				image: team.image,
+				isFavourite: team.isFavourite
+			};
+		} else {
+			return {
+				name: {
+					short: "",
+					long: ""
+				},
+				nickname: "",
+				hashtag: "",
+				colours: {
+					main: "#880000",
+					text: "#FFFFFF",
+					trim: "#220000"
+				},
+				_ground: "",
+				image: "",
+				isFavourite: false
+			};
 		}
-
-		return defaultValues;
 	}
 
-	getFieldGroups(): IFieldGroup[] {
+	getFieldGroups(): IFieldGroup<TeamFields>[] {
 		const { teams } = this.props;
 		const { groundOptions, team } = this.state;
 
@@ -237,10 +241,10 @@ class _TeamPage extends Component<IProps, IState> {
 		//Set submit behaviour
 		let onSubmit, redirectOnSubmit;
 		if (team) {
-			onSubmit = (values: IFormikValues) => updateTeam(team._id, values);
+			onSubmit = (values: TeamFields) => updateTeam(team._id, values);
 		} else {
-			onSubmit = (values: IFormikValues) => createTeam(values);
-			redirectOnSubmit = (values: IFormikValues) => `/teams/${values._id}`;
+			onSubmit = (values: TeamFields) => createTeam(values);
+			redirectOnSubmit = (values: ITeam) => `/teams/${values._id}`;
 		}
 
 		//Get Header
@@ -251,7 +255,7 @@ class _TeamPage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/teams`}>Return to team list</NavCard>
 					<h1>{header}</h1>
-					<BasicForm
+					<BasicForm<TeamFields, ITeam>
 						fieldGroups={this.getFieldGroups()}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}

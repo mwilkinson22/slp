@@ -9,8 +9,11 @@ import { controller, use, get, post, put, del } from "./decorators";
 import { requireAuth } from "~/middleware/requireAuth";
 import { requireAdmin } from "~/middleware/requireAdmin";
 
+//Form Fields
+import { GameFields } from "~/client/pages/GamePage";
+
 //Models
-import { Game, IGame } from "~/models/Game";
+import { Game } from "~/models/Game";
 import { Team } from "~/models/Team";
 
 //Controller
@@ -24,10 +27,10 @@ class GameController {
 		res.status(404).send(`No game found with the id ${_id}`);
 	}
 
-	static async checkHomeTeamGround(game: Partial<IGame>) {
+	static async checkHomeTeamGround(game: GameFields): Promise<GameFields> {
 		if (game._ground === "auto") {
 			const homeTeam = await Team.findById(game._homeTeam, "_ground").lean();
-			game._ground = homeTeam?._ground;
+			game._ground = homeTeam!._ground;
 		}
 
 		return game;

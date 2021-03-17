@@ -1,5 +1,4 @@
 //Modules
-import _ from "lodash";
 import React, { Component } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import * as Yup from "yup";
@@ -19,7 +18,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
 import { IGround } from "~/models/Ground";
-import { FormFieldTypes, IFieldAny, IFieldGroup, IFormikValues } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IFieldGroup } from "~/enum/FormFieldTypes";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
@@ -28,6 +27,7 @@ interface IState {
 	ground?: IGround;
 	validationSchema: Yup.ObjectSchema;
 }
+export interface GroundFields extends Required<Omit<IGround, "_id">> {}
 
 //Redux
 function mapStateToProps({ config, grounds }: StoreState) {
@@ -85,26 +85,27 @@ class _GroundPage extends Component<IProps, IState> {
 		}
 	}
 
-	getInitialValues(): IFormikValues {
+	getInitialValues(): GroundFields {
 		const { ground } = this.state;
 
-		const defaultValues: Partial<IGround> = {
-			name: "",
-			tweetName: "",
-			city: "",
-			image: ""
-		};
-
 		if (ground) {
-			return _.mapValues(defaultValues, (defaultValue, field: keyof IGround) => {
-				return ground[field] ?? defaultValue;
-			});
+			return {
+				name: ground.name,
+				tweetName: ground.tweetName || "",
+				city: ground.city,
+				image: ground.image || ""
+			};
+		} else {
+			return {
+				name: "",
+				tweetName: "",
+				city: "",
+				image: ""
+			};
 		}
-
-		return defaultValues;
 	}
 
-	getFieldGroups(): IFieldGroup[] {
+	getFieldGroups(): IFieldGroup<GroundFields>[] {
 		const { grounds } = this.props;
 		const { ground } = this.state;
 
@@ -126,23 +127,25 @@ class _GroundPage extends Component<IProps, IState> {
 			};
 		}
 
-		const fields: IFieldAny[] = [
-			{ name: "name", type: FormFieldTypes.text, placeholder: "John Smith's Stadium" },
-			{ name: "tweetName", type: FormFieldTypes.text, placeholder: "the John Smith's" },
-			{ name: "city", type: FormFieldTypes.text },
+		return [
 			{
-				name: "image",
-				type: FormFieldTypes.image,
-				path: "images/grounds/",
-				sizeForSelector: "thumbnail",
-				dependentCheck,
-				resize: {
-					thumbnail: { width: 200 }
-				}
+				fields: [
+					{ name: "name", type: FormFieldTypes.text, placeholder: "John Smith's Stadium" },
+					{ name: "tweetName", type: FormFieldTypes.text, placeholder: "the John Smith's" },
+					{ name: "city", type: FormFieldTypes.text },
+					{
+						name: "image",
+						type: FormFieldTypes.image,
+						path: "images/grounds/",
+						sizeForSelector: "thumbnail",
+						dependentCheck,
+						resize: {
+							thumbnail: { width: 200 }
+						}
+					}
+				]
 			}
 		];
-
-		return [{ fields }];
 	}
 
 	render() {
@@ -168,10 +171,10 @@ class _GroundPage extends Component<IProps, IState> {
 		//Set submit behaviour
 		let onSubmit, redirectOnSubmit;
 		if (ground) {
-			onSubmit = (values: IFormikValues) => updateGround(ground._id, values);
+			onSubmit = (values: GroundFields) => updateGround(ground._id, values);
 		} else {
-			onSubmit = (values: IFormikValues) => createGround(values);
-			redirectOnSubmit = (values: IFormikValues) => `/grounds/${values._id}`;
+			onSubmit = (values: GroundFields) => createGround(values);
+			redirectOnSubmit = (ground: IGround) => `/grounds/${ground._id}`;
 		}
 
 		//Get Header
@@ -182,7 +185,7 @@ class _GroundPage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/grounds`}>Return to ground list</NavCard>
 					<h1>{header}</h1>
-					<BasicForm
+					<BasicForm<GroundFields, IGround>
 						fieldGroups={this.getFieldGroups()}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}

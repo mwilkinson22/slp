@@ -1,8 +1,8 @@
 //Modules
 import _ from "lodash";
-import React, { Component, ReactNode } from "react";
+import React, { Component, ComponentType, ReactNode } from "react";
 import { withRouter, Prompt, RouteComponentProps } from "react-router-dom";
-import { Formik, Form, FormikHelpers, FormikProps } from "formik";
+import { Formik, Form, FormikHelpers, FormikProps, FormikErrors, FormikTouched } from "formik";
 import { diff } from "deep-object-diff";
 import { ObjectSchema } from "yup";
 
@@ -10,28 +10,28 @@ import { ObjectSchema } from "yup";
 import { DeleteButtons } from "./DeleteButtons";
 
 //Enums
-import { FormFieldTypes, IFieldGroup, IFormikValues } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IFieldAny, IFieldGroup, IFormikValuesObject } from "~/enum/FormFieldTypes";
 
 //Helpers
 import { extractYupData, renderFieldGroup, getTouchedNestedErrors } from "~/helpers/formHelper";
 
 //Interfaces
-interface IProps extends RouteComponentProps {
-	alterValuesBeforeSubmit?: (values: IFormikValues) => IFormikValues | void;
+interface IPassedProps<T, O> {
+	alterValuesBeforeSubmit?: (values: T) => T | void;
 	fastFieldByDefault?: boolean;
-	fieldGroups: IFieldGroup[] | ((values: IFormikValues) => IFieldGroup[]);
+	fieldGroups: IFieldGroup<T>[] | ((values: T) => IFieldGroup<T>[]);
 	formClassName?: string;
 	includeResetButton?: boolean;
-	initialValues: IFormikValues;
+	initialValues: T;
 	isInitialValid?: boolean;
 	isNew: boolean;
 	itemType: string;
 	onDelete?: () => any;
 	onReset?: () => any;
-	onSubmit: (values: any, formikProps: FormikHelpers<IFormikValues>) => any;
+	onSubmit: (values: any, formikProps: FormikHelpers<T>) => any;
 	promptOnExit?: boolean;
 	redirectOnDelete?: string;
-	redirectOnSubmit?: string | ((returnedObject: IFormikValues, originalValues: IFormikValues) => string | false);
+	redirectOnSubmit?: string | ((returnedObject: O, originalValues: T) => string | false);
 	showErrorSummary?: boolean;
 	submitButtonText?: string;
 	testMode?: boolean;
@@ -39,28 +39,17 @@ interface IProps extends RouteComponentProps {
 	useGrid?: boolean;
 	validationSchema: ObjectSchema;
 }
-interface IState {
-	fieldGroups: IProps["fieldGroups"];
-	initialValues: IProps["initialValues"];
-	isNew: IProps["isNew"];
-	validationSchema: IProps["validationSchema"];
+interface IProps<T, O> extends IPassedProps<T, O>, RouteComponentProps {}
+interface IState<T, O> {
+	fieldGroups: IProps<T, O>["fieldGroups"];
+	initialValues: IProps<T, O>["initialValues"];
+	isNew: IProps<T, O>["isNew"];
+	validationSchema: IProps<T, O>["validationSchema"];
 }
 
 //Component
-class _BasicForm extends Component<IProps, IState> {
-	static defaultProps = {
-		fastFieldByDefault: true,
-		includeResetButton: true,
-		isInitialValid: false,
-		promptOnExit: true,
-		redirectOnDelete: `/admin/`,
-		showErrorSummary: true,
-		testMode: false,
-		useCard: true,
-		useGrid: true
-	};
-
-	constructor(props: IProps) {
+class _BasicForm<T extends IFormikValuesObject, O> extends Component<IProps<T, O>, IState<T, O>> {
+	constructor(props: IProps<T, O>) {
 		super(props);
 
 		if (props.testMode) {
@@ -70,11 +59,15 @@ class _BasicForm extends Component<IProps, IState> {
 		this.state = _.pick(props, ["fieldGroups", "initialValues", "isNew", "validationSchema"]);
 	}
 
-	static getDerivedStateFromProps(nextProps: IProps) {
+	static getDerivedStateFromProps<T, O>(nextProps: IProps<T, O>) {
 		return _.pick(nextProps, ["fieldGroups", "initialValues", "isNew", "validationSchema"]);
 	}
 
-	getFieldGroups(values: IFormikValues): IFieldGroup[] {
+	/**
+	 * Gets our field groups, whether they're passed in as an object or a callback
+	 *
+	 */
+	getFieldGroups(values: T): IFieldGroup<T>[] {
 		const { fieldGroups } = this.props;
 		if (typeof fieldGroups === "function") {
 			return fieldGroups(values);
@@ -83,7 +76,11 @@ class _BasicForm extends Component<IProps, IState> {
 		}
 	}
 
-	validateFieldGroups(values: IFormikValues): void {
+	/**
+	 * Ensure all fieldgroup options are valid
+	 * We pass in the values in case they're required in props.getFieldGroups
+	 */
+	validateFieldGroups(values: T): void {
 		const fieldGroups = this.getFieldGroups(values);
 
 		_.chain(fieldGroups)
@@ -115,7 +112,34 @@ class _BasicForm extends Component<IProps, IState> {
 			.value();
 	}
 
-	processValues(values: IFormikValues, fields: IFormikValues, parentPath: string[] = [], isArray: boolean = false) {
+	/**
+	 * Standardise values before we call onSubmit.
+	 * It is only called for fieldGroup.fields, never for fieldGroup.render.
+	 *
+	 * @param values At first the standard formik values object, but this can then
+	 * be called recursively for nested objects and arrays
+	 * @param fields The combined fieldGroup.fields values as an object
+	 * @param parentPath If called recursively, this gives us the parent elements already processed
+	 * @param isArray Tells us whether values is an array
+	 *
+	 * So if we had a form with the following values:
+	 * { name: { first: "John", last: "Smith" }, age: 23, hobbies: ["Football", "Chess"]}
+	 *
+	 * We'd call this method 3 times on submit
+	 * 1. processValues(valuesAsAbove, fieldGroup.fields, [], false)
+	 * 2. processValues(valuesAsAbove.name, fieldGroup.fields, ["name"], false }
+	 * 3. processValues(valuesAsAbove.hobbies, fieldGroup.fields, ["hobbies"], true }
+	 *
+	 * @return an object in the format we need it. Handles nested properties and arrays, pulls off the
+	 * select values and converts empty strings/numbers to null
+	 *
+	 */
+	processValues(
+		values: Record<string, any> | any[],
+		fields: _.Dictionary<IFieldAny<T>>,
+		parentPath: string[] = [],
+		isArray: boolean = false
+	) {
 		const callback = (val: any, key: string): any => {
 			//First we determine whether there is a field by this name
 			let field;
@@ -151,25 +175,31 @@ class _BasicForm extends Component<IProps, IState> {
 		};
 
 		if (isArray) {
-			return _.map(values, callback);
+			return _.map(values, callback) as any[];
 		} else {
-			return _.mapValues(values, callback);
+			return _.mapValues(values, callback) as T;
 		}
 	}
 
-	async handleSubmit(fValues: IFormikValues, formikProps: FormikHelpers<IFormikValues>) {
+	async handleSubmit(fValues: T, formikProps: FormikHelpers<T>) {
 		const { alterValuesBeforeSubmit, history, onSubmit, redirectOnSubmit, testMode } = this.props;
 
+		//Get the field groups for validation
 		const fieldGroups = this.getFieldGroups(fValues);
 
 		//Get flat field list
+		// Record<IFieldAny<T>["name"], IFieldAny<T>>
 		const fields = _.chain(fieldGroups).map("fields").flatten().keyBy("name").value();
 
 		//Process values (pull value from select fields, convert empty strings to null, etc)
 		let values = this.processValues(_.cloneDeep(fValues), fields);
 
+		//Technically as far as typescript is concerned, values could be an array.
+		//In practice it won't be, as processValues() isArray param will always be false.
+		//Still, to prevent errors we confirm it's not an array before running alterValuesBeforeSubmit.
+
 		//Custom callback to manipulate values before submitting
-		if (alterValuesBeforeSubmit) {
+		if (alterValuesBeforeSubmit && !Array.isArray(values)) {
 			const newValues = alterValuesBeforeSubmit(values);
 			//Most of the time we just manipulate the object without
 			//returning anything from this method.
@@ -216,7 +246,7 @@ class _BasicForm extends Component<IProps, IState> {
 		}
 	}
 
-	renderFields(values: IFormikValues, formikProps: FormikProps<IFormikValues>): ReactNode[] {
+	renderFields(values: T, formikProps: FormikProps<T>): ReactNode[] {
 		const { fastFieldByDefault, testMode } = this.props;
 		const { validationSchema } = this.state;
 		const fieldGroups = this.getFieldGroups(values);
@@ -234,7 +264,7 @@ class _BasicForm extends Component<IProps, IState> {
 		}
 
 		return _.flatten(
-			fieldGroups.map((fieldGroup: IFieldGroup, i: number) => {
+			fieldGroups.map((fieldGroup: IFieldGroup<T>, i: number) => {
 				const content = [];
 
 				if (fieldGroup.label) {
@@ -247,7 +277,9 @@ class _BasicForm extends Component<IProps, IState> {
 				} else if (fieldGroup.fields) {
 					//Standard fields
 					//Remove anything with the hide flag, and then set the property to undefined
-					const fields = fieldGroup.fields.filter(f => !f.hide).map(f => ({ ...f, hide: undefined }));
+					const fields = fieldGroup.fields
+						.filter((f: IFieldAny<T>) => !f.hide)
+						.map((f: IFieldAny<T>) => ({ ...f, hide: undefined }));
 					content.push(renderFieldGroup(fields, validationSchema, fastFieldByDefault));
 				}
 
@@ -256,7 +288,7 @@ class _BasicForm extends Component<IProps, IState> {
 		);
 	}
 
-	renderErrors(nestedErrors: IFormikValues, nestedTouched: IFormikValues) {
+	renderErrors(nestedErrors: FormikErrors<T>, nestedTouched: FormikTouched<T>) {
 		const { showErrorSummary, validationSchema } = this.props;
 
 		if (showErrorSummary) {
@@ -351,12 +383,12 @@ class _BasicForm extends Component<IProps, IState> {
 		}
 
 		return (
-			<Formik
+			<Formik<T>
 				enableReinitialize={true}
 				isInitialValid={isInitialValid}
 				initialValues={initialValues}
 				onReset={onReset}
-				onSubmit={(values, formikProps) => this.handleSubmit(values, formikProps)}
+				onSubmit={(values: T, formikProps: FormikHelpers<T>) => this.handleSubmit(values, formikProps)}
 				validationSchema={validationSchema}
 				render={formikProps => {
 					const { errors, initialValues, values, touched, isSubmitting } = formikProps;
@@ -382,4 +414,21 @@ class _BasicForm extends Component<IProps, IState> {
 	}
 }
 
-export const BasicForm = withRouter(_BasicForm);
+export function BasicForm<T, O = any>(passedProps: IPassedProps<T, O>) {
+	const defaultProps = {
+		fastFieldByDefault: true,
+		includeResetButton: true,
+		isInitialValid: false,
+		promptOnExit: true,
+		redirectOnDelete: `/admin/`,
+		showErrorSummary: true,
+		testMode: false,
+		useCard: true,
+		useGrid: true
+	};
+	const props = {
+		...defaultProps,
+		...passedProps
+	};
+	return React.createElement(withRouter(_BasicForm as ComponentType<IProps<T, O>>), props);
+}

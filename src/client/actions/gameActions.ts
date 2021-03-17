@@ -10,6 +10,9 @@ import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
 import { IGame } from "~/models/Game";
 
+//Game GameFields
+import { GameFields } from "~/client/pages/GamePage";
+
 //Action Interfaces
 interface FetchGameAction {
 	type: ActionTypes.FETCH_GAME;
@@ -32,7 +35,7 @@ export const fetchAllGames = () => {
 	};
 };
 
-export const createGame = (values: Partial<IGame>) => {
+export const createGame = (values: GameFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<IGame>("/games", values);
 		if (res.data) {
@@ -46,7 +49,7 @@ export const createGame = (values: Partial<IGame>) => {
 	};
 };
 
-export const updateGame = (id: string, values: Partial<IGame>) => {
+export const updateGame = (id: string, values: GameFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<IGame>(`/games/${id}`, values);
 		if (res.data) {

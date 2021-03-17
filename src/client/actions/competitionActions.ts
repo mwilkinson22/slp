@@ -10,6 +10,9 @@ import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
 import { ICompetition } from "~/models/Competition";
 
+//Form Fields
+import { CompetitionFields } from "~/client/pages/CompetitionPage";
+
 //Action Interfaces
 interface FetchCompetitionAction {
 	type: ActionTypes.FETCH_COMPETITION;
@@ -32,7 +35,7 @@ export const fetchAllCompetitions = () => {
 	};
 };
 
-export const createCompetition = (values: Partial<ICompetition>) => {
+export const createCompetition = (values: CompetitionFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<ICompetition>("/competitions", values);
 		if (res.data) {
@@ -46,7 +49,7 @@ export const createCompetition = (values: Partial<ICompetition>) => {
 	};
 };
 
-export const updateCompetition = (id: string, values: Partial<ICompetition>) => {
+export const updateCompetition = (id: string, values: CompetitionFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<ICompetition>(`/competitions/${id}`, values);
 		if (res.data) {

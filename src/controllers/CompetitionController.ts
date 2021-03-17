@@ -9,6 +9,9 @@ import { controller, use, get, post, put, del } from "./decorators";
 import { requireAuth } from "~/middleware/requireAuth";
 import { requireAdmin } from "~/middleware/requireAdmin";
 
+//Form Fields
+import { CompetitionFields } from "~/client/pages/CompetitionPage";
+
 //Models
 import { Competition } from "~/models/Competition";
 
@@ -39,7 +42,8 @@ class CompetitionController {
 	@use(requireAuth)
 	@post("/")
 	async createNewCompetition(req: Request, res: Response) {
-		const competition = new Competition(req.body);
+		const values: CompetitionFields = req.body;
+		const competition = new Competition(values);
 		await competition.save();
 		res.send(competition);
 	}
@@ -49,7 +53,8 @@ class CompetitionController {
 	@put("/:_id")
 	async updateCompetition(req: Request, res: Response) {
 		const { _id } = req.params;
-		const competition = await Competition.findByIdAndUpdate(_id, req.body, { new: true });
+		const values: CompetitionFields = req.body;
+		const competition = await Competition.findByIdAndUpdate(_id, values, { new: true });
 		if (competition) {
 			res.send(competition);
 		} else {

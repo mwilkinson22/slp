@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { FieldArrayRenderProps, FieldProps, FormikProps } from "formik";
 
 import { ImageFieldProps } from "~/client/components/forms/fields/ImageField";
+import { ObjectToDot } from "~/helpers/genericHelper";
 
 export enum FormFieldTypes {
 	//Standard HTML Inputs
@@ -27,8 +28,8 @@ export enum FormFieldTypes {
 	image = "image"
 }
 
-interface IField {
-	name: string;
+interface IField<T extends Record<string, any>> {
+	name: ObjectToDot<T>;
 	type: FormFieldTypes;
 	key?: string;
 	label?: string;
@@ -42,7 +43,7 @@ interface IField {
 	disabled?: boolean;
 }
 
-export interface IFieldBasic extends IField {
+export interface IFieldBasic<T> extends IField<T> {
 	type:
 		| FormFieldTypes.colour
 		| FormFieldTypes.date
@@ -54,7 +55,7 @@ export interface IFieldBasic extends IField {
 		| FormFieldTypes.boolean;
 }
 
-export interface IField_Array extends IField {
+export interface IField_Array<T> extends IField<T> {
 	type: FormFieldTypes.fieldArray;
 	render: (renderProps: FieldArrayRenderProps) => ReactNode;
 }
@@ -69,12 +70,12 @@ export interface SelectOptionGroup {
 	options: SelectOption[];
 }
 
-export interface IField_Radio extends IField {
+export interface IField_Radio<T> extends IField<T> {
 	type: FormFieldTypes.radio;
 	options: SelectOption[];
 }
 
-interface IField_Select_Root extends IField {
+interface IField_Select_Root<T> extends IField<T> {
 	type: FormFieldTypes.select | FormFieldTypes.creatableSelect | FormFieldTypes.asyncSelect;
 	options: (SelectOption | SelectOptionGroup)[];
 	isMulti?: boolean;
@@ -83,16 +84,16 @@ interface IField_Select_Root extends IField {
 	showDropdown?: boolean;
 }
 
-export interface IField_Select extends IField_Select_Root {
+export interface IField_Select<T> extends IField_Select_Root<T> {
 	type: FormFieldTypes.select | FormFieldTypes.creatableSelect;
 }
 
-export interface IField_AsyncSelect extends IField_Select_Root {
+export interface IField_AsyncSelect<T> extends IField_Select_Root<T> {
 	type: FormFieldTypes.asyncSelect;
 	loadOptions: () => { label: string; value: string };
 }
 
-export interface IField_Image extends IField {
+export interface IField_Image<T> extends IField<T> {
 	acceptSVG?: ImageFieldProps["acceptSVG"];
 	dependentCheck?: ImageFieldProps["dependentCheck"];
 	path: ImageFieldProps["path"];
@@ -101,17 +102,23 @@ export interface IField_Image extends IField {
 	type: FormFieldTypes.image;
 }
 
-export type IFieldAny = IFieldBasic | IField_Array | IField_Radio | IField_Select | IField_AsyncSelect | IField_Image;
+export type IFieldAny<T> =
+	| IFieldBasic<T>
+	| IField_Array<T>
+	| IField_Radio<T>
+	| IField_Select<T>
+	| IField_AsyncSelect<T>
+	| IField_Image<T>;
 
-type FieldGroupWithFields = {
-	fields: IFieldAny[];
+type FieldGroupWithFields<T> = {
+	fields: IFieldAny<T>[];
 	label?: string;
 };
-type FieldGroupWithRenderMethod = {
-	render: (values: IFormikValues, formik?: FormikProps<IFormikValues>) => ReactNode;
+type FieldGroupWithRenderMethod<T> = {
+	render: (values: T, formik?: FormikProps<T>) => ReactNode;
 	label?: string;
 };
 
-export type IFieldGroup = FieldGroupWithFields | FieldGroupWithRenderMethod;
+export type IFieldGroup<T> = FieldGroupWithFields<T> | FieldGroupWithRenderMethod<T>;
 
-export type IFormikValues<T = any> = { [key: string]: T };
+export type IFormikValuesObject = Record<string, any>;

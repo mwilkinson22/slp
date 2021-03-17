@@ -12,7 +12,7 @@ import { NavCard } from "~/client/components/global/NavCard";
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
 
 //Actions
-import { fetchAllUsers, createUser, updateUser, deleteUser } from "~/client/actions/userActions";
+import { createUser, deleteUser, fetchAllUsers, updateUser } from "~/client/actions/userActions";
 
 //Helpers
 import { getPasswordErrors, getUsernameErrors } from "~/helpers/userHelper";
@@ -21,7 +21,7 @@ import { getPasswordErrors, getUsernameErrors } from "~/helpers/userHelper";
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
-import { FormFieldTypes, IFieldAny, IFieldGroup, IFormikValues } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IFieldAny, IFieldGroup } from "~/enum/FormFieldTypes";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
@@ -29,6 +29,10 @@ interface IState {
 	show404: boolean;
 	user?: IUser;
 	validationSchema: Yup.ObjectSchema;
+}
+type FieldsToOmit = "_id" | "isAdmin";
+export interface UserFields extends Required<Omit<IUser, FieldsToOmit>> {
+	confirmPassword: string;
 }
 
 //Redux
@@ -148,10 +152,10 @@ class _UserPage extends Component<IProps, IState> {
 		}
 	}
 
-	getInitialValues(): IFormikValues {
+	getInitialValues(): UserFields {
 		const { user } = this.state;
 
-		const defaultValues = {
+		const defaultValues: UserFields = {
 			username: "",
 			name: {
 				first: "",
@@ -169,10 +173,10 @@ class _UserPage extends Component<IProps, IState> {
 		return defaultValues;
 	}
 
-	getFieldGroups(): IFieldGroup[] {
+	getFieldGroups(): IFieldGroup<UserFields>[] {
 		const { isNew } = this.state;
 
-		const fields: IFieldAny[] = [
+		const fields: IFieldAny<UserFields>[] = [
 			{ name: "username", type: FormFieldTypes.text, disabled: !isNew },
 			{ name: "name.first", type: FormFieldTypes.text },
 			{ name: "name.last", type: FormFieldTypes.text },
@@ -181,13 +185,6 @@ class _UserPage extends Component<IProps, IState> {
 		];
 
 		return [{ fields }];
-	}
-
-	alterValuesBeforeSubmit(values: IFormikValues) {
-		delete values.confirmPassword;
-		if (!values.password) {
-			delete values.password;
-		}
 	}
 
 	render() {
@@ -214,10 +211,10 @@ class _UserPage extends Component<IProps, IState> {
 		let onSubmit, redirectOnSubmit;
 
 		if (user) {
-			onSubmit = (values: IFormikValues) => updateUser(user._id, values);
+			onSubmit = (values: UserFields) => updateUser(user._id, values);
 		} else {
-			onSubmit = (values: IFormikValues) => createUser(values);
-			redirectOnSubmit = (values: IFormikValues) => `/users/${values.username}`;
+			onSubmit = (values: UserFields) => createUser(values);
+			redirectOnSubmit = (user: IUser) => `/users/${user.username}`;
 		}
 
 		//Get Header
@@ -228,8 +225,7 @@ class _UserPage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/users`}>Return to user list</NavCard>
 					<h1>{header}</h1>
-					<BasicForm
-						alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
+					<BasicForm<UserFields, IUser>
 						fieldGroups={this.getFieldGroups()}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}

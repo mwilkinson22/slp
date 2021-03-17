@@ -1,5 +1,4 @@
 //Modules
-import _ from "lodash";
 import React, { Component } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import * as Yup from "yup";
@@ -24,7 +23,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
 import { ICompetition } from "~/models/Competition";
-import { FormFieldTypes, IFieldAny, IFieldGroup, IFormikValues } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IFieldAny, IFieldGroup } from "~/enum/FormFieldTypes";
 import { validateHashtag } from "~/helpers/genericHelper";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
@@ -34,6 +33,7 @@ interface IState {
 	competition?: ICompetition;
 	validationSchema: Yup.ObjectSchema;
 }
+export interface CompetitionFields extends Required<Omit<ICompetition, "_id">> {}
 
 //Redux
 function mapStateToProps({ config, competitions }: StoreState) {
@@ -102,27 +102,29 @@ class _CompetitionPage extends Component<IProps, IState> {
 		}
 	}
 
-	getInitialValues(): IFormikValues {
+	getInitialValues(): CompetitionFields {
 		const { competition } = this.state;
 
-		const defaultValues: Partial<ICompetition> = {
-			name: "",
-			hashtagPrefix: "",
-			competitionHashtag: "",
-			isFavourite: false,
-			image: ""
-		};
-
 		if (competition) {
-			return _.mapValues(defaultValues, (defaultValue, field: keyof ICompetition) => {
-				return competition[field] ?? defaultValue;
-			});
+			return {
+				name: competition.name,
+				hashtagPrefix: competition.hashtagPrefix,
+				competitionHashtag: competition.competitionHashtag || "",
+				isFavourite: competition.isFavourite,
+				image: competition.image
+			};
+		} else {
+			return {
+				name: "",
+				hashtagPrefix: "",
+				competitionHashtag: "",
+				isFavourite: false,
+				image: ""
+			};
 		}
-
-		return defaultValues;
 	}
 
-	getFieldGroups(): IFieldGroup[] {
+	getFieldGroups(): IFieldGroup<CompetitionFields>[] {
 		const { competitions } = this.props;
 		const { competition } = this.state;
 
@@ -143,7 +145,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 				};
 			};
 		}
-		const fields: IFieldAny[] = [
+		const fields: IFieldAny<CompetitionFields>[] = [
 			{ name: "name", type: FormFieldTypes.text },
 			{ name: "hashtagPrefix", type: FormFieldTypes.text },
 			{
@@ -190,10 +192,10 @@ class _CompetitionPage extends Component<IProps, IState> {
 		//Set submit behaviour
 		let onSubmit, redirectOnSubmit;
 		if (competition) {
-			onSubmit = (values: IFormikValues) => updateCompetition(competition._id, values);
+			onSubmit = (values: CompetitionFields) => updateCompetition(competition._id, values);
 		} else {
-			onSubmit = (values: IFormikValues) => createCompetition(values);
-			redirectOnSubmit = (values: IFormikValues) => `/competitions/${values._id}`;
+			onSubmit = (values: CompetitionFields) => createCompetition(values);
+			redirectOnSubmit = (competition: ICompetition) => `/competitions/${competition._id}`;
 		}
 
 		//Get Header
@@ -204,7 +206,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/competitions`}>Return to competition list</NavCard>
 					<h1>{header}</h1>
-					<BasicForm
+					<BasicForm<CompetitionFields, ICompetition>
 						fieldGroups={this.getFieldGroups()}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}

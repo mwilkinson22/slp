@@ -13,6 +13,9 @@ import { requireAdmin } from "~/middleware/requireAdmin";
 //Helpers
 import { getUsernameErrors, getPasswordErrors } from "~/helpers/userHelper";
 
+//Frontend fields
+import { UserFields } from "~/client/pages/UserPage";
+
 //Models
 import { IUser, User } from "~/models/User";
 
@@ -70,27 +73,29 @@ class UserController {
 	@post("/user")
 	@use(requireAdmin)
 	async createNewUser(req: Request, res: Response) {
+		const values: UserFields = req.body;
+
 		//Check for valid username
-		const usernameError = getUsernameErrors(req.body.username);
+		const usernameError = getUsernameErrors(values.username);
 		if (usernameError) {
 			return res.status(400).send(usernameError);
 		}
 
 		//Valid password
-		const passwordError = getPasswordErrors(req.body.password);
+		const passwordError = getPasswordErrors(values.password);
 		if (passwordError) {
 			return res.status(400).send(passwordError);
 		}
 
 		//Unique Username
-		const existingUser = await User.findOne({ username: req.body.username }, "_id").lean();
+		const existingUser = await User.findOne({ username: values.username }, "_id").lean();
 		if (existingUser) {
 			return res.status(400).send("Username already belongs to another user");
 		}
 
 		//Create a new user
-		const user = new User(req.body);
-		user.password = user.generateHash(req.body.password);
+		const user = new User(values);
+		user.password = user.generateHash(values.password);
 		await user.save();
 		res.send(user);
 	}
@@ -114,16 +119,18 @@ class UserController {
 		}
 
 		//Get values
-		const values = { ...req.body };
+		const values: Partial<UserFields> = { ...req.body };
 
 		//Ensure we have a valid password, and hash it
-		if (req.body.password) {
+		if (values.password) {
 			const passwordError = getPasswordErrors(values.password);
 			if (passwordError) {
 				return res.status(400).send(passwordError);
 			} else {
 				values.password = user.generateHash(values.password);
 			}
+		} else {
+			delete values.password;
 		}
 
 		//Update user

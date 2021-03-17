@@ -1,5 +1,4 @@
 //Modules
-import _ from "lodash";
 import React, { Component } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import * as Yup from "yup";
@@ -24,30 +23,30 @@ import { dateToHMS, dateToYMD, validateHashtag } from "~/helpers/genericHelper";
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IGame } from "~/models/Game";
-import { FormFieldTypes, IField_Select, IFieldGroup, IFormikValues, SelectOption } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IField_Select, IFieldGroup, SelectOption } from "~/enum/FormFieldTypes";
 import { convertRecordToSelectOptions } from "~/helpers/formHelper";
 import { ICompetition } from "~/models/Competition";
 import { IGround } from "~/models/Ground";
 import { ITeam } from "~/models/Team";
 import { gameAsString } from "~/helpers/gameHelper";
 
-interface IGameFormValues extends Partial<IGame> {
-	time: string;
-	disableRedirectOnAdd?: boolean;
-}
-
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
 	options: {
-		competitions: IField_Select["options"];
-		grounds: IField_Select["options"];
-		teams: IField_Select["options"];
+		competitions: IField_Select<GameFields>["options"];
+		grounds: IField_Select<GameFields>["options"];
+		teams: IField_Select<GameFields>["options"];
 	};
 	isLoadingDependents: boolean;
 	isNew: boolean;
 	show404: boolean;
 	game?: IGame;
 	validationSchema: Yup.ObjectSchema;
+}
+type FieldsToOmit = "_id" | "retweeted" | "tweetId";
+export interface GameFields extends Required<Omit<IGame, FieldsToOmit>> {
+	time: string;
+	disableRedirectOnAdd?: boolean;
 }
 
 //Redux
@@ -182,47 +181,46 @@ class _GamePage extends Component<IProps, IState> {
 		return newState;
 	}
 
-	getInitialValues(): IFormikValues {
+	getInitialValues(): GameFields {
 		const { game } = this.state;
 
-		const defaultValues: IGameFormValues = {
-			_homeTeam: "",
-			_awayTeam: "",
-			_ground: "auto",
-			_competition: "",
-			date: "",
-			time: "",
-			round: "",
-			customHashtag: "",
-			overwriteHashtag: false,
-			isOnTv: false,
-			image: "",
-			postAfterGame: true,
-			includeInWeeklyPost: true,
-			disableRedirectOnAdd: false
-		};
-
 		if (game) {
-			//Set _ground back to empty string
-			defaultValues._ground = "";
-			return _.mapValues(defaultValues, (defaultValue, field: keyof IGameFormValues) => {
-				switch (field) {
-					case "date":
-						return dateToYMD(new Date(game.date));
-					case "time":
-						return dateToHMS(new Date(game.date));
-					case "disableRedirectOnAdd":
-						return false;
-					default:
-						return game[field] ?? defaultValue;
-				}
-			});
+			return {
+				_homeTeam: game._homeTeam,
+				_awayTeam: game._awayTeam,
+				_ground: game._ground || "",
+				_competition: game._competition,
+				date: dateToYMD(new Date(game.date)),
+				time: dateToHMS(new Date(game.date)),
+				round: game.round || "",
+				customHashtag: game.customHashtag || "",
+				overwriteHashtag: game.overwriteHashtag,
+				isOnTv: game.isOnTv,
+				image: game.image || "",
+				postAfterGame: game.postAfterGame,
+				includeInWeeklyPost: game.includeInWeeklyPost
+			};
+		} else {
+			return {
+				_homeTeam: "",
+				_awayTeam: "",
+				_ground: "auto",
+				_competition: "",
+				date: "",
+				time: "",
+				round: "",
+				customHashtag: "",
+				overwriteHashtag: false,
+				isOnTv: false,
+				image: "",
+				postAfterGame: true,
+				includeInWeeklyPost: true,
+				disableRedirectOnAdd: false
+			};
 		}
-
-		return defaultValues;
 	}
 
-	getFieldGroups(values: IFormikValues): IFieldGroup[] {
+	getFieldGroups(values: GameFields): IFieldGroup<GameFields>[] {
 		const { games, teams } = this.props;
 		const { game, isNew, options } = this.state;
 
@@ -244,7 +242,7 @@ class _GamePage extends Component<IProps, IState> {
 			};
 		}
 
-		const fieldGroups: IFieldGroup[] = [
+		const fieldGroups: IFieldGroup<GameFields>[] = [
 			{
 				label: "Basic Game Data",
 				fields: [
@@ -299,9 +297,8 @@ class _GamePage extends Component<IProps, IState> {
 		return fieldGroups;
 	}
 
-	alterValuesBeforeSubmit(values: IFormikValues) {
+	alterValuesBeforeSubmit(values: GameFields) {
 		values.date = `${values.date} ${values.time}`;
-		delete values.time;
 	}
 
 	render() {
@@ -327,10 +324,10 @@ class _GamePage extends Component<IProps, IState> {
 		//Set submit behaviour
 		let onSubmit, redirectOnSubmit;
 		if (game) {
-			onSubmit = (values: IFormikValues) => updateGame(game._id, values);
+			onSubmit = (values: GameFields) => updateGame(game._id, values);
 		} else {
-			onSubmit = (values: IFormikValues) => createGame(values);
-			redirectOnSubmit = (game: IFormikValues, values: IFormikValues) => {
+			onSubmit = (values: GameFields) => createGame(values);
+			redirectOnSubmit = (game: IGame, values: GameFields) => {
 				if (values.disableRedirectOnAdd) {
 					return false;
 				}
@@ -346,7 +343,7 @@ class _GamePage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/games`}>Return to game list</NavCard>
 					<h1>{header}</h1>
-					<BasicForm
+					<BasicForm<GameFields, IGame>
 						alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
 						fieldGroups={values => this.getFieldGroups(values)}
 						initialValues={this.getInitialValues()}

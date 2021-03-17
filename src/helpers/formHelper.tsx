@@ -13,7 +13,7 @@ import { RadioButtons } from "~/client/components/forms/fields/RadioButtons";
 import { ImageField } from "~/client/components/forms/fields/ImageField";
 
 //Enums, Types & Interfaces
-import { FormFieldTypes, IFieldAny, SelectOption, SelectOptionGroup } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IFieldAny, IFormikValuesObject, SelectOption, SelectOptionGroup } from "~/enum/FormFieldTypes";
 import { KeyOfType } from "~/types/KeyOfType";
 
 //Helpers
@@ -89,21 +89,25 @@ export function extractYupData(name: string, validationSchema: ObjectSchema) {
 	);
 }
 
-export function renderFieldGroup(
-	fields: IFieldAny[],
+export function renderFieldGroup<T extends IFormikValuesObject>(
+	fields: IFieldAny<T>[],
 	validationSchema: ObjectSchema,
 	fastFieldByDefault: boolean = true
 ) {
-	return fields.map(field => renderField(field, validationSchema, fastFieldByDefault));
+	return fields.map(field => renderField<T>(field, validationSchema, fastFieldByDefault));
 }
-export function renderField(field: IFieldAny, validationSchema: ObjectSchema, fastFieldByDefault: boolean = true) {
+export function renderField<T extends IFormikValuesObject>(
+	field: IFieldAny<T>,
+	validationSchema: ObjectSchema,
+	fastFieldByDefault: boolean = true
+) {
 	if (!validationSchema || !validationSchema.describe()) {
 		throw new Error("Yup Validation Schema required");
 	}
 
 	if (field.type == FormFieldTypes.fieldArray) {
 		const key = field.key || field.name + "-fieldArray";
-		return <FieldArray name={field.name} render={field.render} key={key} />;
+		return <FieldArray name={field.name as string} render={field.render} key={key} />;
 	} else {
 		//Pull meta data from yup
 		const yupField = extractYupData(field.name, validationSchema);
@@ -150,7 +154,7 @@ export function renderField(field: IFieldAny, validationSchema: ObjectSchema, fa
 		//Error Message
 		const error = (
 			<span key={`${field.name}-error`} className="error">
-				<ErrorMessage name={field.name} />
+				<ErrorMessage name={field.name as string} />
 			</span>
 		);
 
@@ -158,7 +162,7 @@ export function renderField(field: IFieldAny, validationSchema: ObjectSchema, fa
 	}
 }
 
-export function renderInput(field: IFieldAny, required?: boolean) {
+export function renderInput<T extends IFormikValuesObject>(field: IFieldAny<T>, required?: boolean) {
 	const { label, type, name, fastField, customOnChange, ...props } = field;
 
 	if (!_.find(FormFieldTypes, t => t == type)) {
@@ -166,7 +170,8 @@ export function renderInput(field: IFieldAny, required?: boolean) {
 	}
 
 	//Get Render Method
-	const render = (formikProps: FieldProps) => {
+	const render = (formikProps: FieldProps<T>) => {
+		const fieldName = field.name as string;
 		//Update default onChange method for custom Select component
 		switch (field.type) {
 			case FormFieldTypes.select:
@@ -175,7 +180,7 @@ export function renderInput(field: IFieldAny, required?: boolean) {
 					//Typescript expects a change event, but react-select
 					//simply returns the selected object (or objects, for multiselect)
 					//so we have to manually cast it here
-					formikProps.form.setFieldTouched(field.name, true);
+					formikProps.form.setFieldTouched(fieldName, true);
 					let value: string | string[] = "";
 					if (field.isMulti) {
 						const selectedOptions = option as SelectOption[];
@@ -188,15 +193,15 @@ export function renderInput(field: IFieldAny, required?: boolean) {
 							value = selectedOption.value;
 						}
 					}
-					formikProps.form.setFieldValue(field.name, value);
+					formikProps.form.setFieldValue(fieldName, value);
 				};
 				break;
 			case FormFieldTypes.asyncSelect:
 			case FormFieldTypes.image:
 				//See above - we have to call option as any and then cast it
 				formikProps.field.onChange = (option: any) => {
-					formikProps.form.setFieldTouched(field.name, true);
-					formikProps.form.setFieldValue(field.name, option || "");
+					formikProps.form.setFieldTouched(fieldName, true);
+					formikProps.form.setFieldValue(fieldName, option || "");
 				};
 				break;
 		}
