@@ -3,7 +3,7 @@ import { ConfigAction, IConfigObject } from "~/client/actions/configActions";
 import { UserAction } from "~/client/actions/userActions";
 
 export type ConfigState = IConfigObject | null;
-export default function(state: ConfigState = null, action: ConfigAction | UserAction): ConfigState {
+export default function (state: ConfigState = null, action: ConfigAction | UserAction): ConfigState {
 	switch (action.type) {
 		case ActionTypes.FETCH_CURRENT_USER:
 			if (state) {
@@ -21,6 +21,19 @@ export default function(state: ConfigState = null, action: ConfigAction | UserAc
 
 		case ActionTypes.GET_CORE_CONFIG:
 			return { ...state, ...action.payload };
+
+		case ActionTypes.GET_SETTINGS: {
+			if (state) {
+				return {
+					...state,
+					settings: {
+						...state.settings,
+						...action.payload
+					}
+				};
+			}
+			return state;
+		}
 
 		default:
 			return state;
