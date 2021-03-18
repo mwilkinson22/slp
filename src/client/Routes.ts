@@ -21,6 +21,8 @@ import { TeamList } from "~/client/pages/TeamList";
 import { UserList } from "~/client/pages/UserList";
 import { UserPage } from "~/client/pages/UserPage";
 
+import { SettingsRouter } from "~/client/pages/settings/SettingsRouter";
+
 const routeMap = {
 	"/logout": Logout,
 
@@ -40,12 +42,17 @@ const routeMap = {
 	"/teams/:_id": TeamPage,
 	"/teams": TeamList,
 
+	"/settings": SettingsRouter,
+
 	"/users/new": UserPage,
 	"/users/:username": UserPage,
 	"/users": UserList
 };
 
-const routes: RouteConfig[] = _.map(routeMap, (component, path) => ({ component, path, exact: true }));
+//Convert routeMap to route list
+const routes: RouteConfig[] = _.map(routeMap, (component, path) => ({ component, path, exact: path !== "/settings" }));
+
+//Add 404 page
 routes.push({
 	component: NotFoundPage,
 	path: "/"
