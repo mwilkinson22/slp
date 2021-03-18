@@ -26,6 +26,8 @@ export interface ITeam_Mongoose extends ITeam_Root, Document {
 	_id: ITeam_Root["_id"];
 }
 
+export interface ITeamFormFields extends Required<Omit<ITeam, "_id">> {}
+
 //Schema
 const TeamSchema = new Schema<ITeam_Mongoose>({
 	name: {

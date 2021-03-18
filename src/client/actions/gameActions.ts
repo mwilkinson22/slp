@@ -8,10 +8,7 @@ import { AxiosInstance } from "axios";
 //Enum
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
-import { IGame } from "~/models/Game";
-
-//Game GameFields
-import { GameFields } from "~/client/pages/GamePage";
+import { IGame, IGameFormFields } from "~/models/Game";
 
 //Action Interfaces
 interface FetchGameAction {
@@ -35,7 +32,7 @@ export const fetchAllGames = () => {
 	};
 };
 
-export const createGame = (values: GameFields) => {
+export const createGame = (values: IGameFormFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<IGame>("/games", values);
 		if (res.data) {
@@ -49,7 +46,7 @@ export const createGame = (values: GameFields) => {
 	};
 };
 
-export const updateGame = (id: string, values: GameFields) => {
+export const updateGame = (id: string, values: IGameFormFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<IGame>(`/games/${id}`, values);
 		if (res.data) {

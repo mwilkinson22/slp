@@ -22,7 +22,7 @@ import {
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
-import { ICompetition } from "~/models/Competition";
+import { ICompetition, ICompetitionFormFields } from "~/models/Competition";
 import { FormFieldTypes, IFieldAny, IFieldGroup } from "~/enum/FormFieldTypes";
 import { validateHashtag } from "~/helpers/genericHelper";
 
@@ -33,7 +33,6 @@ interface IState {
 	competition?: ICompetition;
 	validationSchema: Yup.ObjectSchema;
 }
-export interface CompetitionFields extends Required<Omit<ICompetition, "_id">> {}
 
 //Redux
 function mapStateToProps({ config, competitions }: StoreState) {
@@ -102,7 +101,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 		}
 	}
 
-	getInitialValues(): CompetitionFields {
+	getInitialValues(): ICompetitionFormFields {
 		const { competition } = this.state;
 
 		if (competition) {
@@ -124,7 +123,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 		}
 	}
 
-	getFieldGroups(): IFieldGroup<CompetitionFields>[] {
+	getFieldGroups(): IFieldGroup<ICompetitionFormFields>[] {
 		const { competitions } = this.props;
 		const { competition } = this.state;
 
@@ -145,7 +144,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 				};
 			};
 		}
-		const fields: IFieldAny<CompetitionFields>[] = [
+		const fields: IFieldAny<ICompetitionFormFields>[] = [
 			{ name: "name", type: FormFieldTypes.text },
 			{ name: "hashtagPrefix", type: FormFieldTypes.text },
 			{
@@ -192,9 +191,9 @@ class _CompetitionPage extends Component<IProps, IState> {
 		//Set submit behaviour
 		let onSubmit, redirectOnSubmit;
 		if (competition) {
-			onSubmit = (values: CompetitionFields) => updateCompetition(competition._id, values);
+			onSubmit = (values: ICompetitionFormFields) => updateCompetition(competition._id, values);
 		} else {
-			onSubmit = (values: CompetitionFields) => createCompetition(values);
+			onSubmit = (values: ICompetitionFormFields) => createCompetition(values);
 			redirectOnSubmit = (competition: ICompetition) => `/competitions/${competition._id}`;
 		}
 
@@ -206,7 +205,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/competitions`}>Return to competition list</NavCard>
 					<h1>{header}</h1>
-					<BasicForm<CompetitionFields, ICompetition>
+					<BasicForm<ICompetitionFormFields, ICompetition>
 						fieldGroups={this.getFieldGroups()}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}

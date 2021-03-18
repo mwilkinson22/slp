@@ -16,6 +16,8 @@ export interface IGround_Mongoose extends IGround_Root, Document {
 	_id: IGround_Root["_id"];
 }
 
+export interface IGroundFormFields extends Required<Omit<IGround, "_id">> {}
+
 //Schema
 const GroundSchema = new Schema<IGround_Mongoose>({
 	name: { type: String, required: true },

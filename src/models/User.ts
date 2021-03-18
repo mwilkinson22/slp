@@ -22,6 +22,11 @@ export interface IUser_Mongoose extends IUser_Root, Document {
 	validatePassword(password: string): boolean;
 }
 
+type FormFieldsToOmit = "_id" | "isAdmin";
+export interface IUserFormFields extends Required<Omit<IUser, FormFieldsToOmit>> {
+	confirmPassword: string;
+}
+
 //Schema
 const UserSchema = new Schema<IUser_Mongoose>({
 	username: { type: String, unique: true },

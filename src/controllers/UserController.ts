@@ -13,11 +13,8 @@ import { requireAdmin } from "~/middleware/requireAdmin";
 //Helpers
 import { getUsernameErrors, getPasswordErrors } from "~/helpers/userHelper";
 
-//Frontend fields
-import { UserFields } from "~/client/pages/UserPage";
-
 //Models
-import { IUser, User } from "~/models/User";
+import { IUser, User, IUserFormFields } from "~/models/User";
 
 //Controller
 @controller("/api")
@@ -73,7 +70,7 @@ class UserController {
 	@post("/user")
 	@use(requireAdmin)
 	async createNewUser(req: Request, res: Response) {
-		const values: UserFields = req.body;
+		const values: IUserFormFields = req.body;
 
 		//Check for valid username
 		const usernameError = getUsernameErrors(values.username);
@@ -119,7 +116,7 @@ class UserController {
 		}
 
 		//Get values
-		const values: Partial<UserFields> = { ...req.body };
+		const values: Partial<IUserFormFields> = { ...req.body };
 
 		//Ensure we have a valid password, and hash it
 		if (values.password) {

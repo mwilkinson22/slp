@@ -17,7 +17,7 @@ import { createGround, deleteGround, fetchAllGrounds, updateGround } from "~/cli
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
-import { IGround } from "~/models/Ground";
+import { IGround, IGroundFormFields } from "~/models/Ground";
 import { FormFieldTypes, IFieldGroup } from "~/enum/FormFieldTypes";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
@@ -27,7 +27,6 @@ interface IState {
 	ground?: IGround;
 	validationSchema: Yup.ObjectSchema;
 }
-export interface GroundFields extends Required<Omit<IGround, "_id">> {}
 
 //Redux
 function mapStateToProps({ config, grounds }: StoreState) {
@@ -85,7 +84,7 @@ class _GroundPage extends Component<IProps, IState> {
 		}
 	}
 
-	getInitialValues(): GroundFields {
+	getInitialValues(): IGroundFormFields {
 		const { ground } = this.state;
 
 		if (ground) {
@@ -105,7 +104,7 @@ class _GroundPage extends Component<IProps, IState> {
 		}
 	}
 
-	getFieldGroups(): IFieldGroup<GroundFields>[] {
+	getFieldGroups(): IFieldGroup<IGroundFormFields>[] {
 		const { grounds } = this.props;
 		const { ground } = this.state;
 
@@ -171,9 +170,9 @@ class _GroundPage extends Component<IProps, IState> {
 		//Set submit behaviour
 		let onSubmit, redirectOnSubmit;
 		if (ground) {
-			onSubmit = (values: GroundFields) => updateGround(ground._id, values);
+			onSubmit = (values: IGroundFormFields) => updateGround(ground._id, values);
 		} else {
-			onSubmit = (values: GroundFields) => createGround(values);
+			onSubmit = (values: IGroundFormFields) => createGround(values);
 			redirectOnSubmit = (ground: IGround) => `/grounds/${ground._id}`;
 		}
 
@@ -185,7 +184,7 @@ class _GroundPage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/grounds`}>Return to ground list</NavCard>
 					<h1>{header}</h1>
-					<BasicForm<GroundFields, IGround>
+					<BasicForm<IGroundFormFields, IGround>
 						fieldGroups={this.getFieldGroups()}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}

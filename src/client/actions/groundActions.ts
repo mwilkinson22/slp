@@ -8,10 +8,7 @@ import { AxiosInstance } from "axios";
 //Enum
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
-import { IGround } from "~/models/Ground";
-
-//Form Fields
-import { GroundFields } from "~/client/pages/GroundPage";
+import { IGround, IGroundFormFields } from "~/models/Ground";
 
 //Action Interfaces
 interface FetchGroundAction {
@@ -35,7 +32,7 @@ export const fetchAllGrounds = () => {
 	};
 };
 
-export const createGround = (values: GroundFields) => {
+export const createGround = (values: IGroundFormFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<IGround>("/grounds", values);
 		if (res.data) {
@@ -49,7 +46,7 @@ export const createGround = (values: GroundFields) => {
 	};
 };
 
-export const updateGround = (id: string, values: GroundFields) => {
+export const updateGround = (id: string, values: IGroundFormFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<IGround>(`/grounds/${id}`, values);
 		if (res.data) {

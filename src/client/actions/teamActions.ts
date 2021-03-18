@@ -8,10 +8,7 @@ import { AxiosInstance } from "axios";
 //Enum
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
-import { ITeam } from "~/models/Team";
-
-//Form Fields
-import { TeamFields } from "~/client/pages/TeamPage";
+import { ITeam, ITeamFormFields } from "~/models/Team";
 
 //Action Interfaces
 interface FetchTeamAction {
@@ -35,7 +32,7 @@ export const fetchAllTeams = () => {
 	};
 };
 
-export const createTeam = (values: TeamFields) => {
+export const createTeam = (values: ITeamFormFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<ITeam>("/teams", values);
 		if (res.data) {
@@ -49,7 +46,7 @@ export const createTeam = (values: TeamFields) => {
 	};
 };
 
-export const updateTeam = (id: string, values: TeamFields) => {
+export const updateTeam = (id: string, values: ITeamFormFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<ITeam>(`/teams/${id}`, values);
 		if (res.data) {

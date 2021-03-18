@@ -30,6 +30,12 @@ export interface IGame_Mongoose extends IGame_Root, Document {
 	date: string;
 }
 
+type FormFieldsToOmit = "_id" | "retweeted" | "tweetId";
+export interface IGameFormFields extends Required<Omit<IGame, FormFieldsToOmit>> {
+	time: string;
+	disableRedirectOnAdd?: boolean;
+}
+
 //Schema
 const GameSchema = new Schema<IGame_Mongoose>({
 	_homeTeam: { type: Schema.Types.ObjectId, ref: "teams", required: true },

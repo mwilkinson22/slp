@@ -9,12 +9,9 @@ import { controller, use, get, post, put, del } from "./decorators";
 import { requireAuth } from "~/middleware/requireAuth";
 import { requireAdmin } from "~/middleware/requireAdmin";
 
-//Form Fields
-import { GroundFields } from "~/client/pages/GroundPage";
-
 //Models
 import { Game } from "~/models/Game";
-import { Ground } from "~/models/Ground";
+import { Ground, IGroundFormFields } from "~/models/Ground";
 import { Team } from "~/models/Team";
 
 //Controller
@@ -44,7 +41,7 @@ class GroundController {
 	@use(requireAuth)
 	@post("/")
 	async createNewGround(req: Request, res: Response) {
-		const values: GroundFields = req.body;
+		const values: IGroundFormFields = req.body;
 		const ground = new Ground(values);
 		await ground.save();
 		res.send(ground);
@@ -55,7 +52,7 @@ class GroundController {
 	@put("/:_id")
 	async updateGround(req: Request, res: Response) {
 		const { _id } = req.params;
-		const values: GroundFields = req.body;
+		const values: IGroundFormFields = req.body;
 		const ground = await Ground.findByIdAndUpdate(_id, values, { new: true });
 		if (ground) {
 			res.send(ground);

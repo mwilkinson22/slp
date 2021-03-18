@@ -17,6 +17,8 @@ export interface ICompetition_Mongoose extends ICompetition_Root, Document {
 	_id: ICompetition_Root["_id"];
 }
 
+export interface ICompetitionFormFields extends Required<Omit<ICompetition, "_id">> {}
+
 //Schema
 const CompetitionSchema = new Schema<ICompetition_Mongoose>({
 	name: { type: String, required: true },

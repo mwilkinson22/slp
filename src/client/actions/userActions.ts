@@ -4,14 +4,11 @@ import { toast } from "react-toastify";
 //Interfaces
 import { Dispatch } from "redux";
 import { AxiosInstance } from "axios";
-import { IUser } from "~/models/User";
+import { IUser, IUserFormFields } from "~/models/User";
 
 //Enum
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
-
-//Form Fields
-import { UserFields } from "~/client/pages/UserPage";
 
 //Action Interfaces
 interface FetchCurrentUserAction {
@@ -67,7 +64,7 @@ export const fetchAllUsers = () => {
 	};
 };
 
-export const createUser = (values: UserFields) => {
+export const createUser = (values: IUserFormFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<IUser>("/user", values);
 		if (res.data) {
@@ -81,7 +78,7 @@ export const createUser = (values: UserFields) => {
 	};
 };
 
-export const updateUser = (id: string, values: UserFields) => {
+export const updateUser = (id: string, values: IUserFormFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<IUser>(`/user/${id}`, values);
 		if (res.data) {

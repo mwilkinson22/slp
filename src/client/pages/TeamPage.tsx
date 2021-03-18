@@ -21,21 +21,20 @@ import { validateHashtag } from "~/helpers/genericHelper";
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
-import { ITeam } from "~/models/Team";
+import { ITeam, ITeamFormFields } from "~/models/Team";
 import { FormFieldTypes, IFieldGroup, IField_Select } from "~/enum/FormFieldTypes";
 import { convertRecordToSelectOptions } from "~/helpers/formHelper";
 import { IGround } from "~/models/Ground";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
-	groundOptions: IField_Select<TeamFields>["options"];
+	groundOptions: IField_Select<ITeamFormFields>["options"];
 	isLoadingDependents: boolean;
 	isNew: boolean;
 	show404: boolean;
 	team?: ITeam;
 	validationSchema: Yup.ObjectSchema;
 }
-export interface TeamFields extends Required<Omit<ITeam, "_id">> {}
 
 //Redux
 function mapStateToProps({ config, grounds, teams }: StoreState) {
@@ -126,7 +125,7 @@ class _TeamPage extends Component<IProps, IState> {
 		return newState;
 	}
 
-	getInitialValues(): TeamFields {
+	getInitialValues(): ITeamFormFields {
 		const { team } = this.state;
 
 		if (team) {
@@ -159,7 +158,7 @@ class _TeamPage extends Component<IProps, IState> {
 		}
 	}
 
-	getFieldGroups(): IFieldGroup<TeamFields>[] {
+	getFieldGroups(): IFieldGroup<ITeamFormFields>[] {
 		const { teams } = this.props;
 		const { groundOptions, team } = this.state;
 
@@ -241,9 +240,9 @@ class _TeamPage extends Component<IProps, IState> {
 		//Set submit behaviour
 		let onSubmit, redirectOnSubmit;
 		if (team) {
-			onSubmit = (values: TeamFields) => updateTeam(team._id, values);
+			onSubmit = (values: ITeamFormFields) => updateTeam(team._id, values);
 		} else {
-			onSubmit = (values: TeamFields) => createTeam(values);
+			onSubmit = (values: ITeamFormFields) => createTeam(values);
 			redirectOnSubmit = (values: ITeam) => `/teams/${values._id}`;
 		}
 
@@ -255,7 +254,7 @@ class _TeamPage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/teams`}>Return to team list</NavCard>
 					<h1>{header}</h1>
-					<BasicForm<TeamFields, ITeam>
+					<BasicForm<ITeamFormFields, ITeam>
 						fieldGroups={this.getFieldGroups()}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}

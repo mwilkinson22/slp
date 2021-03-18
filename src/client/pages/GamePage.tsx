@@ -22,7 +22,7 @@ import { dateToHMS, dateToYMD, validateHashtag } from "~/helpers/genericHelper";
 //Interfaces & Enums
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
-import { IGame } from "~/models/Game";
+import { IGame, IGameFormFields } from "~/models/Game";
 import { FormFieldTypes, IField_Select, IFieldGroup, SelectOption } from "~/enum/FormFieldTypes";
 import { convertRecordToSelectOptions } from "~/helpers/formHelper";
 import { ICompetition } from "~/models/Competition";
@@ -33,20 +33,15 @@ import { gameAsString } from "~/helpers/gameHelper";
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
 	options: {
-		competitions: IField_Select<GameFields>["options"];
-		grounds: IField_Select<GameFields>["options"];
-		teams: IField_Select<GameFields>["options"];
+		competitions: IField_Select<IGameFormFields>["options"];
+		grounds: IField_Select<IGameFormFields>["options"];
+		teams: IField_Select<IGameFormFields>["options"];
 	};
 	isLoadingDependents: boolean;
 	isNew: boolean;
 	show404: boolean;
 	game?: IGame;
 	validationSchema: Yup.ObjectSchema;
-}
-type FieldsToOmit = "_id" | "retweeted" | "tweetId";
-export interface GameFields extends Required<Omit<IGame, FieldsToOmit>> {
-	time: string;
-	disableRedirectOnAdd?: boolean;
 }
 
 //Redux
@@ -181,7 +176,7 @@ class _GamePage extends Component<IProps, IState> {
 		return newState;
 	}
 
-	getInitialValues(): GameFields {
+	getInitialValues(): IGameFormFields {
 		const { game } = this.state;
 
 		if (game) {
@@ -220,7 +215,7 @@ class _GamePage extends Component<IProps, IState> {
 		}
 	}
 
-	getFieldGroups(values: GameFields): IFieldGroup<GameFields>[] {
+	getFieldGroups(values: IGameFormFields): IFieldGroup<IGameFormFields>[] {
 		const { games, teams } = this.props;
 		const { game, isNew, options } = this.state;
 
@@ -242,7 +237,7 @@ class _GamePage extends Component<IProps, IState> {
 			};
 		}
 
-		const fieldGroups: IFieldGroup<GameFields>[] = [
+		const fieldGroups: IFieldGroup<IGameFormFields>[] = [
 			{
 				label: "Basic Game Data",
 				fields: [
@@ -297,7 +292,7 @@ class _GamePage extends Component<IProps, IState> {
 		return fieldGroups;
 	}
 
-	alterValuesBeforeSubmit(values: GameFields) {
+	alterValuesBeforeSubmit(values: IGameFormFields) {
 		values.date = `${values.date} ${values.time}`;
 	}
 
@@ -324,10 +319,10 @@ class _GamePage extends Component<IProps, IState> {
 		//Set submit behaviour
 		let onSubmit, redirectOnSubmit;
 		if (game) {
-			onSubmit = (values: GameFields) => updateGame(game._id, values);
+			onSubmit = (values: IGameFormFields) => updateGame(game._id, values);
 		} else {
-			onSubmit = (values: GameFields) => createGame(values);
-			redirectOnSubmit = (game: IGame, values: GameFields) => {
+			onSubmit = (values: IGameFormFields) => createGame(values);
+			redirectOnSubmit = (game: IGame, values: IGameFormFields) => {
 				if (values.disableRedirectOnAdd) {
 					return false;
 				}
@@ -343,7 +338,7 @@ class _GamePage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/games`}>Return to game list</NavCard>
 					<h1>{header}</h1>
-					<BasicForm<GameFields, IGame>
+					<BasicForm<IGameFormFields, IGame>
 						alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
 						fieldGroups={values => this.getFieldGroups(values)}
 						initialValues={this.getInitialValues()}

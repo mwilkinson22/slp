@@ -8,10 +8,7 @@ import { AxiosInstance } from "axios";
 //Enum
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
-import { ICompetition } from "~/models/Competition";
-
-//Form Fields
-import { CompetitionFields } from "~/client/pages/CompetitionPage";
+import { ICompetition, ICompetitionFormFields } from "~/models/Competition";
 
 //Action Interfaces
 interface FetchCompetitionAction {
@@ -35,7 +32,7 @@ export const fetchAllCompetitions = () => {
 	};
 };
 
-export const createCompetition = (values: CompetitionFields) => {
+export const createCompetition = (values: ICompetitionFormFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<ICompetition>("/competitions", values);
 		if (res.data) {
@@ -49,7 +46,7 @@ export const createCompetition = (values: CompetitionFields) => {
 	};
 };
 
-export const updateCompetition = (id: string, values: CompetitionFields) => {
+export const updateCompetition = (id: string, values: ICompetitionFormFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
 		const res = await api.put<ICompetition>(`/competitions/${id}`, values);
 		if (res.data) {

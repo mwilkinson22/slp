@@ -20,7 +20,7 @@ import { getPasswordErrors, getUsernameErrors } from "~/helpers/userHelper";
 //Interfaces & Enums
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
-import { IUser } from "~/models/User";
+import { IUser, IUserFormFields } from "~/models/User";
 import { FormFieldTypes, IFieldAny, IFieldGroup } from "~/enum/FormFieldTypes";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
@@ -29,10 +29,6 @@ interface IState {
 	show404: boolean;
 	user?: IUser;
 	validationSchema: Yup.ObjectSchema;
-}
-type FieldsToOmit = "_id" | "isAdmin";
-export interface UserFields extends Required<Omit<IUser, FieldsToOmit>> {
-	confirmPassword: string;
 }
 
 //Redux
@@ -152,10 +148,10 @@ class _UserPage extends Component<IProps, IState> {
 		}
 	}
 
-	getInitialValues(): UserFields {
+	getInitialValues(): IUserFormFields {
 		const { user } = this.state;
 
-		const defaultValues: UserFields = {
+		const defaultValues: IUserFormFields = {
 			username: "",
 			name: {
 				first: "",
@@ -173,10 +169,10 @@ class _UserPage extends Component<IProps, IState> {
 		return defaultValues;
 	}
 
-	getFieldGroups(): IFieldGroup<UserFields>[] {
+	getFieldGroups(): IFieldGroup<IUserFormFields>[] {
 		const { isNew } = this.state;
 
-		const fields: IFieldAny<UserFields>[] = [
+		const fields: IFieldAny<IUserFormFields>[] = [
 			{ name: "username", type: FormFieldTypes.text, disabled: !isNew },
 			{ name: "name.first", type: FormFieldTypes.text },
 			{ name: "name.last", type: FormFieldTypes.text },
@@ -211,9 +207,9 @@ class _UserPage extends Component<IProps, IState> {
 		let onSubmit, redirectOnSubmit;
 
 		if (user) {
-			onSubmit = (values: UserFields) => updateUser(user._id, values);
+			onSubmit = (values: IUserFormFields) => updateUser(user._id, values);
 		} else {
-			onSubmit = (values: UserFields) => createUser(values);
+			onSubmit = (values: IUserFormFields) => createUser(values);
 			redirectOnSubmit = (user: IUser) => `/users/${user.username}`;
 		}
 
@@ -225,7 +221,7 @@ class _UserPage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/users`}>Return to user list</NavCard>
 					<h1>{header}</h1>
-					<BasicForm<UserFields, IUser>
+					<BasicForm<IUserFormFields, IUser>
 						fieldGroups={this.getFieldGroups()}
 						initialValues={this.getInitialValues()}
 						isNew={isNew}
