@@ -8,6 +8,7 @@ import { Switch, Route, RouteComponentProps } from "react-router-dom";
 import { ErrorBoundary } from "~/client/components/hoc/ErrorBoundary";
 import { NotFoundPage } from "~/client/components/global/NotFoundPage";
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
+import { NavCard } from "~/client/components/global/NavCard";
 import { ItemList } from "~/client/components/global/ItemList";
 
 //Interfaces
@@ -15,13 +16,18 @@ import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps {}
 
+//Settings Pages
+import { SingleGamePostSettings } from "~/client/pages/settings/SingleGamePostSettings";
+
 //Page List
 type SettingsPage = {
 	path: string;
 	title: string;
 	component: ComponentType<any>;
 };
-const SettingsPages: SettingsPage[] = [];
+const SettingsPages: SettingsPage[] = [
+	{ path: "single-game-post", title: "Single Game Post", component: SingleGamePostSettings }
+];
 
 //Redux
 function mapStateToProps({ config, users }: StoreState) {
@@ -37,6 +43,7 @@ class _SettingsRouter extends Component<IProps> {
 		return (
 			<div>
 				<HelmetBuilder title={title} />
+				<NavCard to={"/settings"}>Return to Settings Page</NavCard>
 				<h1>{title}</h1>
 				<ErrorBoundary>
 					<Component {...routeProps} content={pageTitle} />

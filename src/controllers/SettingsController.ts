@@ -13,26 +13,32 @@ import { requireAdmin } from "~/middleware/requireAdmin";
 import { ISettings, Settings, defaultSettings } from "~/models/Settings";
 
 //Get Settings method
-export async function getSettings(names?: (keyof ISettings)[]): Promise<Partial<ISettings>> {
+export async function getSettings(groups?: (keyof ISettings)[]): Promise<Partial<ISettings>> {
 	// If no "names" param is supplied we simply pull the keys from the defaultSettings object.
-	// This ensures we'll get all required keys, since defaultSettings invokes ISettings
-	if (!names) {
-		names = Object.keys(defaultSettings) as (keyof ISettings)[];
+	// This ensures we'll get all required groups, since defaultSettings invokes ISettings
+	if (!groups) {
+		groups = Object.keys(defaultSettings) as (keyof ISettings)[];
 	}
 
 	//Pull settings from DB
-	const settingsFromDb = await Settings.find({ name: { $in: names } }).lean();
+	const settingsFromDb = await Settings.find({ group: { $in: groups as string[] } }).lean();
 
 	//Combine into one object
-	const settings = names.map(key => {
-		//Try and use DB entry first
-		const dbEntry = settingsFromDb.find(({ name }) => key === name);
-		if (dbEntry) {
-			return [key, dbEntry.value];
-		}
+	const settings = groups.map(key => {
+		//First, pull the defaultSettings entry. We know this corresponds to the interface
+		const values = defaultSettings[key as keyof ISettings];
+
+		//Then find any corresponding database values and map them in
+		settingsFromDb
+			.filter(({ group }) => key === group)
+			.forEach(({ name, value }) => {
+				if (Object.prototype.hasOwnProperty.call(values, name)) {
+					values[name] = value;
+				}
+			});
 
 		//Otherwise return default value
-		return [key, defaultSettings[key as keyof ISettings]];
+		return [key, values];
 	});
 
 	return _.fromPairs(settings);
@@ -58,16 +64,21 @@ class SettingsController {
 
 		//Create bulkOperations array
 		const bulkOperations = [];
-		for (const name in values) {
-			//Ensure we save an empty string instead of null
-			const value = values[name as keyof ISettings] || "";
-			bulkOperations.push({
-				updateOne: {
-					filter: { name },
-					update: { name, value },
-					upsert: true
-				}
-			});
+		//First, loop through the groups
+		for (const group in values) {
+			//Then through the name/value pairs
+			for (const name in values[group]) {
+				//Ensure we save an empty string instead of null
+				const value = (values[group] as Record<string, string>)[name] || "";
+
+				bulkOperations.push({
+					updateOne: {
+						filter: { name, group },
+						update: { name, group, value },
+						upsert: true
+					}
+				});
+			}
 		}
 
 		//Write Values

@@ -76,12 +76,18 @@
 		}
 	}
 
-	input:not([type="color"]) {
+	input:not([type="color"]),
+	textarea {
 		padding: 4pt 8pt;
 		font-size: 11pt;
 		outline: none;
 		border: solid thin #222;
 		border-radius: 4pt;
+	}
+
+	textarea {
+		resize: vertical;
+		font-family: inherit;
 	}
 
 	label {

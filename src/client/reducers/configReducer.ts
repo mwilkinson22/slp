@@ -24,12 +24,11 @@ export default function (state: ConfigState = null, action: ConfigAction | UserA
 
 		case ActionTypes.GET_SETTINGS: {
 			if (state) {
+				const settings = { ...state.settings };
+				Object.assign(settings, action.payload);
 				return {
 					...state,
-					settings: {
-						...state.settings,
-						...action.payload
-					}
+					settings
 				};
 			}
 			return state;

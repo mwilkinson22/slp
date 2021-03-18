@@ -17,7 +17,7 @@ import { FormFieldTypes, IFieldAny, IFieldGroup, IFormikValuesObject } from "~/e
 import { extractYupData, renderFieldGroup, getTouchedNestedErrors } from "~/helpers/formHelper";
 
 //Interfaces
-interface IPassedProps<T, O> {
+export interface IPassedProps<T, O = any> {
 	alterValuesBeforeSubmit?: (values: T) => T | void;
 	fastFieldByDefault?: boolean;
 	fieldGroups: IFieldGroup<T>[] | ((values: T) => IFieldGroup<T>[]);
