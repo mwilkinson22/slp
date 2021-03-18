@@ -47,7 +47,7 @@ const routeMap = {
 
 const routes: RouteConfig[] = _.map(routeMap, (component, path) => ({ component, path, exact: true }));
 routes.push({
-	component: () => NotFoundPage({}),
+	component: NotFoundPage,
 	path: "/"
 });
 

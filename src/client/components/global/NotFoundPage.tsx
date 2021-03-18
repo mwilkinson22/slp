@@ -1,7 +1,8 @@
 import React from "react";
+import { RouteComponentProps } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
-interface IProps {
+interface IProps extends Partial<RouteComponentProps<any>> {
 	message?: string;
 }
 
