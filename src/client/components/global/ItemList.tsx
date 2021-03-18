@@ -6,6 +6,9 @@ import { Link } from "react-router-dom";
 import { KeyOfType } from "~/types/KeyOfType";
 import { StoreState } from "~/client/reducers";
 
+//Components
+import { ErrorBoundary } from "~/client/components/hoc/ErrorBoundary";
+
 //Interfaces
 interface IPassedProps<T> {
 	display: KeyOfType<T, string> | ((o: T) => string | { content: ReactNode; textValue: string });
@@ -125,10 +128,12 @@ class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, ISta
 
 	render(): ReactNode {
 		return (
-			<div className="item-list">
-				{this.renderSearchBar()}
-				<ul>{this.renderList()}</ul>
-			</div>
+			<ErrorBoundary>
+				<div className="item-list">
+					{this.renderSearchBar()}
+					<ul>{this.renderList()}</ul>
+				</div>
+			</ErrorBoundary>
 		);
 	}
 }

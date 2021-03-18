@@ -7,6 +7,7 @@ import { diff } from "deep-object-diff";
 import { ObjectSchema } from "yup";
 
 //Components
+import { ErrorBoundary } from "~/client/components/hoc/ErrorBoundary";
 import { DeleteButtons } from "./DeleteButtons";
 
 //Enums
@@ -438,6 +439,10 @@ export class BasicForm<T, O = any> extends Component<IPassedProps<T, O>, IState<
 	}
 
 	render() {
-		return React.createElement(withRouter(_BasicForm as ComponentType<IProps<T, O>>), this.props);
+		return (
+			<ErrorBoundary>
+				{React.createElement(withRouter(_BasicForm as ComponentType<IProps<T, O>>), this.props)}
+			</ErrorBoundary>
+		);
 	}
 }

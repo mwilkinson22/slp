@@ -6,6 +6,7 @@ import { RouteComponentProps } from "react-router-dom";
 
 //Components
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
+import { ErrorBoundary } from "~/client/components/hoc/ErrorBoundary";
 import { ScrollToTop } from "./components/hoc/ScrollToTop";
 import { Header } from "./components/global/Header";
 import { Login } from "./components/auth/Login";
@@ -51,11 +52,15 @@ class _App extends Component<IProps, IState> {
 		}
 
 		return (
-			<ScrollToTop>
-				<HelmetBuilder />
-				<Header />
-				<div className="main">{renderRoutes(route?.routes)}</div>
-			</ScrollToTop>
+			<ErrorBoundary>
+				<ScrollToTop>
+					<HelmetBuilder />
+					<Header />
+					<div className="main">
+						<ErrorBoundary showCloseButton={true}>{renderRoutes(route?.routes)}</ErrorBoundary>
+					</div>
+				</ScrollToTop>
+			</ErrorBoundary>
 		);
 	}
 }
