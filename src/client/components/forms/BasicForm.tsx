@@ -29,6 +29,7 @@ interface IPassedProps<T, O> {
 	onDelete?: () => any;
 	onReset?: () => any;
 	onSubmit: (values: any, formikProps: FormikHelpers<T>) => any;
+	preventFormUpdate?: boolean;
 	promptOnExit?: boolean;
 	redirectOnDelete?: string;
 	redirectOnSubmit?: string | ((returnedObject: O, originalValues: T) => string | false);
@@ -414,8 +415,8 @@ class _BasicForm<T extends IFormikValuesObject, O> extends Component<IProps<T, O
 	}
 }
 
-export function BasicForm<T, O = any>(passedProps: IPassedProps<T, O>) {
-	const defaultProps = {
+export class BasicForm<T, O = any> extends Component<IPassedProps<T, O>, IState<T, O>> {
+	static defaultProps = {
 		fastFieldByDefault: true,
 		includeResetButton: true,
 		isInitialValid: false,
@@ -426,9 +427,17 @@ export function BasicForm<T, O = any>(passedProps: IPassedProps<T, O>) {
 		useCard: true,
 		useGrid: true
 	};
-	const props = {
-		...defaultProps,
-		...passedProps
-	};
-	return React.createElement(withRouter(_BasicForm as ComponentType<IProps<T, O>>), props);
+
+	shouldComponentUpdate(nextProps: Readonly<IPassedProps<T, O>>): boolean {
+		const { preventFormUpdate } = nextProps;
+		//If we pass in preventFormUpdate={true}, then the form won't re-render on new props.
+		//This allows us to use the multi-add functionality on GamePage.
+		//It will be ignored if we don't want to multi-add as the redirect will force
+		//a re-render in the parent
+		return !preventFormUpdate;
+	}
+
+	render() {
+		return React.createElement(withRouter(_BasicForm as ComponentType<IProps<T, O>>), this.props);
+	}
 }

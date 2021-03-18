@@ -346,6 +346,7 @@ class _GamePage extends Component<IProps, IState> {
 						itemType={"Game"}
 						onDelete={onDelete}
 						onSubmit={onSubmit}
+						preventFormUpdate={isNew}
 						redirectOnDelete={"/games"}
 						redirectOnSubmit={redirectOnSubmit}
 						showErrorSummary={false}
