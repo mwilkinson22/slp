@@ -14,11 +14,13 @@ export function SingleGamePostSettings() {
 	type FormFields = ISettings["singleGamePost"];
 
 	//Get Field Groups
+	const teamNameLabels = ["Short", "Long", "Nickname"].map(label => ({ label, value: label.toLowerCase() }));
 	const fieldGroups: IFieldGroup<FormFields>[] = [
 		{
 			fields: [
 				{ name: "defaultTweetText", type: FormFieldTypes.textarea },
-				{ name: "defaultImageText", type: FormFieldTypes.textarea }
+				{ name: "defaultImageText", type: FormFieldTypes.textarea },
+				{ name: "teamName", type: FormFieldTypes.radio, options: teamNameLabels }
 			]
 		}
 	];
@@ -26,7 +28,8 @@ export function SingleGamePostSettings() {
 	//Create Validation Schema
 	const validationSchema = Yup.object().shape({
 		defaultTweetText: Yup.string().required().label("Default Tweet Text"),
-		defaultImageText: Yup.string().required().label("Default Image Text")
+		defaultImageText: Yup.string().required().label("Default Image Text"),
+		teamName: Yup.string().required().label("Team Name To Use")
 	});
 
 	return (

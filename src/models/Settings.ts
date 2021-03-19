@@ -19,13 +19,15 @@ export interface ISettings extends Record<string, Record<string, string>> {
 	singleGamePost: {
 		defaultTweetText: string;
 		defaultImageText: string;
+		teamName: "short" | "long" | "nickname";
 	};
 }
 
 export const defaultSettings: ISettings = {
 	singleGamePost: {
 		defaultTweetText: "",
-		defaultImageText: ""
+		defaultImageText: "",
+		teamName: "short"
 	}
 };
 
