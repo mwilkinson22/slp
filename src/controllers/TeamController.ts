@@ -10,7 +10,11 @@ import { requireAuth } from "~/middleware/requireAuth";
 import { requireAdmin } from "~/middleware/requireAdmin";
 
 //Models
-import { Team, ITeamFormFields } from "~/models/Team";
+import { Team, ITeamFormFields, ITeam } from "~/models/Team";
+
+//Canvases
+import { TeamBanner } from "~/canvas/TeamBanner";
+import { ISettings } from "~/models/Settings";
 
 //Controller
 @controller("/api/teams")
@@ -28,7 +32,7 @@ class TeamController {
 	/* --------------------------------- */
 
 	//Get all teams
-	@get("/")
+	@get("/all")
 	@use(requireAuth)
 	async getAllTeams(req: Request, res: Response) {
 		const teams = await Team.find({}).lean();
@@ -76,5 +80,18 @@ class TeamController {
 		//Remove
 		await team.remove();
 		res.send({});
+	}
+
+	//Get Team Banner Preview
+	@use(requireAuth)
+	@post("/bannerPreview")
+	async getBannerPreview(req: Request, res: Response) {
+		const values: ITeam = req.body.team;
+		const format: ISettings["singleGamePost"]["teamName"] = req.body.nameFormat;
+
+		//Create Image and return
+		const image = new TeamBanner(values, format, true, 600, 95);
+		const result = await image.renderToBase64();
+		res.send(result);
 	}
 }

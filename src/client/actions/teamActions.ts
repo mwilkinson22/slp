@@ -27,7 +27,7 @@ export type TeamAction = FetchTeamAction | FetchAllTeamsAction | DeleteTeamActio
 
 export const fetchAllTeams = () => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
-		const res = await api.get<Record<ITeam["_id"], ITeam>>("/teams");
+		const res = await api.get<Record<ITeam["_id"], ITeam>>("/teams/all");
 		dispatch<FetchAllTeamsAction>({ type: ActionTypes.FETCH_ALL_TEAMS, payload: res.data });
 	};
 };
@@ -69,5 +69,17 @@ export const deleteTeam = (id: string) => {
 			return true;
 		}
 		return false;
+	};
+};
+
+//Images
+export const previewTeamBanner = (team: ITeamFormFields) => {
+	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance): Promise<string | null> => {
+		const nameFormat = getState().config.settings.singleGamePost.teamName;
+		const res = await api.post<string>("/teams/bannerPreview", { team, nameFormat });
+		if (res.data) {
+			return res.data;
+		}
+		return null;
 	};
 };

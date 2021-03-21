@@ -25,6 +25,7 @@ import { ITeam, ITeamFormFields } from "~/models/Team";
 import { FormFieldTypes, IFieldGroup, IField_Select } from "~/enum/FormFieldTypes";
 import { convertRecordToSelectOptions } from "~/helpers/formHelper";
 import { IGround } from "~/models/Ground";
+import { TeamBannerPreview } from "~/client/components/TeamBannerPreview";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
@@ -38,8 +39,8 @@ interface IState {
 
 //Redux
 function mapStateToProps({ config, grounds, teams }: StoreState) {
-	const { authUser } = config;
-	return { authUser: authUser as IUser, grounds, teams };
+	const { authUser, settings } = config;
+	return { authUser: authUser as IUser, settings, grounds, teams };
 }
 const mapDispatchToProps = { fetchAllGrounds, fetchAllTeams, createTeam, updateTeam, deleteTeam };
 const connector = connect(mapStateToProps, mapDispatchToProps);
@@ -213,6 +214,10 @@ class _TeamPage extends Component<IProps, IState> {
 						}
 					}
 				]
+			},
+			{
+				label: "Banner Preview",
+				render: values => <TeamBannerPreview key="bannerPreview" values={values} />
 			}
 		];
 	}

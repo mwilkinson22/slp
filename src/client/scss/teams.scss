@@ -24,3 +24,19 @@
 		}
 	}
 }
+
+.team-banner-preview {
+	&.dark {
+		background: #111;
+	}
+	img {
+		display: block;
+		left: 0;
+		right: 0;
+		margin: 8pt auto 0;
+	}
+
+	& > *:last-child {
+		margin-bottom: 8pt;
+	}
+}
