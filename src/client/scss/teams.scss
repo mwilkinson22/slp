@@ -40,3 +40,26 @@
 		margin-bottom: 8pt;
 	}
 }
+
+.team-colour-selectors {
+	display: grid;
+	align-items: center;
+	justify-content: start;
+	justify-self: start;
+	grid-gap: 10pt;
+
+	.error {
+		display: none;
+	}
+	input {
+		margin-right: 10pt;
+	}
+
+	@media #{$mobile-only} {
+		grid-template-columns: auto 1fr;
+	}
+
+	@media #{$desktop-and-tablet} {
+		grid-template-columns: repeat(3, auto 1fr);
+	}
+}

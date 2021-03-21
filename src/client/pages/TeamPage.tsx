@@ -23,7 +23,7 @@ import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
 import { ITeam, ITeamFormFields } from "~/models/Team";
 import { FormFieldTypes, IFieldGroup, IField_Select } from "~/enum/FormFieldTypes";
-import { convertRecordToSelectOptions } from "~/helpers/formHelper";
+import { convertRecordToSelectOptions, renderFieldGroup } from "~/helpers/formHelper";
 import { IGround } from "~/models/Ground";
 import { TeamBannerPreview } from "~/client/components/TeamBannerPreview";
 
@@ -161,7 +161,7 @@ class _TeamPage extends Component<IProps, IState> {
 
 	getFieldGroups(): IFieldGroup<ITeamFormFields>[] {
 		const { teams } = this.props;
-		const { groundOptions, team } = this.state;
+		const { groundOptions, team, validationSchema } = this.state;
 
 		//Create image dependency check
 		let dependentCheck;
@@ -194,11 +194,21 @@ class _TeamPage extends Component<IProps, IState> {
 			},
 			{
 				label: "Colours",
-				fields: [
-					{ name: "colours.main", type: FormFieldTypes.colour },
-					{ name: "colours.trim", type: FormFieldTypes.colour },
-					{ name: "colours.text", type: FormFieldTypes.colour }
-				]
+				render: () => {
+					const fields = renderFieldGroup(
+						[
+							{ name: "colours.main", type: FormFieldTypes.colour },
+							{ name: "colours.trim", type: FormFieldTypes.colour },
+							{ name: "colours.text", type: FormFieldTypes.colour }
+						],
+						validationSchema
+					);
+					return (
+						<div className="team-colour-selectors full-span" key="colours">
+							{fields}
+						</div>
+					);
+				}
 			},
 			{
 				label: "Images",
@@ -254,7 +264,7 @@ class _TeamPage extends Component<IProps, IState> {
 		//Get Header
 		const header = team ? `Edit ${team.name.short}` : "Add New Team";
 		return (
-			<section className="admin-page user-page">
+			<section className="admin-page team-page">
 				<HelmetBuilder title={header} />
 				<div className="container">
 					<NavCard to={`/teams`}>Return to team list</NavCard>
