@@ -15,7 +15,7 @@ export interface ISetting_Mongoose extends ISetting_Root, Document {
 	_id: ISetting_Root["_id"];
 }
 
-export interface ISettings extends Record<string, Record<string, string>> {
+export interface ISettings {
 	singleGamePost: {
 		defaultTweetText: string;
 		defaultImageText: string;

@@ -1,5 +1,4 @@
 //Modules
-import _ from "lodash";
 import { Request, Response } from "express";
 
 //Decorators
@@ -13,42 +12,52 @@ import { requireAdmin } from "~/middleware/requireAdmin";
 import { ISettings, Settings, defaultSettings } from "~/models/Settings";
 
 //Get Settings method
-export async function getSettings(groups?: (keyof ISettings)[]): Promise<Partial<ISettings>> {
-	// If no "names" param is supplied we simply pull the keys from the defaultSettings object.
-	// This ensures we'll get all required groups, since defaultSettings invokes ISettings
-	if (!groups) {
-		groups = Object.keys(defaultSettings) as (keyof ISettings)[];
+export async function getSettings(): Promise<ISettings>;
+export async function getSettings(group: keyof ISettings): Promise<ISettings[keyof ISettings]>;
+export async function getSettings(group?: keyof ISettings) {
+	//Conditionally limit what we pull from the DB
+	const query: Record<string, keyof ISettings> = {};
+	if (group) {
+		query.group = group;
 	}
+	const settingsFromDb = await Settings.find(query).lean();
 
-	//Pull settings from DB
-	const settingsFromDb = await Settings.find({ group: { $in: groups as string[] } }).lean();
-
-	//Combine into one object
-	const settings = groups.map(key => {
+	//A callback function that takes a group name, and returns all its settings
+	const mergeDbAndDefaultValues = (key: keyof ISettings): ISettings[keyof ISettings] => {
 		//First, pull the defaultSettings entry. We know this corresponds to the interface
-		const values = defaultSettings[key as keyof ISettings];
+		const values: ISettings[typeof key] = { ...defaultSettings[key] };
 
 		//Then find any corresponding database values and map them in
-		settingsFromDb
-			.filter(({ group }) => key === group)
-			.forEach(({ name, value }) => {
-				if (Object.prototype.hasOwnProperty.call(values, name)) {
-					values[name] = value;
-				}
-			});
+		for (const name in values) {
+			const valueFromDb = settingsFromDb.find(s => s.group === key && s.name === name);
+
+			if (valueFromDb) {
+				Object.assign(values, { [name]: valueFromDb.value });
+			}
+		}
 
 		//Otherwise return default value
-		return [key, values];
-	});
+		return values;
+	};
 
-	return _.fromPairs(settings);
+	if (group) {
+		//If we want one specific group, then we just call the callback and return it
+		return mergeDbAndDefaultValues(group);
+	} else {
+		//Otherwise, loop all the groups and return the result
+		const values: ISettings = { ...defaultSettings };
+		for (const group in values) {
+			const results = mergeDbAndDefaultValues(group as keyof ISettings);
+			Object.assign(values, { [group]: results });
+		}
+		return values;
+	}
 }
 
 //Controller
 @controller("/api/settings")
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class SettingsController {
-	//API Access to all settings
 	@get("/")
 	@use(requireAuth)
 	async getAllSettings(req: Request, res: Response) {
@@ -67,9 +76,9 @@ class SettingsController {
 		//First, loop through the groups
 		for (const group in values) {
 			//Then through the name/value pairs
-			for (const name in values[group]) {
+			for (const name in values[group as keyof ISettings]) {
 				//Ensure we save an empty string instead of null
-				const value = (values[group] as Record<string, string>)[name] || "";
+				const value = (values[group as keyof ISettings] as Record<string, string>)[name] || "";
 
 				bulkOperations.push({
 					updateOne: {
