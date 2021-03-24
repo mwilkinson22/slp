@@ -18,6 +18,7 @@ interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps {
 
 //Settings Pages
 import { SingleGamePostSettings } from "~/client/pages/settings/SingleGamePostSettings";
+import { MultiGamePostSettings } from "~/client/pages/settings/MultiGamePostSettings";
 
 //Page List
 type SettingsPage = {
@@ -26,7 +27,8 @@ type SettingsPage = {
 	component: ComponentType<any>;
 };
 const SettingsPages: SettingsPage[] = [
-	{ path: "single-game-post", title: "Single Game Post", component: SingleGamePostSettings }
+	{ path: "single-game-post", title: "Single Game Post", component: SingleGamePostSettings },
+	{ path: "multi-game-post", title: "Multiple Game Post", component: MultiGamePostSettings }
 ];
 
 //Redux

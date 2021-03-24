@@ -22,6 +22,12 @@ export interface ISettings {
 		teamName: "short" | "long" | "nickname";
 		backupGroundText: string;
 	};
+	multiGamePost: {
+		defaultText: string;
+		//"0" = Sunday, "1" = Monday, etc
+		postDate: string;
+		postTime: string;
+	};
 }
 
 export const defaultSettings: ISettings = {
@@ -30,6 +36,11 @@ export const defaultSettings: ISettings = {
 		defaultImageText: "",
 		teamName: "short",
 		backupGroundText: "the Game"
+	},
+	multiGamePost: {
+		defaultText: "s",
+		postDate: "5",
+		postTime: "18:00"
 	}
 };
 
