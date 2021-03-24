@@ -73,7 +73,18 @@ export const deleteGame = (id: string) => {
 	};
 };
 
-//Images
+//Get Single Post Data
+export const getSingleGamePostText = (_id?: string | null, overrideSettings?: ISettings["singleGamePost"]) => {
+	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance): Promise<string | null> => {
+		//If we don't pass in an _id, we send "any" to the server and will get a random game back
+		const res = await api.post<string>(`/games/singlePostPreviewText/${_id || "any"}`, { overrideSettings });
+		if (res.data) {
+			return res.data;
+		}
+		return null;
+	};
+};
+
 export const previewSingleGameImage = (_id?: string | null, overrideSettings?: ISettings["singleGamePost"]) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance): Promise<string | null> => {
 		//If we don't pass in an _id, we send "any" to the server and will get a random game back

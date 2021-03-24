@@ -5,15 +5,16 @@ import * as Yup from "yup";
 
 //Components
 import { BasicSettingsPage } from "~/client/pages/settings/BasicSettingsPage";
-import { CanvasPreview } from "~/client/components/forms/CanvasPreview";
+import { ServerContentPreview } from "~/client/components/forms/ServerContentPreview";
 
 //Interfaces & Enums
 import { ISettings } from "~/models/Settings";
 import { FormFieldTypes, IFieldGroup } from "~/enum/FormFieldTypes";
-import { previewSingleGameImage } from "~/client/actions/gameActions";
+import { previewSingleGameImage, getSingleGamePostText } from "~/client/actions/gameActions";
+import { gameVariableMap } from "~/helpers/gameHelper";
 
 //Redux
-const connector = connect(null, { previewSingleGameImage });
+const connector = connect(null, { getSingleGamePostText, previewSingleGameImage });
 
 //Component
 function _SingleGamePostSettings(props: ConnectedProps<typeof connector>) {
@@ -23,23 +24,69 @@ function _SingleGamePostSettings(props: ConnectedProps<typeof connector>) {
 	const teamNameLabels = ["Short", "Long", "Nickname"].map(label => ({ label, value: label.toLowerCase() }));
 	const fieldGroups: IFieldGroup<FormFields>[] = [
 		{
+			label: "Text Settings",
+			render: () => {
+				const variablePairs = [];
+				for (const variable in gameVariableMap) {
+					variablePairs.push(
+						<label key={`${variable}-label`}>%{variable}%</label>,
+						<span key={`${variable}-desc`}>{gameVariableMap[variable].description}</span>
+					);
+				}
+
+				return (
+					<div className="single-post-variables full-span" key="variable-map">
+						<h6>Variables</h6>
+						<p>
+							The following variables can be used in the template, and will be automatically populated for
+							each game
+						</p>
+						<div className="map">{variablePairs}</div>
+					</div>
+				);
+			}
+		},
+		{
 			fields: [
 				{ name: "defaultTweetText", type: FormFieldTypes.textarea },
+				{ name: "backupGroundText", type: FormFieldTypes.text }
+			]
+		},
+		{
+			render: (values: FormFields) => (
+				<ServerContentPreview
+					key="preview"
+					getData={() => props.getSingleGamePostText(null, values)}
+					renderContent={"textarea"}
+				/>
+			)
+		},
+		{
+			render: () => <hr key="divider-1" />
+		},
+		{
+			label: "Image Settings",
+			fields: [
 				{ name: "defaultImageText", type: FormFieldTypes.textarea },
 				{ name: "teamName", type: FormFieldTypes.radio, options: teamNameLabels }
 			]
 		},
 		{
 			render: (values: FormFields) => (
-				<CanvasPreview key="preview" getImage={() => props.previewSingleGameImage(null, values)} />
+				<ServerContentPreview
+					key="preview"
+					getData={() => props.previewSingleGameImage(null, values)}
+					renderContent={"image"}
+				/>
 			)
 		}
 	];
 
 	//Create Validation Schema
 	const validationSchema = Yup.object().shape({
-		defaultTweetText: Yup.string().required().label("Default Tweet Text"),
-		defaultImageText: Yup.string().required().label("Default Image Text"),
+		defaultTweetText: Yup.string().required().label("Default Text"),
+		defaultImageText: Yup.string().required().label("Image Text"),
+		backupGroundText: Yup.string().required().label("Backup Ground Text"),
 		teamName: Yup.string().required().label("Team Name To Use")
 	});
 

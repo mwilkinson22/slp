@@ -20,6 +20,7 @@ export interface ISettings {
 		defaultTweetText: string;
 		defaultImageText: string;
 		teamName: "short" | "long" | "nickname";
+		backupGroundText: string;
 	};
 }
 
@@ -27,7 +28,8 @@ export const defaultSettings: ISettings = {
 	singleGamePost: {
 		defaultTweetText: "",
 		defaultImageText: "",
-		teamName: "short"
+		teamName: "short",
+		backupGroundText: "the Game"
 	}
 };
 

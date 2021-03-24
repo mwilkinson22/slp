@@ -25,7 +25,7 @@ import { ITeam, ITeamFormFields } from "~/models/Team";
 import { FormFieldTypes, IFieldGroup, IField_Select } from "~/enum/FormFieldTypes";
 import { convertRecordToSelectOptions, renderFieldGroup } from "~/helpers/formHelper";
 import { IGround } from "~/models/Ground";
-import { CanvasPreview } from "~/client/components/forms/CanvasPreview";
+import { ServerContentPreview } from "~/client/components/forms/ServerContentPreview";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
@@ -228,11 +228,12 @@ class _TeamPage extends Component<IProps, IState> {
 			{
 				label: "Banner Preview",
 				render: values => (
-					<CanvasPreview
+					<ServerContentPreview
 						key="bannerPreview"
-						getImage={() => previewTeamBanner(values)}
+						getData={() => previewTeamBanner(values)}
 						darkBackgroundToggle={true}
-						loadImageOnFirstRender={true}
+						loadOnFirstRender={true}
+						renderContent={"image"}
 					/>
 				)
 			}

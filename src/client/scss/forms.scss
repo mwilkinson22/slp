@@ -237,11 +237,11 @@
 		}
 	}
 
-	.canvas-preview {
+	.server-content-preview {
 		&.dark {
 			background: #111;
 		}
-		img {
+		& > *:not(.buttons) {
 			display: block;
 			left: 0;
 			right: 0;
@@ -249,8 +249,26 @@
 			max-width: 100%;
 		}
 
+		textarea {
+			width: 100%;
+			resize: vertical;
+			height: 100pt;
+		}
+
 		& > *:last-child {
 			margin-bottom: 8pt;
 		}
+	}
+}
+
+.single-post-variables {
+	padding: 10pt;
+	background: #ddd;
+	margin-bottom: 10pt;
+	.map {
+		display: grid;
+		align-items: center;
+		grid-template-columns: auto 1fr;
+		grid-gap: 10pt;
 	}
 }

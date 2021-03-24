@@ -35,12 +35,9 @@ export interface IGame_Mongoose extends IGame_Root, Document {
 export interface IGameForImagePost extends Omit<IGame, "_homeTeam" | "_awayTeam" | "_ground" | "_competition"> {
 	_homeTeam: ITeam;
 	_awayTeam: ITeam;
-	_ground?: {
-		image: IGround["image"];
-	};
-	_competition: {
-		image: ICompetition["image"];
-	};
+	_ground?: IGround;
+	_competition: ICompetition;
+	hashtags: string[];
 }
 
 type FormFieldsToOmit = "_id" | "retweeted" | "tweetId";
@@ -66,6 +63,33 @@ const GameSchema = new Schema<IGame_Mongoose>({
 	includeInWeeklyPost: { type: Boolean, required: true },
 	tweetId: { type: String, default: null },
 	retweeted: { type: Boolean, default: false }
+});
+
+//Hashtags
+GameSchema.virtual("hashtags").get(function (this: IGame_Mongoose | IGameForImagePost) {
+	const { _homeTeam, _awayTeam, _competition, customHashtag, overwriteHashtag } = this;
+	const hashtags = [];
+
+	//Always add the custom hashtag if we have one
+	if (customHashtag) {
+		hashtags.push(customHashtag);
+	}
+
+	//If we've populated the comp, home and away values, we can auto-generate a hashtag
+	if (typeof _competition === "object" && typeof _homeTeam === "object" && typeof _awayTeam === "object") {
+		//Check we've not disabled this
+		if (!customHashtag || !overwriteHashtag) {
+			let autoHashtag = "";
+
+			//Competition hashtag
+			autoHashtag += _competition.hashtagPrefix;
+			autoHashtag += _homeTeam.hashtag;
+			autoHashtag += _awayTeam.hashtag;
+			hashtags.push(autoHashtag);
+		}
+	}
+
+	return hashtags;
 });
 
 //Population for image

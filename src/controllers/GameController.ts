@@ -20,6 +20,7 @@ import { getSettings } from "~/controllers/SettingsController";
 //Canvases
 import { SingleGameCanvas } from "~/canvas/SingleGameCanvas";
 import { Competition, ICompetition } from "~/models/Competition";
+import { parseGameVariablesForPost } from "~/helpers/gameHelper";
 
 //Controller
 @controller("/api/games")
@@ -49,8 +50,10 @@ class GameController {
 		const competitions: ICompetition[] = await Competition.aggregate([{ $sample: { size: 1 } }]);
 		const _homeTeam = forImage ? teams[0] : teams[0]._id;
 		const _awayTeam = forImage ? teams[1] : teams[1]._id;
-		const _competition = forImage ? { image: competitions[0].image } : competitions[0]._id;
-		return {
+		const _competition = forImage ? competitions[0] : competitions[0]._id;
+
+		//Create basic object
+		const game = {
 			_id: "1",
 			_homeTeam,
 			_awayTeam,
@@ -62,6 +65,16 @@ class GameController {
 			postAfterGame: false,
 			includeInWeeklyPost: false
 		};
+
+		//Add hashtags for image game
+		if (forImage) {
+			return {
+				...game,
+				hashtags: ["GrandFinal"]
+			};
+		}
+
+		return game;
 	}
 
 	/* --------------------------------- */
@@ -136,11 +149,29 @@ class GameController {
 	/* Images
 	/* --------------------------------- */
 	static async getGameForImagePost(_id: string): Promise<IGameForImagePost | false> {
-		const game = await Game.findById(_id)
-			.populate({ path: "_homeTeam" })
-			.populate({ path: "_awayTeam" })
-			.populate({ path: "_ground", select: "image" })
-			.populate({ path: "_competition", select: "image" });
+		//If we've said "any", then we either overwrite _id with that of the next game,
+		//or we set it to "dummy"
+		if (_id === "any") {
+			const randomGame = await Game.findOne({}).sort("date").lean();
+			if (randomGame) {
+				_id = randomGame._id.toString();
+			} else {
+				//If we don't have any games, make one up on the fly
+				_id = "dummy";
+			}
+		}
+
+		//Get the game
+		let game;
+		if (_id === "dummy") {
+			game = await GameController.createDummyGame(true);
+		} else {
+			game = await Game.findById(_id)
+				.populate({ path: "_homeTeam" })
+				.populate({ path: "_awayTeam" })
+				.populate({ path: "_ground" })
+				.populate({ path: "_competition" });
+		}
 
 		if (game) {
 			//Mongoose's Typescript handling doesn't account for population,
@@ -150,6 +181,7 @@ class GameController {
 			return false;
 		}
 	}
+
 	static async generateSingleFixtureImage(
 		game: IGameForImagePost,
 		optionOverride?: Partial<ISettings["singleGamePost"]>
@@ -163,25 +195,37 @@ class GameController {
 		return new SingleGameCanvas(game, options);
 	}
 
+	@post("/singlePostPreviewText/:_id")
+	@use(requireAuth)
+	async getSingleGameText(req: Request, res: Response) {
+		const { _id } = req.params;
+
+		//Get settings
+		const settings = await getSettings();
+		const overrideSettings: ISettings["singleGamePost"] | undefined = req.body.overrideSettings;
+
+		if (overrideSettings) {
+			Object.assign(settings.singleGamePost, overrideSettings);
+		}
+
+		//Get the game object
+		const game = await GameController.getGameForImagePost(_id);
+
+		if (game) {
+			const result = parseGameVariablesForPost(game, settings.singleGamePost.defaultTweetText, settings);
+			res.send(result);
+		} else {
+			GameController.send404(_id, res);
+		}
+	}
+
 	@post("/singlePostPreviewImage/:_id")
 	@use(requireAuth)
 	async previewSingleGameImage(req: Request, res: Response) {
 		const { _id } = req.params;
 		const overrideSettings: ISettings["singleGamePost"] | undefined = req.body.overrideSettings;
 
-		//Get Game
-		let game: IGameForImagePost | false = false;
-		if (_id === "any") {
-			const randomGame: IGame[] = await Game.aggregate([{ $sample: { size: 1 } }, { $project: { _id: true } }]);
-			if (randomGame && randomGame.length) {
-				game = await GameController.getGameForImagePost(randomGame[0]._id);
-			} else {
-				//If we don't have any games, make one up on the fly
-				game = await GameController.createDummyGame(true);
-			}
-		} else if (_id) {
-			game = await GameController.getGameForImagePost(_id);
-		}
+		const game = await GameController.getGameForImagePost(_id);
 
 		if (game) {
 			const canvas = await GameController.generateSingleFixtureImage(game, overrideSettings);

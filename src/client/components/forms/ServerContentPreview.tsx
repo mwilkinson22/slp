@@ -3,41 +3,41 @@ import { LoadingPage } from "~/client/components/global/LoadingPage";
 
 interface IProps {
 	darkBackgroundToggle?: boolean;
-	getImage: () => Promise<string | null>;
-	loadImageOnFirstRender?: boolean;
+	getData: () => Promise<string | null>;
+	loadOnFirstRender?: boolean;
+	renderContent: "image" | "plainText" | "textarea";
 }
 
 interface IState {
 	darkBackground: boolean;
-	image: string | null;
+	data: string | null;
 	isLoading: boolean;
 }
 
-export class CanvasPreview extends Component<IProps, IState> {
+export class ServerContentPreview extends Component<IProps, IState> {
 	defaultProps = {
-		darkBackgroundToggle: "Image",
-		loadImageOnFirstRender: true,
-		title: "Image"
+		darkBackgroundToggle: false,
+		loadOnFirstRender: true
 	};
-	state: IState = { darkBackground: false, image: null, isLoading: false };
+	state: IState = { darkBackground: false, data: null, isLoading: false };
 
 	componentDidMount() {
-		if (this.props.loadImageOnFirstRender) {
+		if (this.props.loadOnFirstRender) {
 			this.updateBannerPreview().then();
 		}
 	}
 
 	async updateBannerPreview() {
-		const { getImage } = this.props;
+		const { getData } = this.props;
 
 		//Clear existing value
 		this.setState({ isLoading: true });
 
 		//Get banner
-		const image = await getImage();
+		const data = await getData();
 
 		//Update state
-		this.setState({ image, isLoading: false });
+		this.setState({ data, isLoading: false });
 	}
 
 	renderDarkButton() {
@@ -53,20 +53,31 @@ export class CanvasPreview extends Component<IProps, IState> {
 	}
 
 	render() {
-		const { darkBackground, image, isLoading } = this.state;
+		const { renderContent } = this.props;
+		const { darkBackground, data, isLoading } = this.state;
 
 		let content;
 		if (isLoading) {
 			content = <LoadingPage />;
-		} else if (image) {
-			content = <img src={image} alt="Preview Image" />;
+		} else if (data) {
+			switch (renderContent) {
+				case "image":
+					content = <img src={data} alt="Image Preview" />;
+					break;
+				case "textarea":
+					content = <textarea disabled={true}>{data}</textarea>;
+					break;
+				case "plainText":
+					content = data;
+					break;
+			}
 		}
 
 		return (
-			<div className={`full-span canvas-preview ${darkBackground ? "dark" : ""}`} key="banner-preview">
+			<div className={`full-span server-content-preview ${darkBackground ? "dark" : ""}`} key="banner-preview">
 				<div className="buttons">
 					<button type="button" disabled={isLoading} onClick={() => this.updateBannerPreview()}>
-						{image ? "Update" : "Get"} Preview
+						{data ? "Update" : "Get"} Preview
 					</button>
 					{this.renderDarkButton()}
 				</div>
