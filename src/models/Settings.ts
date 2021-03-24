@@ -28,6 +28,12 @@ export interface ISettings {
 		postDate: string;
 		postTime: string;
 	};
+	twitterApp: {
+		consumer_key: string;
+		consumer_secret: string;
+		access_token: string;
+		access_token_secret: string;
+	};
 }
 
 export const defaultSettings: ISettings = {
@@ -41,6 +47,12 @@ export const defaultSettings: ISettings = {
 		defaultText: "s",
 		postDate: "5",
 		postTime: "18:00"
+	},
+	twitterApp: {
+		consumer_key: "",
+		consumer_secret: "",
+		access_token: "",
+		access_token_secret: ""
 	}
 };
 

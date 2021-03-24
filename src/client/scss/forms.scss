@@ -45,6 +45,9 @@
 	.buttons {
 		display: flex;
 		justify-content: space-between;
+		&:not(:last-child) {
+			margin-bottom: 14pt;
+		}
 		button {
 			white-space: nowrap;
 
