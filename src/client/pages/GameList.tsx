@@ -70,6 +70,7 @@ class _GameList extends Component<IProps, IState> {
 					display={game => gameAsString(game, teams, true)}
 					itemAsPlural={"Games"}
 					items={games}
+					sortBy={game => new Date(game.date).getTime()}
 					url={game => `/games/${game._id}`}
 				/>
 			</div>
