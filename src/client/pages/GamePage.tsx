@@ -111,7 +111,20 @@ class _GamePage extends Component<IProps, IState> {
 		};
 		const validationSchema = Yup.object().shape({
 			_homeTeam: Yup.string().required().label("Home Team"),
-			_awayTeam: Yup.string().required().label("Away Team"), //TODO ensure home !== away
+			_awayTeam: Yup.string()
+				.required()
+				.test({
+					name: "diff-home-away",
+					message: "Home & Away teams must be different",
+					test: function (away) {
+						if (away) {
+							const home = this.parent._homeTeam;
+							return home !== away;
+						}
+						return true;
+					}
+				})
+				.label("Away Team"),
 			_ground: Yup.string().label("Ground"),
 			_competition: Yup.string().required().label("Competition"),
 			date: Yup.string().required().label("Date"),
