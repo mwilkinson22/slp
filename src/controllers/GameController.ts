@@ -187,7 +187,7 @@ class GameController {
 		optionOverride?: Partial<ISettings["singleGamePost"]>
 	) {
 		//Process options
-		const settingsFromDb = await getSettings("singleGamePost");
+		const settingsFromDb = await getSettings<"singleGamePost">("singleGamePost");
 		const options: ISettings["singleGamePost"] = {
 			...settingsFromDb,
 			...optionOverride

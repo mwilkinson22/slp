@@ -13,7 +13,7 @@ import { ISettings, Settings, defaultSettings } from "~/models/Settings";
 
 //Get Settings method
 export async function getSettings(): Promise<ISettings>;
-export async function getSettings(group: keyof ISettings): Promise<ISettings[keyof ISettings]>;
+export async function getSettings<K extends keyof ISettings>(group: K): Promise<ISettings[K]>;
 export async function getSettings(group?: keyof ISettings) {
 	//Conditionally limit what we pull from the DB
 	const query: Record<string, keyof ISettings> = {};
