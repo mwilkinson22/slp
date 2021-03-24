@@ -37,7 +37,7 @@ function _BasicSettingsPage<T extends ISettings[keyof ISettings]>(props: IProps<
 			initialValues={settings[settingGroup] as T}
 			isNew={false}
 			itemType={"Settings"}
-			onSubmit={values => updateSettings({ singleGamePost: values }, "Game Post Settings")}
+			onSubmit={values => updateSettings({ [settingGroup]: values }, "Game Post Settings")}
 			showErrorSummary={false}
 			validationSchema={validationSchema}
 		/>
