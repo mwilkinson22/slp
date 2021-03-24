@@ -9,11 +9,10 @@ import { BasicSettingsPage } from "~/client/pages/settings/BasicSettingsPage";
 import { ISettings } from "~/models/Settings";
 import { FormFieldTypes, IFieldGroup } from "~/enum/FormFieldTypes";
 
-//Redux
-
 //Component
 export function MultiGamePostSettings() {
-	type FormFields = ISettings["multiGamePost"];
+	const settingsGroup: keyof ISettings = "multiGamePost";
+	type FormFields = ISettings[typeof settingsGroup];
 
 	//Get Field Groups
 	const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((label, value) => ({
@@ -52,7 +51,7 @@ export function MultiGamePostSettings() {
 	return (
 		<BasicSettingsPage<FormFields>
 			fieldGroups={fieldGroups}
-			settingGroup={"multiGamePost"}
+			settingGroup={settingsGroup}
 			validationSchema={validationSchema}
 		/>
 	);
