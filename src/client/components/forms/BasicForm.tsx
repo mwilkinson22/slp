@@ -61,7 +61,7 @@ class _BasicForm<T extends IFormikValuesObject, O> extends Component<IProps<T, O
 		this.state = _.pick(props, ["fieldGroups", "initialValues", "isNew", "validationSchema"]);
 	}
 
-	static getDerivedStateFromProps<T, O>(nextProps: IProps<T, O>) {
+	static getDerivedStateFromProps<T, O>(nextProps: IProps<T, O>): IState<T, O> {
 		return _.pick(nextProps, ["fieldGroups", "initialValues", "isNew", "validationSchema"]);
 	}
 
