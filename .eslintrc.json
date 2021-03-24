@@ -24,6 +24,7 @@
 		"@typescript-eslint/no-inferrable-types": ["off"],
 		"react/jsx-uses-react": "error",
 		"react/jsx-uses-vars": "error",
+		"react/display-name": "off",
 		"react/prop-types": 0,
 		"semi": ["warn", "always"]
 	}

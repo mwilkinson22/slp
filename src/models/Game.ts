@@ -2,6 +2,9 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 //Interfaces
+import { ITeam } from "~/models/Team";
+import { IGround } from "~/models/Ground";
+import { ICompetition } from "~/models/Competition";
 interface IGame_Root {
 	//Basic Info
 	_id: string | Types.ObjectId;
@@ -27,7 +30,17 @@ export interface IGame extends IGame_Root {
 }
 export interface IGame_Mongoose extends IGame_Root, Document {
 	_id: IGame_Root["_id"];
-	date: string;
+}
+
+export interface IGameForImagePost extends Omit<IGame, "_homeTeam" | "_awayTeam" | "_ground" | "_competition"> {
+	_homeTeam: ITeam;
+	_awayTeam: ITeam;
+	_ground?: {
+		image: IGround["image"];
+	};
+	_competition: {
+		image: ICompetition["image"];
+	};
 }
 
 type FormFieldsToOmit = "_id" | "retweeted" | "tweetId";
@@ -54,6 +67,15 @@ const GameSchema = new Schema<IGame_Mongoose>({
 	tweetId: { type: String, default: null },
 	retweeted: { type: Boolean, default: false }
 });
+
+//Population for image
+GameSchema.query.forImage = function () {
+	const teamFields = "name nickname image";
+	return this.populate({ path: "_homeTeam", select: teamFields })
+		.populate({ path: "_awayTeam", select: teamFields })
+		.populate({ path: "_ground", select: "image" })
+		.populate({ path: "_competition", select: "image" });
+};
 
 //Assign to mongoose
 export const Game = mongoose.model<IGame_Mongoose>("games", GameSchema);

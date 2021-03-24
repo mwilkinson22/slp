@@ -1,16 +1,22 @@
 //Modules
 import React from "react";
+import { connect, ConnectedProps } from "react-redux";
 import * as Yup from "yup";
 
 //Components
 import { BasicSettingsPage } from "~/client/pages/settings/BasicSettingsPage";
+import { CanvasPreview } from "~/client/components/forms/CanvasPreview";
 
 //Interfaces & Enums
 import { ISettings } from "~/models/Settings";
 import { FormFieldTypes, IFieldGroup } from "~/enum/FormFieldTypes";
+import { previewSingleGameImage } from "~/client/actions/gameActions";
+
+//Redux
+const connector = connect(null, { previewSingleGameImage });
 
 //Component
-export function SingleGamePostSettings() {
+function _SingleGamePostSettings(props: ConnectedProps<typeof connector>) {
 	type FormFields = ISettings["singleGamePost"];
 
 	//Get Field Groups
@@ -22,6 +28,11 @@ export function SingleGamePostSettings() {
 				{ name: "defaultImageText", type: FormFieldTypes.textarea },
 				{ name: "teamName", type: FormFieldTypes.radio, options: teamNameLabels }
 			]
+		},
+		{
+			render: (values: FormFields) => (
+				<CanvasPreview key="preview" getImage={() => props.previewSingleGameImage(null, values)} />
+			)
 		}
 	];
 
@@ -40,3 +51,4 @@ export function SingleGamePostSettings() {
 		/>
 	);
 }
+export const SingleGamePostSettings = connector(_SingleGamePostSettings);

@@ -9,6 +9,7 @@ import { AxiosInstance } from "axios";
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
 import { IGame, IGameFormFields } from "~/models/Game";
+import { ISettings } from "~/models/Settings";
 
 //Action Interfaces
 interface FetchGameAction {
@@ -69,5 +70,17 @@ export const deleteGame = (id: string) => {
 			return true;
 		}
 		return false;
+	};
+};
+
+//Images
+export const previewSingleGameImage = (_id?: string | null, overrideSettings?: ISettings["singleGamePost"]) => {
+	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance): Promise<string | null> => {
+		//If we don't pass in an _id, we send "any" to the server and will get a random game back
+		const res = await api.post<string>(`/games/singlePostPreviewImage/${_id || "any"}`, { overrideSettings });
+		if (res.data) {
+			return res.data;
+		}
+		return null;
 	};
 };

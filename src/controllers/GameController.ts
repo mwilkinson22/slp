@@ -10,8 +10,16 @@ import { requireAuth } from "~/middleware/requireAuth";
 import { requireAdmin } from "~/middleware/requireAdmin";
 
 //Models
-import { Game, IGameFormFields } from "~/models/Game";
-import { Team } from "~/models/Team";
+import { ISettings } from "~/models/Settings";
+import { Game, IGame, IGameForImagePost, IGameFormFields } from "~/models/Game";
+import { ITeam, Team } from "~/models/Team";
+
+//Helpers
+import { getSettings } from "~/controllers/SettingsController";
+
+//Canvases
+import { SingleGameCanvas } from "~/canvas/SingleGameCanvas";
+import { Competition, ICompetition } from "~/models/Competition";
 
 //Controller
 @controller("/api/games")
@@ -31,6 +39,29 @@ class GameController {
 		}
 
 		return game;
+	}
+
+	static async createDummyGame(forImage: true): Promise<IGameForImagePost>;
+	static async createDummyGame(forImage: false): Promise<IGame>;
+	static async createDummyGame(forImage: boolean) {
+		//Pull extra data
+		const teams: ITeam[] = await Team.aggregate([{ $sample: { size: 2 } }]);
+		const competitions: ICompetition[] = await Competition.aggregate([{ $sample: { size: 1 } }]);
+		const _homeTeam = forImage ? teams[0] : teams[0]._id;
+		const _awayTeam = forImage ? teams[1] : teams[1]._id;
+		const _competition = forImage ? { image: competitions[0].image } : competitions[0]._id;
+		return {
+			_id: "1",
+			_homeTeam,
+			_awayTeam,
+			_competition,
+			date: "2021-01-01",
+			retweeted: false,
+			isOnTv: false,
+			overwriteHashtag: false,
+			postAfterGame: false,
+			includeInWeeklyPost: false
+		};
 	}
 
 	/* --------------------------------- */
@@ -99,5 +130,65 @@ class GameController {
 		//Remove
 		await Game.remove({ date: { $lt: date } });
 		res.send({});
+	}
+
+	/* --------------------------------- */
+	/* Images
+	/* --------------------------------- */
+	static async getGameForImagePost(_id: string): Promise<IGameForImagePost | false> {
+		const game = await Game.findById(_id)
+			.populate({ path: "_homeTeam" })
+			.populate({ path: "_awayTeam" })
+			.populate({ path: "_ground", select: "image" })
+			.populate({ path: "_competition", select: "image" });
+
+		if (game) {
+			//Mongoose's Typescript handling doesn't account for population,
+			//so while this is nasty, it works
+			return (game as any) as IGameForImagePost;
+		} else {
+			return false;
+		}
+	}
+	static async generateSingleFixtureImage(
+		game: IGameForImagePost,
+		optionOverride?: Partial<ISettings["singleGamePost"]>
+	) {
+		//Process options
+		const settingsFromDb = await getSettings("singleGamePost");
+		const options: ISettings["singleGamePost"] = {
+			...settingsFromDb,
+			...optionOverride
+		};
+		return new SingleGameCanvas(game, options);
+	}
+
+	@post("/singlePostPreviewImage/:_id")
+	@use(requireAuth)
+	async previewSingleGameImage(req: Request, res: Response) {
+		const { _id } = req.params;
+		const overrideSettings: ISettings["singleGamePost"] | undefined = req.body.overrideSettings;
+
+		//Get Game
+		let game: IGameForImagePost | false = false;
+		if (_id === "any") {
+			const randomGame: IGame[] = await Game.aggregate([{ $sample: { size: 1 } }, { $project: { _id: true } }]);
+			if (randomGame && randomGame.length) {
+				game = await GameController.getGameForImagePost(randomGame[0]._id);
+			} else {
+				//If we don't have any games, make one up on the fly
+				game = await GameController.createDummyGame(true);
+			}
+		} else if (_id) {
+			game = await GameController.getGameForImagePost(_id);
+		}
+
+		if (game) {
+			const canvas = await GameController.generateSingleFixtureImage(game, overrideSettings);
+			const result = await canvas.render(false);
+			res.send(result);
+		} else {
+			GameController.send404(_id, res);
+		}
 	}
 }
