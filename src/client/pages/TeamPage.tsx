@@ -12,7 +12,7 @@ import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
 
 //Actions
 import { fetchAllGrounds } from "~/client/actions/groundActions";
-import { createTeam, deleteTeam, fetchAllTeams, updateTeam } from "~/client/actions/teamActions";
+import { createTeam, deleteTeam, fetchAllTeams, updateTeam, previewTeamBanner } from "~/client/actions/teamActions";
 
 //Helpers
 import { validateHashtag } from "~/helpers/genericHelper";
@@ -25,7 +25,7 @@ import { ITeam, ITeamFormFields } from "~/models/Team";
 import { FormFieldTypes, IFieldGroup, IField_Select } from "~/enum/FormFieldTypes";
 import { convertRecordToSelectOptions, renderFieldGroup } from "~/helpers/formHelper";
 import { IGround } from "~/models/Ground";
-import { TeamBannerPreview } from "~/client/components/TeamBannerPreview";
+import { CanvasPreview } from "~/client/components/forms/CanvasPreview";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
@@ -42,7 +42,7 @@ function mapStateToProps({ config, grounds, teams }: StoreState) {
 	const { authUser, settings } = config;
 	return { authUser: authUser as IUser, settings, grounds, teams };
 }
-const mapDispatchToProps = { fetchAllGrounds, fetchAllTeams, createTeam, updateTeam, deleteTeam };
+const mapDispatchToProps = { fetchAllGrounds, fetchAllTeams, createTeam, updateTeam, deleteTeam, previewTeamBanner };
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
 //Component
@@ -160,7 +160,7 @@ class _TeamPage extends Component<IProps, IState> {
 	}
 
 	getFieldGroups(): IFieldGroup<ITeamFormFields>[] {
-		const { teams } = this.props;
+		const { teams, previewTeamBanner } = this.props;
 		const { groundOptions, team, validationSchema } = this.state;
 
 		//Create image dependency check
@@ -227,7 +227,14 @@ class _TeamPage extends Component<IProps, IState> {
 			},
 			{
 				label: "Banner Preview",
-				render: values => <TeamBannerPreview key="bannerPreview" values={values} />
+				render: values => (
+					<CanvasPreview
+						key="bannerPreview"
+						getImage={() => previewTeamBanner(values)}
+						darkBackgroundToggle={true}
+						loadImageOnFirstRender={true}
+					/>
+				)
 			}
 		];
 	}
