@@ -15,6 +15,8 @@ import { GameList } from "~/client/pages/GameList";
 import { GroundPage } from "~/client/pages/GroundPage";
 import { GroundList } from "~/client/pages/GroundList";
 
+import { SocialProfilePage } from "~/client/pages/settings/SocialProfilePage";
+
 import { TeamPage } from "~/client/pages/TeamPage";
 import { TeamList } from "~/client/pages/TeamList";
 
@@ -41,6 +43,9 @@ const routeMap = {
 	"/teams/new": TeamPage,
 	"/teams/:_id": TeamPage,
 	"/teams": TeamList,
+
+	"/settings/social-profiles/new": SocialProfilePage,
+	"/settings/social-profiles/:_id": SocialProfilePage,
 
 	"/settings": SettingsRouter,
 

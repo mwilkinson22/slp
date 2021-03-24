@@ -32,7 +32,9 @@ class _TwitterValidator extends Component<IProps, IState> {
 	validate() {
 		const { validateTwitterApp } = this.props;
 		const { values } = this.state;
+		this.setState({ isLoading: true, validationResult: undefined });
 		validateTwitterApp(values).then(validationResult => this.setState({ validationResult }));
+		this.setState({ isLoading: false });
 	}
 
 	renderValidationResult() {
@@ -42,7 +44,7 @@ class _TwitterValidator extends Component<IProps, IState> {
 		}
 
 		if (validationResult.authenticated) {
-			return `Succesfully authenticated as @${validationResult.user}`;
+			return `Succesfully authenticated as @${validationResult.user}!`;
 		} else {
 			return `Authentication failed: ${validationResult.error.toString()}`;
 		}

@@ -115,7 +115,7 @@ type FieldGroupWithFields<T> = {
 	label?: string;
 };
 type FieldGroupWithRenderMethod<T> = {
-	render: (values: T, formik?: FormikProps<T>) => ReactNode;
+	render: (values: T, formik: FormikProps<T>) => ReactNode;
 	label?: string;
 };
 

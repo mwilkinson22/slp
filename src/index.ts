@@ -23,6 +23,10 @@ mongoose.connect(keys.mongoURI, {
 	useUnifiedTopology: true
 });
 
+//Initialise node-cache
+import { startCache } from "./services/cacheProvider";
+startCache();
+
 //Frontend
 import renderer from "./helpers/server/renderer";
 import createStore from "./helpers/server/createStore";

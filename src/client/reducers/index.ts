@@ -4,6 +4,7 @@ import configReducer, { ConfigState } from "./configReducer";
 import competitionReducer, { CompetitionState } from "~/client/reducers/competitionReducer";
 import gameReducer, { GameState } from "~/client/reducers/gameReducer";
 import groundReducer, { GroundState } from "~/client/reducers/groundReducer";
+import socialReducer, { SocialState } from "~/client/reducers/socialReducer";
 import teamReducer, { TeamState } from "~/client/reducers/teamReducer";
 import userReducer, { UserState } from "~/client/reducers/userReducer";
 
@@ -12,6 +13,7 @@ interface InitialStoreState {
 	competitions: CompetitionState;
 	grounds: GroundState;
 	games: GameState;
+	socialProfiles: SocialState;
 	teams: TeamState;
 	users: UserState;
 }
@@ -28,6 +30,7 @@ export default combineReducers<InitialStoreState>({
 	competitions: competitionReducer,
 	grounds: groundReducer,
 	games: gameReducer,
+	socialProfiles: socialReducer,
 	teams: teamReducer,
 	users: userReducer
 });
