@@ -330,9 +330,10 @@ class _GamePage extends Component<IProps, IState> {
 		}
 
 		//Set submit behaviour
-		let onSubmit, redirectOnSubmit;
+		let onSubmit, redirectOnSubmit, submitLink;
 		if (game) {
 			onSubmit = (values: IGameFormFields) => updateGame(game._id, values);
+			submitLink = <NavCard to={`/games/${game._id}/post`}>Post Game Image</NavCard>;
 		} else {
 			onSubmit = (values: IGameFormFields) => createGame(values);
 			redirectOnSubmit = (game: IGame, values: IGameFormFields) => {
@@ -351,6 +352,7 @@ class _GamePage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/games`}>Return to game list</NavCard>
 					<h1>{header}</h1>
+					{submitLink}
 					<BasicForm<IGameFormFields, IGame>
 						alterValuesBeforeSubmit={this.alterValuesBeforeSubmit}
 						fieldGroups={values => this.getFieldGroups(values)}

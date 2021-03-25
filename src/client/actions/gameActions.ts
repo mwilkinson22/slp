@@ -8,7 +8,7 @@ import { AxiosInstance } from "axios";
 //Enum
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
-import { IGame, IGameFormFields } from "~/models/Game";
+import { IGame, IGameForImagePost, IGameFormFields, ISingleGamePostFields } from "~/models/Game";
 import { ISettings } from "~/models/Settings";
 
 //Action Interfaces
@@ -73,7 +73,17 @@ export const deleteGame = (id: string) => {
 	};
 };
 
-//Get Single Post Data
+//Single Game Social Posts
+export const fetchGameForImagePost = (_id: string) => {
+	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
+		const res = await api.get<IGameForImagePost>(`/games/forImagePost/${_id}`);
+		if (res.data) {
+			return res.data;
+		} else {
+			return false;
+		}
+	};
+};
 export const getSingleGamePostText = (_id?: string | null, overrideSettings?: ISettings["singleGamePost"]) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance): Promise<string | null> => {
 		//If we don't pass in an _id, we send "any" to the server and will get a random game back
@@ -93,5 +103,17 @@ export const previewSingleGameImage = (_id?: string | null, overrideSettings?: I
 			return res.data;
 		}
 		return null;
+	};
+};
+
+type PostSubmitResponse = { error?: string };
+export const submitSingleGameImagePost = (values: ISingleGamePostFields) => {
+	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
+		const res = await api.post<PostSubmitResponse>(`/games/singleImagePost/`, values);
+		if (res.data && !res.data.error) {
+			toast.success("Post Submitted Successfully");
+		} else {
+			toast.error(res.data.error || "An Unknown Error Occurred");
+		}
 	};
 };

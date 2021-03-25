@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { LoadingPage } from "~/client/components/global/LoadingPage";
 
 interface IProps {
+	allowReloading: boolean;
 	darkBackgroundToggle?: boolean;
 	getData: () => Promise<string | null>;
 	loadOnFirstRender?: boolean;
@@ -15,9 +16,10 @@ interface IState {
 }
 
 export class ServerContentPreview extends Component<IProps, IState> {
-	defaultProps = {
+	static defaultProps = {
+		allowReloading: true,
 		darkBackgroundToggle: false,
-		loadOnFirstRender: true
+		loadOnFirstRender: false
 	};
 	state: IState = { darkBackground: false, data: null, isLoading: false };
 
@@ -38,6 +40,21 @@ export class ServerContentPreview extends Component<IProps, IState> {
 
 		//Update state
 		this.setState({ data, isLoading: false });
+	}
+
+	renderLoadButton() {
+		const { allowReloading } = this.props;
+		const { data, isLoading } = this.state;
+
+		if (!allowReloading && data) {
+			return null;
+		}
+
+		return (
+			<button type="button" disabled={isLoading} onClick={() => this.updateBannerPreview()}>
+				{data ? "Update" : "Get"} Preview
+			</button>
+		);
 	}
 
 	renderDarkButton() {
@@ -76,9 +93,7 @@ export class ServerContentPreview extends Component<IProps, IState> {
 		return (
 			<div className={`full-span server-content-preview ${darkBackground ? "dark" : ""}`} key="banner-preview">
 				<div className="buttons">
-					<button type="button" disabled={isLoading} onClick={() => this.updateBannerPreview()}>
-						{data ? "Update" : "Get"} Preview
-					</button>
+					{this.renderLoadButton()}
 					{this.renderDarkButton()}
 				</div>
 				{content}

@@ -46,24 +46,35 @@ export interface IGameFormFields extends Required<Omit<IGame, FormFieldsToOmit>>
 	disableRedirectOnAdd?: boolean;
 }
 
-//Schema
-const GameSchema = new Schema<IGame_Mongoose>({
-	_homeTeam: { type: Schema.Types.ObjectId, ref: "teams", required: true },
-	_awayTeam: { type: Schema.Types.ObjectId, ref: "teams", required: true },
-	_ground: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
-	_competition: { type: Schema.Types.ObjectId, ref: "competitions", required: true },
-	round: { type: String, default: null },
-	date: { type: Date, required: true },
-	customHashtag: { type: String, default: null },
-	overwriteHashtag: { type: Boolean, default: false },
-	isOnTv: { type: Boolean, required: true },
-	image: { type: String, default: null },
+export interface ISingleGamePostFields {
+	_id: string;
+	_profile: string;
+	text: string;
+	postToFacebook: boolean;
+}
 
-	postAfterGame: { type: Boolean, required: true },
-	includeInWeeklyPost: { type: Boolean, required: true },
-	tweetId: { type: String, default: null },
-	retweeted: { type: Boolean, default: false }
-});
+//Schema
+const GameSchema = new Schema<IGame_Mongoose>(
+	{
+		_homeTeam: { type: Schema.Types.ObjectId, ref: "teams", required: true },
+		_awayTeam: { type: Schema.Types.ObjectId, ref: "teams", required: true },
+		_ground: { type: Schema.Types.ObjectId, ref: "grounds", required: true },
+		_competition: { type: Schema.Types.ObjectId, ref: "competitions", required: true },
+		round: { type: String, default: null },
+		date: { type: Date, required: true },
+		customHashtag: { type: String, default: null },
+		overwriteHashtag: { type: Boolean, default: false },
+		isOnTv: { type: Boolean, required: true },
+		image: { type: String, default: null },
+		postAfterGame: { type: Boolean, required: true },
+		includeInWeeklyPost: { type: Boolean, required: true },
+		tweetId: { type: String, default: null },
+		retweeted: { type: Boolean, default: false }
+	},
+	{
+		toJSON: { virtuals: true }
+	}
+);
 
 //Hashtags
 GameSchema.virtual("hashtags").get(function (this: IGame_Mongoose | IGameForImagePost) {

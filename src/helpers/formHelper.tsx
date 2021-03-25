@@ -5,7 +5,7 @@ import { ErrorMessage, FastField, Field, FieldArray, FieldProps } from "formik";
 import Select, { Props as ReactSelectProps } from "react-select";
 import AsyncSelect from "react-select/async";
 import CreatableSelect from "react-select/creatable";
-import { ObjectSchema } from "yup";
+import * as Yup from "yup";
 
 //Input Components
 import { BooleanSlider } from "~/client/components/forms/fields/BooleanSlider";
@@ -19,6 +19,22 @@ import { KeyOfType } from "~/types/KeyOfType";
 
 //Helpers
 import { nestedObjectToDot } from "./genericHelper";
+
+export function yupTweetValidator() {
+	return Yup.string()
+		.required()
+		.test({
+			name: "tweet-length",
+			message: "Tweets cannot be longer than 280 characters",
+			test: function (value) {
+				if (value) {
+					const { calculatedLength } = TweetComposer.formatContentAndGetLength(value);
+					return calculatedLength <= 280;
+				}
+				return true;
+			}
+		});
+}
 
 type KeyOrFunction<T> = KeyOfType<T, string> | ((obj: T) => string);
 export function convertRecordToSelectOptions<T extends { _id: string; isFavourite?: boolean }>(
@@ -74,7 +90,7 @@ export function convertRecordToSelectOptions<T extends { _id: string; isFavourit
 	}
 }
 
-export function extractYupData(name: string, validationSchema: ObjectSchema) {
+export function extractYupData(name: string, validationSchema: Yup.ObjectSchema) {
 	return (
 		name
 			//Handle objects
@@ -92,14 +108,14 @@ export function extractYupData(name: string, validationSchema: ObjectSchema) {
 
 export function renderFieldGroup<T extends IFormikValuesObject>(
 	fields: IFieldAny<T>[],
-	validationSchema: ObjectSchema,
+	validationSchema: Yup.ObjectSchema,
 	fastFieldByDefault: boolean = true
 ) {
 	return fields.map(field => renderField<T>(field, validationSchema, fastFieldByDefault));
 }
 export function renderField<T extends IFormikValuesObject>(
 	field: IFieldAny<T>,
-	validationSchema: ObjectSchema,
+	validationSchema: Yup.ObjectSchema,
 	fastFieldByDefault: boolean = true
 ) {
 	if (!validationSchema || !validationSchema.describe()) {

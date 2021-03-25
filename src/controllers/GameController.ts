@@ -11,7 +11,7 @@ import { requireAdmin } from "~/middleware/requireAdmin";
 
 //Models
 import { ISettings } from "~/models/Settings";
-import { Game, IGame, IGameForImagePost, IGameFormFields } from "~/models/Game";
+import { Game, IGame, IGameForImagePost, IGameFormFields, ISingleGamePostFields } from "~/models/Game";
 import { ITeam, Team } from "~/models/Team";
 
 //Helpers
@@ -21,6 +21,7 @@ import { getSettings } from "~/controllers/SettingsController";
 import { SingleGameCanvas } from "~/canvas/SingleGameCanvas";
 import { Competition, ICompetition } from "~/models/Competition";
 import { parseGameVariablesForPost } from "~/helpers/gameHelper";
+import { postToSocial } from "~/controllers/SocialController";
 
 //Controller
 @controller("/api/games")
@@ -87,6 +88,19 @@ class GameController {
 	async getAllGames(req: Request, res: Response) {
 		const games = await Game.find({}).lean();
 		res.send(_.keyBy(games, "_id"));
+	}
+
+	//Get game for image post
+	@get("/forImagePost/:_id")
+	@use(requireAuth)
+	async getGameForImagePost(req: Request, res: Response) {
+		const { _id } = req.params;
+		const game = await GameController.getGameForImagePost(_id);
+		if (game) {
+			res.send(game);
+		} else {
+			GameController.send404(_id, res);
+		}
 	}
 
 	//Create new game
@@ -234,5 +248,26 @@ class GameController {
 		} else {
 			GameController.send404(_id, res);
 		}
+	}
+
+	@post("/singleImagePost")
+	@use(requireAuth)
+	async submitSingleImagePost(req: Request, res: Response) {
+		const { _id, _profile, text }: ISingleGamePostFields = req.body;
+
+		//Validate game
+		const game = await GameController.getGameForImagePost(_id);
+		if (!game) {
+			return GameController.send404(_id, res);
+		}
+
+		//Create image
+		const canvas = await GameController.generateSingleFixtureImage(game);
+		const image = await canvas.render(true);
+
+		//Post
+		const result = await postToSocial(text, _profile, image);
+
+		res.send(result);
 	}
 }

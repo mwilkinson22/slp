@@ -203,16 +203,13 @@ export class CanvasBuilder {
 	 * Outputs the created canvas as an image
 	 * @param type
 	 */
-	outputFile(type: string = "base64") {
+	outputFile(type: "base64" | "twitter") {
 		const { canvas } = this;
 		switch (type) {
 			case "base64":
 				return canvas.toDataURL();
 			case "twitter":
 				return canvas.toDataURL().split("base64,")[1];
-			default:
-				console.error(`Invalid render type: '${type}'`);
-				return null;
 		}
 	}
 

@@ -9,6 +9,7 @@ import { NotFoundPage } from "~/client/components/global/NotFoundPage";
 import { CompetitionPage } from "~/client/pages/CompetitionPage";
 import { CompetitionList } from "~/client/pages/CompetitionList";
 
+import { GamePostPage } from "~/client/pages/GamePostPage";
 import { GamePage } from "~/client/pages/GamePage";
 import { GameList } from "~/client/pages/GameList";
 
@@ -32,6 +33,7 @@ const routeMap = {
 	"/competitions/:_id": CompetitionPage,
 	"/competitions": CompetitionList,
 
+	"/games/:_id/post": GamePostPage,
 	"/games/new": GamePage,
 	"/games/:_id": GamePage,
 	"/games": GameList,

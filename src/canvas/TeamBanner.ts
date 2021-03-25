@@ -100,6 +100,6 @@ export class TeamBanner extends CanvasBuilder {
 
 	async renderToBase64(): Promise<string> {
 		await this.drawBanner();
-		return this.outputFile() as string;
+		return this.outputFile("base64") as string;
 	}
 }

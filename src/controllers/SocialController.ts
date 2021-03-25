@@ -12,13 +12,69 @@ import { requireAuth } from "~/middleware/requireAuth";
 
 //Models
 import { ISettings } from "~/models/Settings";
-import { SocialProfile, ISocialProfileFormFields } from "~/models/SocialProfile";
+import { SocialProfile, ISocialProfileFormFields, ISocialProfile } from "~/models/SocialProfile";
 
 //Services
-import { getTwitterClientWithCustomSettings } from "~/services/twitter";
+import { getTwitterClientWithCustomSettings, getTwitterClientWithProfile } from "~/services/twitter";
 import { getSettings } from "~/controllers/SettingsController";
 import { getCacheInstance } from "~/services/cacheProvider";
 import { IUser } from "~/models/User";
+
+//Generic Poster
+export async function postToSocial(
+	text: string,
+	_profile: string,
+	image: string
+): Promise<{ error: string } | { tweetId: string }> {
+	//First, validate the profile
+	const profile = await SocialProfile.findById(_profile).lean();
+	if (!profile) {
+		return { error: `Invalid profile ID - ${profile}` };
+	}
+
+	//Get the settings we need
+	const twitterSettings = await getSettings<"twitterApp">("twitterApp");
+
+	//Get a twitter client
+	const twitterClient = getTwitterClientWithProfile(twitterSettings, profile as ISocialProfile);
+
+	//Set a generic error variable we can keep checking
+	let error;
+
+	//Then, upload the image (if we have one)
+	let media_id;
+	try {
+		const result = await twitterClient.media.mediaUpload({ media_data: image });
+		media_id = result.media_id_string;
+	} catch (e) {
+		error = JSON.parse(e.data).errors[0].message;
+	}
+	if (error) {
+		return { error };
+	}
+
+	//Post Tweet
+	let tweet;
+	try {
+		tweet = await twitterClient.tweets.statusesUpdate({
+			status: text,
+			media_ids: media_id
+		});
+	} catch (e) {
+		error = JSON.parse(e.data).errors[0].message;
+	}
+
+	//TODO facebook integration
+
+	//Return tweet
+	if (tweet) {
+		return { tweetId: tweet.id_str };
+	} else if (error) {
+		return { error };
+	} else {
+		return { error: "An unknown error occured" };
+	}
+}
 
 //Controller
 @controller("/api/social")

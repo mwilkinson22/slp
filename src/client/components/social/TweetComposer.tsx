@@ -140,7 +140,7 @@ export class TweetComposer extends Component<IProps, IState> {
 		} else {
 			const options = variables.map(function (obj) {
 				return (
-					<option key={obj.value} value={obj.value}>
+					<option key={obj.value + obj.label} value={obj.value}>
 						{obj.label}
 					</option>
 				);
