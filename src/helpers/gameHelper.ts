@@ -42,6 +42,10 @@ export const gameVariableMap: Record<string, GameVariableMapEntry> = {
 	hashtags: {
 		description: "Game Hashtags",
 		getValue: game => game.hashtags.map(t => `#${t}`).join(" ")
+	},
+	googleForm: {
+		description: "Google Form",
+		getValue: (game, settings) => settings.googleForm.link
 	}
 };
 export function parseGameVariablesForPost(game: IGameForImagePost, text: string, settings: ISettings) {

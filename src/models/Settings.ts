@@ -34,6 +34,9 @@ export interface ISettings {
 		access_token: string;
 		access_token_secret: string;
 	};
+	googleForm: {
+		link: string;
+	};
 }
 
 export const defaultSettings: ISettings = {
@@ -44,7 +47,7 @@ export const defaultSettings: ISettings = {
 		backupGroundText: "the Game"
 	},
 	multiGamePost: {
-		defaultText: "s",
+		defaultText: "",
 		postDate: "5",
 		postTime: "18:00"
 	},
@@ -53,6 +56,9 @@ export const defaultSettings: ISettings = {
 		consumer_secret: "",
 		access_token: "",
 		access_token_secret: ""
+	},
+	googleForm: {
+		link: ""
 	}
 };
 
