@@ -21,9 +21,22 @@ export function MultiGamePostSettings() {
 	}));
 	const fieldGroups: IFieldGroup<FormFields>[] = [
 		{
+			fields: [{ name: "defaultText", type: FormFieldTypes.tweet, calculateLength: false }]
+		},
+		{
+			render: () => (
+				<p key="disclaimer" className="full-span">
+					<em>
+						The Google Form link and as many corresponding hashtags as possible will be added automatically
+					</em>
+					<br />
+					<br />
+				</p>
+			)
+		},
+		{
 			fields: [
-				{ name: "defaultText", type: FormFieldTypes.tweet, calculateLength: false },
-				{ name: "postDate", type: FormFieldTypes.radio, options: days },
+				{ name: "postDate", type: FormFieldTypes.select, options: days },
 				{ name: "postTime", type: FormFieldTypes.time, step: 900 }
 			]
 		}
