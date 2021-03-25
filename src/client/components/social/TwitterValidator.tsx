@@ -44,9 +44,9 @@ class _TwitterValidator extends Component<IProps, IState> {
 		}
 
 		if (validationResult.authenticated) {
-			return `Succesfully authenticated as @${validationResult.user}!`;
+			return <span>Succesfully authenticated as @{validationResult.user}!</span>;
 		} else {
-			return `Authentication failed: ${validationResult.error.toString()}`;
+			return <span>Authentication failed: {validationResult.error}</span>;
 		}
 	}
 

@@ -18,6 +18,7 @@ import { SocialProfile, ISocialProfileFormFields } from "~/models/SocialProfile"
 import { getTwitterClientWithCustomSettings } from "~/services/twitter";
 import { getSettings } from "~/controllers/SettingsController";
 import { getCacheInstance } from "~/services/cacheProvider";
+import { IUser } from "~/models/User";
 
 //Controller
 @controller("/api/social")
@@ -33,12 +34,22 @@ class SocialController {
 	/* --------------------------------- */
 	/* Social Profile Management
 	/* --------------------------------- */
+	static async getAllSocialProfiles(req: Request, res: Response) {
+		const query: Record<string, any> = {};
+
+		//Limit non-admins to the default
+		if (!(req.user as IUser).isAdmin) {
+			query.isDefault = true;
+		}
+
+		const socialProfiles = await SocialProfile.find(query).lean();
+		res.send(_.keyBy(socialProfiles, "_id"));
+	}
 	//Get all social profiles
 	@get("/profiles")
 	@use(requireAuth)
 	async getAllSocialProfiles(req: Request, res: Response) {
-		const socialProfiles = await SocialProfile.find({}).lean();
-		res.send(_.keyBy(socialProfiles, "_id"));
+		await SocialController.getAllSocialProfiles(req, res);
 	}
 
 	//Create new social profile
@@ -52,14 +63,31 @@ class SocialController {
 	}
 
 	//Update existing social profile
-	@use(requireAuth)
-	@put("/profiles/:_id")
+	@use(requireAdmin)
+	@put("/profiles/id/:_id")
 	async updateSocialProfile(req: Request, res: Response) {
 		const { _id } = req.params;
 		const values: ISocialProfileFormFields = req.body;
 		const socialProfile = await SocialProfile.findByIdAndUpdate(_id, values, { new: true });
 		if (socialProfile) {
 			res.send(socialProfile);
+		} else {
+			SocialController.sendProfile404(_id, res);
+		}
+	}
+
+	//Set default social profile
+	@use(requireAdmin)
+	@put("/profiles/default/:_id")
+	async setDefaultSocialProfile(req: Request, res: Response) {
+		const { _id } = req.params;
+		const socialProfile = await SocialProfile.findByIdAndUpdate(_id, { isDefault: true }, { new: true });
+		if (socialProfile) {
+			//If we get a profile back, we know we've set a valid one to be the default, and need to update the others
+			await SocialProfile.updateMany({ _id: { $ne: _id } }, { isDefault: false }, { multi: true });
+
+			//Return the full list
+			await SocialController.getAllSocialProfiles(req, res);
 		} else {
 			SocialController.sendProfile404(_id, res);
 		}
@@ -72,10 +100,14 @@ class SocialController {
 		const { _id } = req.params;
 
 		//Ensure valid profile
-		//TODO Ensure it's not the default
 		const profile = await SocialProfile.findById(_id);
 		if (!profile) {
 			return SocialController.sendProfile404(_id, res);
+		}
+
+		//Ensure it's not the default
+		if (profile.isDefault) {
+			return res.status(403).send("Cannot delete default profile");
 		}
 
 		await profile.remove();

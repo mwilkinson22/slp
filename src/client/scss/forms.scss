@@ -44,12 +44,20 @@
 
 	.buttons {
 		display: flex;
+		align-items: center;
 		justify-content: space-between;
 		&:not(:last-child) {
 			margin-bottom: 14pt;
 		}
 		button {
 			white-space: nowrap;
+
+			&:not(:first-child) {
+				margin-left: 4pt;
+			}
+			&:not(:last-child) {
+				margin-right: 4pt;
+			}
 
 			&.confirm {
 				background: #1a6f39;
@@ -238,40 +246,5 @@
 			right: 0;
 			margin: 10pt auto;
 		}
-	}
-
-	.server-content-preview {
-		&.dark {
-			background: #111;
-		}
-		& > *:not(.buttons) {
-			display: block;
-			left: 0;
-			right: 0;
-			margin: 8pt auto 0;
-			max-width: 100%;
-		}
-
-		textarea {
-			width: 100%;
-			resize: vertical;
-			height: 100pt;
-		}
-
-		& > *:last-child {
-			margin-bottom: 8pt;
-		}
-	}
-}
-
-.single-post-variables {
-	padding: 10pt;
-	background: #ddd;
-	margin-bottom: 10pt;
-	.map {
-		display: grid;
-		align-items: center;
-		grid-template-columns: auto 1fr;
-		grid-gap: 10pt;
 	}
 }

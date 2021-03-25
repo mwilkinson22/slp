@@ -10,13 +10,14 @@ import { NavCard } from "~/client/components/global/NavCard";
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
 
 //Actions
-import { fetchAllSocialProfiles } from "~/client/actions/socialActions";
+import { fetchAllSocialProfiles, setDefaultSocialProfile } from "~/client/actions/socialActions";
 
 //Interfaces
 import { StoreState } from "~/client/reducers";
 import { ISocialProfile } from "~/models/SocialProfile";
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
 interface IState {
+	isUpdatingDefault: boolean;
 	socialProfiles: IProps["socialProfiles"];
 }
 
@@ -24,7 +25,7 @@ interface IState {
 function mapStateToProps({ socialProfiles }: StoreState) {
 	return { socialProfiles };
 }
-const mapDispatchToProps = { fetchAllSocialProfiles };
+const mapDispatchToProps = { fetchAllSocialProfiles, setDefaultSocialProfile };
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
 //Component
@@ -37,16 +38,33 @@ class _SocialProfileList extends Component<IProps, IState> {
 			fetchAllSocialProfiles();
 		}
 
-		this.state = { socialProfiles };
+		this.state = { isUpdatingDefault: false, socialProfiles };
 	}
 
-	static getDerivedStateFromProps(nextProps: IProps): IState {
+	static getDerivedStateFromProps(nextProps: IProps): Partial<IState> {
 		const { socialProfiles } = nextProps;
 		return { socialProfiles };
 	}
 
+	handleSetDefault(ev: React.MouseEvent<HTMLButtonElement, MouseEvent>, _id: string) {
+		const { setDefaultSocialProfile } = this.props;
+
+		//Prevent Link Click
+		ev.preventDefault();
+		ev.stopPropagation();
+
+		//Disable buttons
+		this.setState({ isUpdatingDefault: true });
+
+		//Update default
+		setDefaultSocialProfile(_id);
+
+		//Re-enable buttons
+		this.setState({ isUpdatingDefault: false });
+	}
+
 	render() {
-		const { socialProfiles } = this.state;
+		const { isUpdatingDefault, socialProfiles } = this.state;
 		const title = "Social Profiles";
 
 		if (!socialProfiles) {
@@ -54,11 +72,35 @@ class _SocialProfileList extends Component<IProps, IState> {
 		}
 
 		return (
-			<div>
+			<div className="social-profile-list">
 				<HelmetBuilder title={title} />
 				<NavCard to={`/settings/social-profiles/new`}>Add New Profile</NavCard>
 				<ItemList<ISocialProfile>
-					display="name"
+					display={profile => {
+						//Append default text or button where necessary
+						let content;
+						if (profile.isDefault) {
+							content = <div>{profile.name} (Default)</div>;
+						} else {
+							content = (
+								<div className="social-profile-list-entry">
+									<span>{profile.name}</span>
+									<button
+										type="button"
+										onClick={ev => this.handleSetDefault(ev, profile._id)}
+										disabled={isUpdatingDefault}
+									>
+										Set Default
+									</button>
+								</div>
+							);
+						}
+
+						return {
+							content,
+							textValue: (profile.isDefault ? "0" : "1") + profile.name
+						};
+					}}
 					itemAsPlural={"Social Profiles"}
 					items={socialProfiles}
 					searchable={false}

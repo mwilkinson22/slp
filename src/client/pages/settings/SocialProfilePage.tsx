@@ -42,6 +42,7 @@ function mapStateToProps({ config, socialProfiles }: StoreState) {
 	const { authUser, settings } = config;
 	return { authUser: authUser as IUser, settings, socialProfiles };
 }
+
 const mapDispatchToProps = { fetchAllSocialProfiles, createSocialProfile, updateSocialProfile, deleteSocialProfile };
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
@@ -174,10 +175,16 @@ class _SocialProfilePage extends Component<IProps, IState> {
 		}
 
 		//Set submit behaviour
-		let onSubmit, redirectOnSubmit, onDelete;
+		let onSubmit, redirectOnSubmit, onDelete, defaultDeleteDisclaimer;
 		if (socialProfile) {
 			onSubmit = (values: ISocialProfileFormFields) => updateSocialProfile(socialProfile._id, values);
-			onDelete = () => deleteSocialProfile(socialProfile._id);
+			if (socialProfile.isDefault) {
+				defaultDeleteDisclaimer = (
+					<div className="form-card card">This profile is the current default, and cannot be deleted</div>
+				);
+			} else {
+				onDelete = () => deleteSocialProfile(socialProfile._id);
+			}
 		} else {
 			onSubmit = (values: ISocialProfileFormFields) => createSocialProfile(values);
 			redirectOnSubmit = (socialProfile: ISocialProfile) => `/settings/social-profiles/${socialProfile._id}`;
@@ -203,6 +210,7 @@ class _SocialProfilePage extends Component<IProps, IState> {
 						showErrorSummary={false}
 						validationSchema={validationSchema}
 					/>
+					{defaultDeleteDisclaimer}
 				</div>
 			</section>
 		);

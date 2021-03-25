@@ -62,7 +62,7 @@ export const createSocialProfile = (values: ISocialProfileFormFields) => {
 
 export const updateSocialProfile = (id: string, values: ISocialProfileFormFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
-		const res = await api.put<ISocialProfile>(`/social/profiles/${id}`, values);
+		const res = await api.put<ISocialProfile>(`/social/profiles/id/${id}`, values);
 		if (res.data) {
 			dispatch<FetchProfileAction>({ type: ActionTypes.FETCH_SOCIAL_PROFILE, payload: res.data });
 			toast.success("Social Profile Updated Successfully");
@@ -70,6 +70,18 @@ export const updateSocialProfile = (id: string, values: ISocialProfileFormFields
 			return res.data;
 		} else {
 			return false;
+		}
+	};
+};
+
+export const setDefaultSocialProfile = (id: string) => {
+	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
+		const res = await api.put<FetchAllProfilesAction["payload"]>(`/social/profiles/default/${id}`);
+		if (res.data) {
+			dispatch<FetchAllProfilesAction>({ type: ActionTypes.FETCH_ALL_SOCIAL_PROFILES, payload: res.data });
+			toast.success("Default Social Profile Updated");
+
+			return res.data;
 		}
 	};
 };
