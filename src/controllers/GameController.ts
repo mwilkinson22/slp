@@ -253,7 +253,7 @@ class GameController {
 	@post("/singleImagePost")
 	@use(requireAuth)
 	async submitSingleImagePost(req: Request, res: Response) {
-		const { _id, _profile, text }: ISingleGamePostFields = req.body;
+		const { _id, _profile, text, postToFacebook }: ISingleGamePostFields = req.body;
 
 		//Validate game
 		const game = await GameController.getGameForImagePost(_id);
@@ -266,7 +266,7 @@ class GameController {
 		const image = await canvas.render(true);
 
 		//Post
-		const result = await postToSocial(text, _profile, image);
+		const result = await postToSocial(text, _profile, image, postToFacebook);
 
 		res.send(result);
 	}

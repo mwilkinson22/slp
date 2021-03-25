@@ -19,12 +19,14 @@ import { getTwitterClientWithCustomSettings, getTwitterClientWithProfile } from 
 import { getSettings } from "~/controllers/SettingsController";
 import { getCacheInstance } from "~/services/cacheProvider";
 import { IUser } from "~/models/User";
+import axios from "axios";
 
 //Generic Poster
 export async function postToSocial(
 	text: string,
 	_profile: string,
-	image: string
+	image: string,
+	postToFacebook: boolean
 ): Promise<{ error: string } | { tweetId: string }> {
 	//First, validate the profile
 	const profile = await SocialProfile.findById(_profile).lean();
@@ -54,21 +56,36 @@ export async function postToSocial(
 	}
 
 	//Post Tweet
-	let tweet;
+	let tweetId, media_url;
 	try {
-		tweet = await twitterClient.tweets.statusesUpdate({
+		const tweet = await twitterClient.tweets.statusesUpdate({
 			status: text,
-			media_ids: media_id
+			media_ids: media_id,
+			tweet_mode: "extended"
 		});
+		tweetId = tweet.id_str;
+		//Adding tweet_mode = "extended" gives us access to the media property,
+		//but typescript doesn't recognise this, so unfortunately we need to cast it to any
+		media_url = (tweet.entities as any).media[0].media_url;
 	} catch (e) {
 		error = JSON.parse(e.data).errors[0].message;
 	}
 
-	//TODO facebook integration
+	//Post to facebook
+	if (postToFacebook && profile.ifttt_key && media_url) {
+		//Post to facebook
+		const data = {
+			value1: text.replace(/\n/g, "<br />"),
+			value2: media_url
+		};
+
+		//Submit
+		await axios.post(`https://maker.ifttt.com/trigger/facebook_with_photo/with/key/${profile.ifttt_key}`, data);
+	}
 
 	//Return tweet
-	if (tweet) {
-		return { tweetId: tweet.id_str };
+	if (tweetId) {
+		return { tweetId };
 	} else if (error) {
 		return { error };
 	} else {
