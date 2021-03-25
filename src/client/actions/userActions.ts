@@ -10,6 +10,10 @@ import { IUser, IUserFormFields } from "~/models/User";
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
 
+//Settings action
+import { GetAllSettingsAction } from "~/client/actions/configActions";
+import { ISettings } from "~/models/Settings";
+
 //Action Interfaces
 interface FetchCurrentUserAction {
 	type: ActionTypes.FETCH_CURRENT_USER;
@@ -49,6 +53,12 @@ export const login = (data: LoginParams) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<IUser>("/login", data);
 		if (res.data) {
+			//We need to fetch settings before dispatching the user
+			const settingsCall = await api.get<ISettings>("/settings");
+			if (settingsCall.data) {
+				dispatch<GetAllSettingsAction>({ type: ActionTypes.GET_SETTINGS, payload: settingsCall.data });
+			}
+
 			dispatch<FetchCurrentUserAction>({ type: ActionTypes.FETCH_CURRENT_USER, payload: res.data });
 			return true;
 		} else {

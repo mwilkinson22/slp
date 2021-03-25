@@ -40,7 +40,7 @@ interface IState {
 //Redux
 function mapStateToProps({ config, socialProfiles }: StoreState) {
 	const { authUser, settings } = config;
-	return { authUser: authUser as IUser, settings, socialProfiles };
+	return { authUser: authUser as IUser, settings: settings as ISettings, socialProfiles };
 }
 
 const mapDispatchToProps = { fetchAllSocialProfiles, createSocialProfile, updateSocialProfile, deleteSocialProfile };

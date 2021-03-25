@@ -75,7 +75,7 @@ export const deleteTeam = (id: string) => {
 //Images
 export const previewTeamBanner = (team: ITeamFormFields) => {
 	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance): Promise<string | null> => {
-		const nameFormat = getState().config.settings.singleGamePost.teamName;
+		const nameFormat = getState().config.settings!.singleGamePost.teamName;
 		const res = await api.post<string>("/teams/bannerPreview", { team, nameFormat });
 		if (res.data) {
 			return res.data;

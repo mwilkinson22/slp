@@ -28,7 +28,7 @@ export interface IConfigObject {
 	authUser?: IUser; //Called from userActions
 	bucketPaths: BucketPaths;
 	deviceType: DeviceType;
-	settings: ISettings;
+	settings?: ISettings;
 	webp: boolean;
 }
 
@@ -43,9 +43,14 @@ export interface GetSettingsAction {
 	payload: Partial<ISettings>;
 }
 
-export type ConfigAction = CoreConfigAction | GetSettingsAction;
+export interface GetAllSettingsAction {
+	type: ActionTypes.GET_SETTINGS;
+	payload: ISettings;
+}
 
-export const getCoreConfig = ({ headers, useragent }: Request) => async (
+export type ConfigAction = CoreConfigAction | GetSettingsAction | GetAllSettingsAction;
+
+export const getCoreConfig = ({ headers, useragent, user }: Request) => async (
 	dispatch: Dispatch,
 	getState: any,
 	api: AxiosInstance
@@ -73,7 +78,11 @@ export const getCoreConfig = ({ headers, useragent }: Request) => async (
 	};
 
 	//Get Settings
-	const settings = await api.get<ISettings>("/settings");
+	let settings;
+	if (user) {
+		const settingsCall = await api.get<ISettings>("/settings");
+		settings = settingsCall.data;
+	}
 
 	const config: IConfigObject = {
 		//Set webp compatibility
@@ -88,7 +97,7 @@ export const getCoreConfig = ({ headers, useragent }: Request) => async (
 			images: _.mapValues(imageBucketPaths, value => `${bucketPathRoot}images/${value}`)
 		},
 
-		settings: settings.data
+		settings
 	};
 
 	dispatch<CoreConfigAction>({ type: ActionTypes.GET_CORE_CONFIG, payload: config });

@@ -24,12 +24,9 @@ export default function (state: ConfigState = null, action: ConfigAction | UserA
 
 		case ActionTypes.GET_SETTINGS: {
 			if (state) {
-				const settings = { ...state.settings };
-				Object.assign(settings, action.payload);
-				return {
-					...state,
-					settings
-				};
+				const newState = { ...state };
+				Object.assign(newState.settings, action.payload);
+				return newState;
 			}
 			return state;
 		}

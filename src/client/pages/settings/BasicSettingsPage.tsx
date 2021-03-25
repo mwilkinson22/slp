@@ -22,7 +22,7 @@ interface IProps<T> extends IPassedProps<T>, ConnectedProps<typeof connector>, R
 import { StoreState } from "~/client/reducers";
 function mapStateToProps({ config }: StoreState) {
 	const { settings } = config;
-	return { settings };
+	return { settings: settings as ISettings };
 }
 const mapDispatchToProps = { updateSettings };
 const connector = connect(mapStateToProps, mapDispatchToProps);
