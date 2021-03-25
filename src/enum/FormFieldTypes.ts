@@ -25,7 +25,10 @@ export enum FormFieldTypes {
 	fieldArray = "fieldArray",
 
 	//Image Uploader
-	image = "image"
+	image = "image",
+
+	//Tweet Composer
+	tweet = "tweet"
 }
 
 interface IField<T extends Record<string, any>> {
@@ -102,13 +105,21 @@ export interface IField_Image<T> extends IField<T> {
 	type: FormFieldTypes.image;
 }
 
+export interface IField_Tweet<T> extends IField<T> {
+	type: FormFieldTypes.tweet;
+	calculateLength?: boolean;
+	variables?: SelectOption[];
+	variableInstruction?: string;
+}
+
 export type IFieldAny<T> =
 	| IFieldBasic<T>
 	| IField_Array<T>
 	| IField_Radio<T>
 	| IField_Select<T>
 	| IField_AsyncSelect<T>
-	| IField_Image<T>;
+	| IField_Image<T>
+	| IField_Tweet<T>;
 
 type FieldGroupWithFields<T> = {
 	fields: IFieldAny<T>[];

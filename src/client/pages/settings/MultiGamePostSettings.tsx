@@ -22,7 +22,7 @@ export function MultiGamePostSettings() {
 	const fieldGroups: IFieldGroup<FormFields>[] = [
 		{
 			fields: [
-				{ name: "defaultText", type: FormFieldTypes.textarea },
+				{ name: "defaultText", type: FormFieldTypes.tweet, calculateLength: false },
 				{ name: "postDate", type: FormFieldTypes.radio, options: days },
 				{ name: "postTime", type: FormFieldTypes.time, step: 900 }
 			]

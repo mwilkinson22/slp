@@ -11,6 +11,7 @@ import { ObjectSchema } from "yup";
 import { BooleanSlider } from "~/client/components/forms/fields/BooleanSlider";
 import { RadioButtons } from "~/client/components/forms/fields/RadioButtons";
 import { ImageField } from "~/client/components/forms/fields/ImageField";
+import { TweetComposer } from "~/client/components/social/TweetComposer";
 
 //Enums, Types & Interfaces
 import { FormFieldTypes, IFieldAny, IFormikValuesObject, SelectOption, SelectOptionGroup } from "~/enum/FormFieldTypes";
@@ -198,6 +199,7 @@ export function renderInput<T extends IFormikValuesObject>(field: IFieldAny<T>, 
 				break;
 			case FormFieldTypes.asyncSelect:
 			case FormFieldTypes.image:
+			case FormFieldTypes.tweet:
 				//See above - we have to call option as any and then cast it
 				formikProps.field.onChange = (option: any) => {
 					formikProps.form.setFieldTouched(fieldName, true);
@@ -307,6 +309,8 @@ export function renderInput<T extends IFormikValuesObject>(field: IFieldAny<T>, 
 				return <textarea className="form-textarea" rows={10} {...mainProps} />;
 			case FormFieldTypes.image:
 				return <ImageField {...mainProps} />;
+			case FormFieldTypes.tweet:
+				return <TweetComposer initialContent={mainProps.value} textContent={mainProps.value} {...mainProps} />;
 			default:
 				return <input {...mainProps} type={type} />;
 		}

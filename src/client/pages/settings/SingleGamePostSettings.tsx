@@ -1,4 +1,5 @@
 //Modules
+import _ from "lodash";
 import React from "react";
 import { connect, ConnectedProps } from "react-redux";
 import * as Yup from "yup";
@@ -39,7 +40,11 @@ function _SingleGamePostSettings(props: ConnectedProps<typeof connector>) {
 						<h6>Variables</h6>
 						<p>
 							The following variables can be used in the template, and will be automatically populated for
-							each game
+							each game.
+						</p>
+						<p>
+							If the %ground% variable is used and the game has no ground, then &apos;Backup Ground
+							Text&apos; will be used
 						</p>
 						<div className="map">{variablePairs}</div>
 					</div>
@@ -48,14 +53,22 @@ function _SingleGamePostSettings(props: ConnectedProps<typeof connector>) {
 		},
 		{
 			fields: [
-				{ name: "defaultTweetText", type: FormFieldTypes.textarea },
+				{
+					name: "defaultTweetText",
+					type: FormFieldTypes.tweet,
+					calculateLength: false,
+					variables: _.map(gameVariableMap, ({ description }, value) => ({
+						label: description,
+						value: `%${value}%`
+					}))
+				},
 				{ name: "backupGroundText", type: FormFieldTypes.text }
 			]
 		},
 		{
 			render: (values: FormFields) => (
 				<ServerContentPreview
-					key="preview"
+					key="text-preview"
 					getData={() => props.getSingleGamePostText(null, values)}
 					renderContent={"textarea"}
 				/>
@@ -74,7 +87,7 @@ function _SingleGamePostSettings(props: ConnectedProps<typeof connector>) {
 		{
 			render: (values: FormFields) => (
 				<ServerContentPreview
-					key="preview"
+					key="image-preview"
 					getData={() => props.previewSingleGameImage(null, values)}
 					renderContent={"image"}
 				/>

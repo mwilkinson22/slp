@@ -24,19 +24,19 @@ type GameVariableMapEntry = {
 	description: string;
 };
 export const gameVariableMap: Record<string, GameVariableMapEntry> = {
-	homeFull: { description: "Home Team's full name", getValue: game => game._homeTeam.name.long },
-	homeShort: { description: "Home Team's short name", getValue: game => game._homeTeam.name.short },
-	homeNickname: { description: "Home Team's nickname", getValue: game => game._homeTeam.nickname },
-	awayFull: { description: "Away Team's full name", getValue: game => game._awayTeam.name.long },
-	awayShort: { description: "Away Team's short name", getValue: game => game._awayTeam.name.short },
-	awayNickname: { description: "Away Team's nickname", getValue: game => game._awayTeam.nickname },
+	homeFull: { description: "Home Team's Full Name", getValue: game => game._homeTeam.name.long },
+	homeShort: { description: "Home Team's Short Name", getValue: game => game._homeTeam.name.short },
+	homeNickname: { description: "Home Team's Nickname", getValue: game => game._homeTeam.nickname },
+	awayFull: { description: "Away Team's Full Name", getValue: game => game._awayTeam.name.long },
+	awayShort: { description: "Away Team's Short Name", getValue: game => game._awayTeam.name.short },
+	awayNickname: { description: "Away Team's Nickname", getValue: game => game._awayTeam.nickname },
 	ground: {
-		description: "Ground's 'Name in Tweets' value. If the game has no ground, we use 'Backup Ground Text'",
+		description: "Ground Name",
 		getValue: (game, settings) => game._ground?.tweetName || settings.singleGamePost.backupGroundText
 	},
-	competition: { description: "Competition Name", getValue: game => game._competition.name },
+	competition: { description: "Competition", getValue: game => game._competition.name },
 	hashtags: {
-		description: "All hashtags for the game",
+		description: "Game Hashtags",
 		getValue: game => game.hashtags.map(t => `#${t}`).join(" ")
 	}
 };
