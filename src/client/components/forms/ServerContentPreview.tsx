@@ -82,7 +82,7 @@ export class ServerContentPreview extends Component<IProps, IState> {
 					content = <img src={data} alt="Image Preview" />;
 					break;
 				case "textarea":
-					content = <textarea disabled={true}>{data}</textarea>;
+					content = <textarea disabled={true} value={data} />;
 					break;
 				case "plainText":
 					content = data;
