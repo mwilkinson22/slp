@@ -19,6 +19,7 @@ import { KeyOfType } from "~/types/KeyOfType";
 
 //Helpers
 import { nestedObjectToDot } from "./genericHelper";
+import { selectStyling } from "~/constants/selectStyling";
 
 export function yupTweetValidator() {
 	return Yup.string()
@@ -288,7 +289,7 @@ export function renderInput<T extends IFormikValuesObject>(field: IFieldAny<T>, 
 				} else {
 					mainProps.value = { value: mainProps.value, label: mainProps.value };
 				}
-				return <CreatableSelect {...mainProps} value={mainProps.value || ""} />;
+				return <CreatableSelect {...mainProps} value={mainProps.value || ""} styles={selectStyling} />;
 			case FormFieldTypes.select: {
 				let value: SelectOption | SelectOption[] | "";
 				//Used to get value
@@ -317,10 +318,10 @@ export function renderInput<T extends IFormikValuesObject>(field: IFieldAny<T>, 
 					value = flatOptions.find(({ value }) => value == mainProps.value) || "";
 				}
 
-				return <Select {...mainProps} value={value || ""} />;
+				return <Select {...mainProps} value={value || ""} styles={selectStyling} />;
 			}
 			case FormFieldTypes.asyncSelect:
-				return <AsyncSelect cacheOptions {...mainProps} />;
+				return <AsyncSelect cacheOptions {...mainProps} styles={selectStyling} />;
 			case FormFieldTypes.textarea:
 				return <textarea className="form-textarea" rows={10} {...mainProps} />;
 			case FormFieldTypes.image:
