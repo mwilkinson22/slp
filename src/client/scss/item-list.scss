@@ -16,7 +16,7 @@
 			&:not(:last-child) {
 				border-bottom: solid 1pt rgba(black, 0.2);
 			}
-			a {
+			&.basic-list-item a {
 				display: flex;
 				align-items: center;
 				&:hover {

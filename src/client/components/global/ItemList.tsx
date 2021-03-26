@@ -12,8 +12,9 @@ import { ErrorBoundary } from "~/client/components/hoc/ErrorBoundary";
 //Interfaces
 interface IPassedProps<T> {
 	display: KeyOfType<T, string> | ((o: T) => string | { content: ReactNode; textValue: string });
-	items: Record<string | number, T>;
+	items: Record<string | number, T> | T[];
 	itemAsPlural?: string;
+	listItemClassName?: string;
 	searchable?: boolean;
 	sortBy?: keyof T | ((o: T) => string | number);
 	url: (o: T) => string;
@@ -34,6 +35,9 @@ const connector = connect(mapStateToProps);
 
 //Component
 class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, IState> {
+	static defaultProps = {
+		listItemClassName: "basic-list-item"
+	};
 	state = { searchTerm: "" };
 
 	renderSearchBar(): ReactNode | void {
@@ -52,13 +56,20 @@ class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, ISta
 	}
 
 	renderList(): ReactNode {
-		const { display, itemAsPlural, items, sortBy, url } = this.props;
+		const { display, itemAsPlural, items, listItemClassName, sortBy, url } = this.props;
 		const { searchTerm } = this.state;
-		const listItemClassName = "card no-margin no-shadow";
+		const linkItemClassName = "card no-margin no-shadow";
 
-		const listItems = _.chain(items)
+		let itemsAsArray: T[];
+		if (Array.isArray(items)) {
+			itemsAsArray = items;
+		} else {
+			itemsAsArray = Object.values(items);
+		}
+
+		const listItems = _.chain(itemsAsArray)
 			//Convert to object
-			.map((item, key: keyof typeof items) => {
+			.map((item: T) => {
 				let content, textValue;
 				if (typeof display === "function") {
 					const result = display(item);
@@ -90,7 +101,7 @@ class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, ISta
 				//Check for favourite
 				const isFavourite = item.isFavourite ?? false;
 
-				return { key, url: url(item), content, sortValue, textValue, isFavourite };
+				return { key: item._id, url: url(item), content, sortValue, textValue, isFavourite };
 			})
 			//Order
 			.orderBy(["isFavourite", "sortValue"], ["desc", "asc"])
@@ -110,8 +121,8 @@ class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, ISta
 					favouriteStar = <span className="fav-star">{"\u2b50"}</span>;
 				}
 				return (
-					<li key={key}>
-						<Link to={url} className={listItemClassName}>
+					<li key={key} className={listItemClassName}>
+						<Link to={url} className={linkItemClassName}>
 							{content}
 							{favouriteStar}
 						</Link>
@@ -122,7 +133,7 @@ class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, ISta
 		if (listItems.length) {
 			return listItems;
 		} else {
-			return <li className={listItemClassName}>No {itemAsPlural} Found</li>;
+			return <li className={linkItemClassName}>No {itemAsPlural} Found</li>;
 		}
 	}
 

@@ -1,4 +1,5 @@
 //Modules
+import "datejs";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { renderRoutes, RouteConfigComponentProps } from "react-router-config";

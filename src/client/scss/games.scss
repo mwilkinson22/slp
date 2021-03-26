@@ -1,0 +1,47 @@
+.game-list {
+	li.game-list-entry {
+		a {
+			display: flex;
+			img {
+				height: 20pt;
+				padding: 0 2pt;
+			}
+
+			.title {
+				font-weight: normal;
+			}
+
+			@media #{$mobile-and-tablet} {
+				flex-wrap: wrap;
+				justify-content: center;
+				text-align: center;
+				.date-and-time,
+				.title-and-teams {
+					width: 100%;
+				}
+
+				.date-and-time {
+					display: flex;
+					justify-content: space-between;
+				}
+			}
+			@media #{$desktop-only} {
+				align-items: center;
+				.date-and-time,
+				.title-and-teams {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					margin-right: 8pt;
+				}
+				.date-and-time {
+					text-align: left;
+					width: 90pt;
+				}
+				.title-and-teams {
+					flex-grow: 1;
+				}
+			}
+		}
+	}
+}

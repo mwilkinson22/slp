@@ -73,4 +73,4 @@ class _UserList extends Component<IProps, IState> {
 	}
 }
 
-export const UserList = connector(_UserList);
+export const UserListPage = connector(_UserList);

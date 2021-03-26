@@ -84,4 +84,4 @@ class _TeamList extends Component<IProps, IState> {
 	}
 }
 
-export const TeamList = connector(_TeamList);
+export const TeamListPage = connector(_TeamList);

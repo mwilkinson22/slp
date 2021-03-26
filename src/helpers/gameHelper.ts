@@ -2,6 +2,7 @@ import { IGame, IGameForImagePost } from "~/models/Game";
 import { ITeam } from "~/models/Team";
 import { dateToHMS } from "~/helpers/genericHelper";
 import { ISettings } from "~/models/Settings";
+import { ICompetition } from "~/models/Competition";
 
 //Convert game to string
 export function gameAsString(game: IGame, teams: Record<string, ITeam>, withTime?: boolean) {
@@ -56,4 +57,23 @@ export function parseGameVariablesForPost(game: IGameForImagePost, text: string,
 	}
 
 	return text;
+}
+
+export function getTeamNamesAndTitle(
+	game: IGame,
+	teams: Record<string, ITeam>,
+	competitions: Record<string, ICompetition>
+) {
+	//Teams
+	const teamNames = `${teams[game._homeTeam].name.short} vs ${teams[game._awayTeam].name.short}`;
+
+	//Comp & Round
+	let round = "";
+	if (game.round) {
+		//If it's just a number, we prefix it with "Round"
+		round = parseInt(game.round) ? `Round ${game.round}` : game.round;
+	}
+	const title = `${competitions[game._competition].name} ${round}`.trim();
+
+	return { teamNames, title };
 }

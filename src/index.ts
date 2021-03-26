@@ -10,6 +10,7 @@ import { AppRouter } from "~/AppRouter";
 //Modules
 import "@babel/polyfill";
 import mongoose from "mongoose";
+import "datejs";
 
 //Helpers & Constants
 import { keys } from "./config/keys";
