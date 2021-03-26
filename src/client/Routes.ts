@@ -6,6 +6,8 @@ import { App } from "./App";
 import { Logout } from "~/client/components/auth/Logout";
 import { NotFoundPage } from "~/client/components/global/NotFoundPage";
 
+import { HomePage } from "~/client/pages/HomePage";
+
 import { CompetitionPage } from "~/client/pages/CompetitionPage";
 import { CompetitionListPage } from "~/client/pages/CompetitionListPage";
 
@@ -27,6 +29,7 @@ import { UserPage } from "~/client/pages/UserPage";
 import { SettingsRouter } from "~/client/pages/settings/SettingsRouter";
 
 const routeMap = {
+	"/": HomePage,
 	"/logout": Logout,
 
 	"/competitions/new": CompetitionPage,
