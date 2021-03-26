@@ -90,3 +90,41 @@ export function dateToHMS(date: Date): string {
 	//giving us the time, then grab the first 8 chars
 	return dateToISO(date).split("T")[1].substr(0, 8);
 }
+
+export function dayOfWeekToString(num: number): string {
+	const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+	return days[num];
+}
+
+export function getStartOfWeekByWeeklyPostDate(postDate: string): Date {
+	const dayToEndWeek = dayOfWeekToString(parseInt(postDate));
+	return Date.parse(`last ${dayToEndWeek}`).addDays(1);
+}
+
+export function getNextDateByDayOfWeek(dayOfWeek: number): Date {
+	const date = new Date().addDays(-1);
+	switch (dayOfWeek) {
+		case 0:
+			date.next().sunday();
+			break;
+		case 1:
+			date.next().monday();
+			break;
+		case 2:
+			date.next().tuesday();
+			break;
+		case 3:
+			date.next().wednesday();
+			break;
+		case 4:
+			date.next().thursday();
+			break;
+		case 5:
+			date.next().friday();
+			break;
+		case 6:
+			date.next().saturday();
+			break;
+	}
+	return date;
+}

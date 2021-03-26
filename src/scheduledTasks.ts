@@ -38,3 +38,9 @@ async function apiCall(method: Methods, path: string, extraData?: any) {
 schedule.scheduleJob("0 0 * * *", async function () {
 	await apiCall(Methods.del, "games/old");
 });
+
+//Auto-post
+//Every 15 minutes
+schedule.scheduleJob("*/15 * * * *", async function () {
+	await apiCall(Methods.post, "games/scheduledPosts");
+});

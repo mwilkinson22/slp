@@ -12,6 +12,7 @@ import { ErrorBoundary } from "~/client/components/hoc/ErrorBoundary";
 //Interfaces
 interface IPassedProps<T> {
 	display: KeyOfType<T, string> | ((o: T) => string | { content: ReactNode; textValue: string });
+	keyProp?: keyof T;
 	items: Record<string | number, T> | T[];
 	itemAsPlural?: string;
 	listItemClassName?: string;
@@ -35,9 +36,6 @@ const connector = connect(mapStateToProps);
 
 //Component
 class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, IState> {
-	static defaultProps = {
-		listItemClassName: "basic-list-item"
-	};
 	state = { searchTerm: "" };
 
 	renderSearchBar(): ReactNode | void {
@@ -56,7 +54,7 @@ class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, ISta
 	}
 
 	renderList(): ReactNode {
-		const { display, itemAsPlural, items, listItemClassName, sortBy, url } = this.props;
+		const { display, itemAsPlural, items, keyProp, listItemClassName, sortBy, url } = this.props;
 		const { searchTerm } = this.state;
 		const linkItemClassName = "card no-margin no-shadow";
 
@@ -101,7 +99,7 @@ class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, ISta
 				//Check for favourite
 				const isFavourite = item.isFavourite ?? false;
 
-				return { key: item._id, url: url(item), content, sortValue, textValue, isFavourite };
+				return { key: item[keyProp || "_id"], url: url(item), content, sortValue, textValue, isFavourite };
 			})
 			//Order
 			.orderBy(["isFavourite", "sortValue"], ["desc", "asc"])
@@ -152,7 +150,8 @@ class _ItemList<T extends Record<string, any>> extends Component<IProps<T>, ISta
 export function ItemList<T>(passedProps: IPassedProps<T>) {
 	const defaultProps = {
 		searchable: true,
-		itemAsPlural: "Results"
+		itemAsPlural: "Results",
+		listItemClassName: "basic-list-item"
 	};
 	const props = {
 		...defaultProps,

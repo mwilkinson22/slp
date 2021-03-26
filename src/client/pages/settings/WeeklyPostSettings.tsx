@@ -14,6 +14,7 @@ import { ISettings } from "~/models/Settings";
 import { FormFieldTypes, IFieldGroup } from "~/enum/FormFieldTypes";
 import { ServerContentPreview } from "~/client/components/forms/ServerContentPreview";
 import { ConnectedProps } from "react-redux";
+import { dayOfWeekToString } from "~/helpers/genericHelper";
 
 //Redux
 const connector = connect(null, { previewWeeklyPostImage });
@@ -24,10 +25,12 @@ function _WeeklyPostSettings(props: ConnectedProps<typeof connector>) {
 	type FormFields = ISettings[typeof settingsGroup];
 
 	//Get Field Groups
-	const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((label, value) => ({
-		label,
-		value: value.toString()
-	}));
+	const days = [];
+	for (let i = 0; i < 7; i++) {
+		const day = dayOfWeekToString(i);
+		days.push({ label: day, value: i.toString() });
+	}
+
 	//Get Field Groups
 	const teamNameLabels = ["Short", "Long", "Nickname"].map(label => ({ label, value: label.toLowerCase() }));
 

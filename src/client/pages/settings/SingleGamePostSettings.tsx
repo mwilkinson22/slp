@@ -11,7 +11,7 @@ import { ServerContentPreview } from "~/client/components/forms/ServerContentPre
 //Interfaces & Enums
 import { ISettings } from "~/models/Settings";
 import { FormFieldTypes, IFieldGroup } from "~/enum/FormFieldTypes";
-import { previewSingleGameImage, getSingleGamePostText } from "~/client/actions/gameActions";
+import { getSingleGamePostText, previewSingleGameImage } from "~/client/actions/gameActions";
 import { gameVariableMap } from "~/helpers/gameHelper";
 
 //Redux
@@ -24,6 +24,17 @@ function _SingleGamePostSettings(props: ConnectedProps<typeof connector>) {
 	//Get Field Groups
 	const teamNameLabels = ["Short", "Long", "Nickname"].map(label => ({ label, value: label.toLowerCase() }));
 	const fieldGroups: IFieldGroup<FormFields>[] = [
+		{
+			label: "Scheduled Post Settings",
+			fields: [
+				{ name: "gameDelay", type: FormFieldTypes.number },
+				{ name: "tvDelay", type: FormFieldTypes.number },
+				{ name: "retweetDelay", type: FormFieldTypes.number }
+			]
+		},
+		{
+			render: () => <hr key="divider-1" />
+		},
 		{
 			label: "Text Settings",
 			render: () => {
@@ -75,7 +86,7 @@ function _SingleGamePostSettings(props: ConnectedProps<typeof connector>) {
 			)
 		},
 		{
-			render: () => <hr key="divider-1" />
+			render: () => <hr key="divider-2" />
 		},
 		{
 			label: "Image Settings",
@@ -100,7 +111,10 @@ function _SingleGamePostSettings(props: ConnectedProps<typeof connector>) {
 		defaultTweetText: Yup.string().required().label("Default Text"),
 		defaultImageText: Yup.string().required().label("Image Text"),
 		backupGroundText: Yup.string().required().label("Backup Ground Text"),
-		teamName: Yup.string().required().label("Team Name Format")
+		teamName: Yup.string().required().label("Team Name Format"),
+		gameDelay: Yup.string().required().label("Post (x) minutes after kick-off"),
+		tvDelay: Yup.string().required().label("Add (x) extra minutes for tv games"),
+		retweetDelay: Yup.string().required().label("Retweet (x) minutes after posting")
 	});
 
 	return (

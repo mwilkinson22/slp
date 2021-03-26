@@ -17,12 +17,14 @@ import { ITeam, Team } from "~/models/Team";
 
 //Helpers
 import { getSettings } from "~/controllers/SettingsController";
-import { postToSocial } from "~/controllers/SocialController";
+import { postToSocial, retweet } from "~/controllers/SocialController";
 import { parseGameVariablesForPost } from "~/helpers/gameHelper";
 
 //Canvases
 import { SingleGameCanvas } from "~/canvas/SingleGameCanvas";
 import { WeeklyPostCanvas } from "~/canvas/WeeklyPostCanvas";
+import { SocialProfile } from "~/models/SocialProfile";
+import { getNextDateByDayOfWeek, getStartOfWeekByWeeklyPostDate } from "~/helpers/genericHelper";
 
 //Controller
 @controller("/api/games")
@@ -158,8 +160,8 @@ class GameController {
 	/* --------------------------------- */
 	/* Images
 	/* --------------------------------- */
-	static async populateGameForImagePost(ids: string[]): Promise<IGameForImagePost[]> {
-		const mongooseResult = await Game.find({ _id: { $in: ids } })
+	static async populateGamesForImagePost(query: Record<string, any>): Promise<IGameForImagePost[]> {
+		const mongooseResult = await Game.find(query)
 			.populate({ path: "_homeTeam" })
 			.populate({ path: "_awayTeam" })
 			.populate({ path: "_ground" })
@@ -184,14 +186,21 @@ class GameController {
 			}
 		}
 
-		//Get the game
-		if (_id === "dummy") {
+		//If we've said "any", then pass in an empty object
+		if (_id === "any") {
+			const results = await GameController.populateGamesForImagePost({});
+			if (results.length) {
+				return results[0];
+			}
+
+			//If we don't get any results back, make a dummy game
 			const dummies = await GameController.createDummyImageGames(true, 1);
 			return dummies[0];
-		} else {
-			const results = await GameController.populateGameForImagePost([_id]);
-			return results[0] || false;
 		}
+
+		//Otherwise, pass in the ID
+		const results = await GameController.populateGamesForImagePost({ _id });
+		return results[0] || false;
 	}
 
 	static async generateSingleFixtureImage(
@@ -291,7 +300,7 @@ class GameController {
 
 		let games: IGameForImagePost[] = [];
 		if (gameIds) {
-			games = await GameController.populateGameForImagePost(gameIds);
+			games = await GameController.populateGamesForImagePost({ _id: { $in: gameIds } });
 
 			//Check we have all the games we need
 			const missingGames = gameIds.filter(_id => !games.find(g => g._id === _id));
@@ -303,7 +312,7 @@ class GameController {
 		//Pull 8 random games
 		if (!games.length) {
 			const randomGames = await Game.find({}, "_id").sort("date").limit(8).lean();
-			games = await GameController.populateGameForImagePost(randomGames.map(g => g._id.toString()));
+			games = await GameController.populateGamesForImagePost(randomGames.map(g => g._id.toString()));
 		}
 
 		//If we have no games, create 8 dummy ones
@@ -322,7 +331,7 @@ class GameController {
 		const { games, _profile, text, postToFacebook }: IWeeklyPostFields = req.body;
 
 		//Get Games
-		const gameObjects = await GameController.populateGameForImagePost(games);
+		const gameObjects = await GameController.populateGamesForImagePost(games);
 
 		//Check we have all the games we need
 		const missingGames = games.filter(_id => !gameObjects.find(g => g._id === _id));
@@ -338,5 +347,126 @@ class GameController {
 		const result = await postToSocial(text, _profile, image, postToFacebook);
 
 		res.send(result);
+	}
+
+	@post("/scheduledposts")
+	@use(requireAdmin)
+	async autoPost(req: Request, res: Response) {
+		//First, get all the settings we need
+		const settings = await getSettings();
+		const profile = await SocialProfile.findOne({ isDefault: true }, "_id").lean();
+
+		if (!profile) {
+			throw new Error("Cannot auto-post as no default profile is set");
+		}
+
+		//First, handle all individual game posts
+		//Get all games that have already kicked off
+		const games = await GameController.populateGamesForImagePost({
+			date: { $lt: new Date().toString("yyyy-MM-dd HH:mm:ss") },
+			postAfterGame: true
+		});
+
+		//Work out which games we need to tweet, if any
+		const gamesToTweet = games.filter(game => {
+			//Eliminate games we've already tweeted out
+			if (game.tweetId) {
+				return false;
+			}
+
+			//Work out what time we'd expect to be tweeting
+			const timeWeCanTweet = new Date(game.date).addMinutes(parseInt(settings.singleGamePost.gameDelay));
+			if (game.isOnTv) {
+				timeWeCanTweet.addMinutes(parseInt(settings.singleGamePost.tvDelay));
+			}
+			return new Date() >= timeWeCanTweet;
+		});
+
+		for (const game of gamesToTweet) {
+			//Create an image
+			const imageClass = new SingleGameCanvas(game, settings.singleGamePost);
+			const image = await imageClass.render(true);
+
+			//Parse the text
+			const content = parseGameVariablesForPost(game, settings.singleGamePost.defaultTweetText, settings);
+
+			//Post to social
+			const result = await postToSocial(content, profile._id.toString(), image, true);
+
+			//If successful, we update the tweet ID of the game
+			if (result.success) {
+				await Game.updateOne({ _id: game._id }, { tweetId: result.tweetId });
+			}
+		}
+
+		//Next, work out if we need to retweet anything
+		const gamesToRetweet = games.filter(game => {
+			//Only show games we've tweeted but not retweeted
+			if (!game.tweetId || game.retweeted) {
+				return false;
+			}
+
+			//Work out what time we'd expect to be tweeting
+			const timeWeCanRetweet = new Date(game.date).addMinutes(parseInt(settings.singleGamePost.gameDelay));
+			if (game.isOnTv) {
+				timeWeCanRetweet.addMinutes(parseInt(settings.singleGamePost.tvDelay));
+			}
+			//Then add the retweet time
+			timeWeCanRetweet.addMinutes(parseInt(settings.singleGamePost.retweetDelay));
+
+			return new Date() >= timeWeCanRetweet;
+		});
+
+		for (const game of gamesToRetweet) {
+			await retweet(game.tweetId as string, profile._id.toString());
+		}
+
+		//Finally, work out if we need to submit the weekly post.
+		//We can only set the auto-post in 15 minute intervals, and we run this cron job
+		//every 15 minutes So checking to see if we're within 5 minutes should be sufficient
+
+		//First, get the scheduled post datetime for this week
+		const scheduledPostDate = getNextDateByDayOfWeek(parseInt(settings.weeklyPost.postDate)).at(
+			settings.weeklyPost.postTime
+		);
+		const timeDifferenceInMs = scheduledPostDate.getTime() - new Date().getTime();
+		const timeDifferenceInMinutes = Math.abs(timeDifferenceInMs / (1000 * 60));
+		if (timeDifferenceInMinutes < 5) {
+			//We call the games again
+			//Start Date
+			const startDate = getStartOfWeekByWeeklyPostDate(settings.weeklyPost.postDate);
+			const gamesForWeeklyPost = await GameController.populateGamesForImagePost({
+				date: { $gt: startDate.getTime(), $lt: new Date().getTime() },
+				includeInWeeklyPost: true
+			});
+			if (gamesForWeeklyPost.length) {
+				//Create image
+				const imageClass = new WeeklyPostCanvas(gamesForWeeklyPost, settings.weeklyPost);
+				const image = await imageClass.render(true);
+
+				//Get Text
+				let text = settings.weeklyPost.defaultTweetText + "\n\n" + settings.googleForm.link + "\n\n";
+
+				//We then loop the competition hashtags and add them in, if we can
+				_.chain(gamesForWeeklyPost)
+					.map("_competition")
+					.map(c => c.competitionHashtag || c.name.replace(/[^0-9A-Za-z_]/g, ""))
+					.uniq()
+					.filter(_.identity)
+					.sort()
+					.each(tag => {
+						//We don't measure the following space, as we'll be trimming in the end
+						if (`${text}#${tag}`.length < 280) {
+							text += `#${tag} `;
+						}
+					})
+					.value();
+
+				//Tweet it out
+				await postToSocial(text, profile._id.toString(), image, true);
+			}
+		}
+
+		res.send({});
 	}
 }

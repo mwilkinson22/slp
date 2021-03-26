@@ -64,6 +64,7 @@ class _SettingsRouter extends Component<IProps> {
 		const settingsList = (
 			<ItemList<SettingsPage>
 				display={"title"}
+				keyProp={"path"}
 				items={_.keyBy(SettingsPages, "path")}
 				searchable={false}
 				url={({ path }) => `/settings/${path}`}

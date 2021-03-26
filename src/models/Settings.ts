@@ -22,6 +22,9 @@ export interface ISettings {
 		defaultImageText: string;
 		teamName: TeamNameOptions;
 		backupGroundText: string;
+		gameDelay: string;
+		tvDelay: string;
+		retweetDelay: string;
 	};
 	weeklyPost: {
 		defaultTweetText: string;
@@ -47,7 +50,10 @@ export const defaultSettings: ISettings = {
 		defaultTweetText: "",
 		defaultImageText: "",
 		teamName: "short",
-		backupGroundText: "the Game"
+		backupGroundText: "the Game",
+		gameDelay: "",
+		tvDelay: "",
+		retweetDelay: ""
 	},
 	weeklyPost: {
 		defaultTweetText: "",

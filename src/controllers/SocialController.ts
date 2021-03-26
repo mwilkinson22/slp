@@ -27,11 +27,11 @@ export async function postToSocial(
 	_profile: string,
 	image: string,
 	postToFacebook: boolean
-): Promise<{ error: string } | { tweetId: string }> {
+): Promise<{ error: string; success: false } | { tweetId: string; success: true }> {
 	//First, validate the profile
 	const profile = await SocialProfile.findById(_profile).lean();
 	if (!profile) {
-		return { error: `Invalid profile ID - ${profile}` };
+		return { error: `Invalid profile ID - ${profile}`, success: false };
 	}
 
 	//Get the settings we need
@@ -52,7 +52,7 @@ export async function postToSocial(
 		error = JSON.parse(e.data).errors[0].message;
 	}
 	if (error) {
-		return { error };
+		return { error, success: false };
 	}
 
 	//Post Tweet
@@ -85,12 +85,36 @@ export async function postToSocial(
 
 	//Return tweet
 	if (tweetId) {
-		return { tweetId };
+		return { tweetId, success: true };
 	} else if (error) {
-		return { error };
+		return { error, success: false };
 	} else {
-		return { error: "An unknown error occured" };
+		return { error: "An unknown error occured", success: false };
 	}
+}
+
+//Generic retweeter
+export async function retweet(id: string, _profile: string): Promise<{ success: boolean }> {
+	//First, validate the profile
+	const profile = await SocialProfile.findById(_profile).lean();
+	if (!profile) {
+		return { success: false };
+	}
+
+	//Get the settings we need
+	const twitterSettings = await getSettings<"twitterApp">("twitterApp");
+
+	//Get a twitter client
+	const twitterClient = getTwitterClientWithProfile(twitterSettings, profile as ISocialProfile);
+
+	//Retweet
+	try {
+		await twitterClient.tweets.statusesRetweetById({ id });
+	} catch (e) {
+		return { success: false };
+	}
+
+	return { success: true };
 }
 
 //Controller
