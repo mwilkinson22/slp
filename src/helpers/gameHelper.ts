@@ -77,3 +77,26 @@ export function getTeamNamesAndTitle(
 
 	return { teamNames, title };
 }
+
+type GameWeek = "Last Week" | "This Week" | "Next Week" | "Future Games";
+export function getGameWeek(game: IGame, settings: ISettings): GameWeek {
+	//To get proper "this/next" week boundaries, we use the weekly-post deadline date
+	const dayStrings = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+	const dayToEndWeek = dayStrings[parseInt(settings.multiGamePost.postDate)];
+	const startOfThisWeek = Date.parse(`last ${dayToEndWeek}`).addDays(1);
+	const differenceInMs = new Date(game.date).getTime() - startOfThisWeek.getTime();
+	const differenceInDays = Math.floor(differenceInMs / (1000 * 60 * 60 * 24));
+	if (differenceInDays < 0) {
+		return "Last Week";
+	}
+
+	if (differenceInDays < 7) {
+		return "This Week";
+	}
+
+	if (differenceInDays < 14) {
+		return "Next Week";
+	}
+
+	return "Future Games";
+}

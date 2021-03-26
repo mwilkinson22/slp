@@ -35,7 +35,7 @@ const connector = connect(mapStateToProps);
 function _GameListEntry({ bucketPaths, competitions, game, teams }: IProps) {
 	//Date
 	const date = new Date(game.date).toString("ddd dd/MM/yy");
-	const time = new Date(game.date).toString("hh:mm");
+	const time = new Date(game.date).toString("H:mm");
 
 	//Teams & Title
 	const { teamNames, title } = getTeamNamesAndTitle(game, teams, competitions);
