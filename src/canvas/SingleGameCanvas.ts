@@ -126,7 +126,7 @@ export class SingleGameCanvas extends CanvasBuilder {
 			bannerHeight,
 			logoWidth / 2
 		);
-		const homeBanner = await homeClass.renderForCanvas();
+		const homeBanner = await homeClass.renderForCanvas(false);
 		this.containImage(homeBanner, 0, bannerY, this.relativeWidth(50), bannerHeight);
 
 		//Away Team
@@ -138,7 +138,7 @@ export class SingleGameCanvas extends CanvasBuilder {
 			bannerHeight,
 			logoWidth / 2
 		);
-		const awayBanner = await awayClass.renderForCanvas();
+		const awayBanner = await awayClass.renderForCanvas(false);
 		this.containImage(awayBanner, this.relativeWidth(50), bannerY, this.relativeWidth(50), bannerHeight);
 
 		//Finally, fill in the game logo, if we have one

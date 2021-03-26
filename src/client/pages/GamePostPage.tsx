@@ -19,7 +19,7 @@ import { fetchAllSocialProfiles } from "~/client/actions/socialActions";
 //Interfaces & Enums
 import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
-import { IGame, IGameForImagePost, ISingleGamePostFields } from "~/models/Game";
+import { IGameForImagePost, ISingleGamePostFields } from "~/models/Game";
 import { FormFieldTypes, IFieldGroup, SelectOption } from "~/enum/FormFieldTypes";
 import { gameVariableMap, parseGameVariablesForPost } from "~/helpers/gameHelper";
 import { ISettings } from "~/models/Settings";
@@ -104,7 +104,6 @@ class _GamePostPage extends Component<IProps, IState> {
 		const game = this.state.game as IGameForImagePost;
 
 		const text = parseGameVariablesForPost(game, settings.singleGamePost.defaultTweetText, settings);
-		//TODO add form link
 
 		return {
 			_id: game._id,
@@ -131,8 +130,6 @@ class _GamePostPage extends Component<IProps, IState> {
 		if (socialProfiles && !socialProfiles[values._profile].ifttt_key) {
 			hideFacebook = true;
 		}
-
-		//TODO add form link
 
 		return [
 			{
@@ -191,13 +188,14 @@ class _GamePostPage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/games/${game._id}`}>Return to edit game</NavCard>
 					<h1>{header}</h1>
-					<BasicForm<ISingleGamePostFields, IGame>
+					<BasicForm<ISingleGamePostFields>
 						fieldGroups={values => this.getFieldGroups(values)}
 						initialValues={this.getInitialValues()}
 						isInitialValid={true}
 						isNew={true}
 						itemType={"Game Post"}
 						onSubmit={submitSingleGameImagePost}
+						submitButtonText={"Submit Post"}
 						validationSchema={validationSchema}
 					/>
 					{this.renderImagePreview()}

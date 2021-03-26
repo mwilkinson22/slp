@@ -7,6 +7,7 @@ import { RouteComponentProps } from "react-router-dom";
 //Components
 import { LoadingPage } from "~/client/components/global/LoadingPage";
 import { GameList } from "~/client/components/games/GameList";
+import { NavCard } from "~/client/components/global/NavCard";
 
 //Actions
 import { fetchAllGames } from "~/client/actions/gameActions";
@@ -67,10 +68,18 @@ class _HomePage extends Component<IProps, IState> {
 
 		//Get this week's games
 		const gamesThisWeek = _.filter(games, game => getGameWeek(game, settings) === "This Week");
+
+		//Weekly post link
+		let weeklyPostLink;
+		if (gamesThisWeek.length) {
+			weeklyPostLink = <NavCard to="/games/weekly-post">Manually Submit Weekly Post</NavCard>;
+		}
+
 		return (
 			<div className="game-list-page">
 				<div className="container">
 					<h1>Games This Week</h1>
+					{weeklyPostLink}
 					<GameList games={gamesThisWeek} />
 				</div>
 			</div>

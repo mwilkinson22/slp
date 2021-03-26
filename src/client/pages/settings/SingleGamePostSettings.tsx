@@ -100,7 +100,7 @@ function _SingleGamePostSettings(props: ConnectedProps<typeof connector>) {
 		defaultTweetText: Yup.string().required().label("Default Text"),
 		defaultImageText: Yup.string().required().label("Image Text"),
 		backupGroundText: Yup.string().required().label("Backup Ground Text"),
-		teamName: Yup.string().required().label("Team Name To Use")
+		teamName: Yup.string().required().label("Team Name Format")
 	});
 
 	return (

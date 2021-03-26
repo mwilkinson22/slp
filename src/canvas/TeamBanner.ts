@@ -25,12 +25,23 @@ export class TeamBanner extends CanvasBuilder {
 		};
 	}
 
-	private async drawBanner() {
-		const { ctx, cHeight, cWidth, endPadding, leftAlign, team, teamNameFormat } = this;
+	private drawBackground() {
+		const { ctx, team, cWidth, cHeight } = this;
 
 		//Draw the background colour
 		ctx.fillStyle = team.colours.main;
 		ctx.fillRect(0, 0, cWidth, cHeight);
+	}
+
+	private async getBadge() {
+		return this.googleToCanvas(`images/teams/${this.team.image}`);
+	}
+
+	private async drawBanner() {
+		const { ctx, cHeight, cWidth, endPadding, leftAlign, team, teamNameFormat } = this;
+
+		//Draw the background
+		this.drawBackground();
 
 		//Draw the trim
 		ctx.fillStyle = team.colours.trim;
@@ -44,7 +55,7 @@ export class TeamBanner extends CanvasBuilder {
 		const badgeYPadding = this.relativeHeight(10);
 		const badgeXPadding = this.relativeWidth(3);
 		const badgeHeight = contentHeight - badgeYPadding * 2;
-		const badge = await this.googleToCanvas(`images/teams/${team.image}`);
+		const badge = await this.getBadge();
 
 		let badgeWidth;
 		if (badge) {
@@ -93,8 +104,51 @@ export class TeamBanner extends CanvasBuilder {
 		this.textBuilder([[textRowBlock]], textX, this.relativeHeight(50, contentHeight));
 	}
 
-	async renderForCanvas(): Promise<Canvas> {
-		await this.drawBanner();
+	private async drawBannerForWeeklyPost() {
+		const { ctx, cHeight, cWidth, leftAlign, team, teamNameFormat } = this;
+
+		//Draw the background
+		this.drawBackground();
+
+		//Draw badge
+		const badge = await this.getBadge();
+		let xOffset = 0;
+		if (badge) {
+			const badgeWidth = this.relativeHeight(200);
+			const badgeOverhang = this.relativeHeight(30);
+			xOffset = badgeWidth - badgeOverhang;
+			this.coverImage(
+				badge,
+				leftAlign ? 0 - badgeOverhang : cWidth - badgeWidth + badgeOverhang,
+				0,
+				badgeWidth,
+				cHeight
+			);
+		}
+
+		//Add team name
+		ctx.fillStyle = team.colours.text;
+		this.setTextStyle("teamName");
+		let teamName;
+		if (teamNameFormat === "nickname") {
+			teamName = team.nickname;
+		} else {
+			teamName = team.name[teamNameFormat];
+		}
+		const textRowBlock: TextRowBlock = { content: teamName, maxWidth: cWidth - xOffset };
+		this.textBuilder(
+			[[textRowBlock]],
+			this.relativeWidth(50) + (leftAlign ? xOffset : -xOffset) / 2,
+			this.relativeHeight(50)
+		);
+	}
+
+	async renderForCanvas(forWeeklyPost: boolean): Promise<Canvas> {
+		if (forWeeklyPost) {
+			await this.drawBannerForWeeklyPost();
+		} else {
+			await this.drawBanner();
+		}
 		return this.canvas;
 	}
 

@@ -18,7 +18,7 @@ interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps {
 
 //Settings Pages
 import { GoogleFormSettings } from "~/client/pages/settings/GoogleFormSettings";
-import { MultiGamePostSettings } from "~/client/pages/settings/MultiGamePostSettings";
+import { WeeklyPostSettings } from "~/client/pages/settings/WeeklyPostSettings";
 import { SingleGamePostSettings } from "~/client/pages/settings/SingleGamePostSettings";
 import { SocialProfileList } from "~/client/pages/settings/SocialProfileList";
 import { TwitterAppSettings } from "~/client/pages/settings/TwitterAppSettings";
@@ -32,7 +32,7 @@ type SettingsPage = {
 const SettingsPages: SettingsPage[] = [
 	{ path: "google-form", title: "Google Form", component: GoogleFormSettings },
 	{ path: "single-game-post", title: "Single Game Post", component: SingleGamePostSettings },
-	{ path: "multi-game-post", title: "Multiple Game Post", component: MultiGamePostSettings },
+	{ path: "weekly-post", title: "Weekly Game Post", component: WeeklyPostSettings },
 	{ path: "twitter-app", title: "Twitter App Settings", component: TwitterAppSettings },
 	{ path: "social-profiles", title: "Social Profiles", component: SocialProfileList }
 ];

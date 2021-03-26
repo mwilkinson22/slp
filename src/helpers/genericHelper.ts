@@ -5,7 +5,7 @@
 //We also have an ObjectToDot typescript type
 //First, PathsToProps runs recursively and gets all the paths to any fields of
 //type V
-type PathsToProps<T, V = string | boolean | number> = T extends V
+type PathsToProps<T, V = string | boolean | number | any[]> = T extends V
 	? []
 	: { [K in Extract<keyof T, V>]: [K, ...PathsToProps<T[K]>] }[Extract<keyof T, V>];
 

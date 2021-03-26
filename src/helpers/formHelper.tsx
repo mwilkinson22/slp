@@ -257,8 +257,8 @@ export function renderInput<T extends IFormikValuesObject>(field: IFieldAny<T>, 
 				}
 				selectProps.className = className.join(" ");
 
-				//Add clearable status
-				selectProps.isClearable = !required;
+				//Add clearable status, if we haven't already
+				selectProps.isClearable = mainProps.isClearable ?? !required;
 
 				//Add to main props
 				Object.assign(mainProps, selectProps);
@@ -317,7 +317,6 @@ export function renderInput<T extends IFormikValuesObject>(field: IFieldAny<T>, 
 				} else {
 					value = flatOptions.find(({ value }) => value == mainProps.value) || "";
 				}
-
 				return <Select {...mainProps} value={value || ""} styles={selectStyling} />;
 			}
 			case FormFieldTypes.asyncSelect:

@@ -8,7 +8,7 @@ import { AxiosInstance } from "axios";
 //Enum
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
-import { IGame, IGameForImagePost, IGameFormFields, ISingleGamePostFields } from "~/models/Game";
+import { IGame, IGameForImagePost, IGameFormFields, ISingleGamePostFields, IWeeklyPostFields } from "~/models/Game";
 import { ISettings } from "~/models/Settings";
 
 //Action Interfaces
@@ -106,10 +106,31 @@ export const previewSingleGameImage = (_id?: string | null, overrideSettings?: I
 	};
 };
 
+export const previewWeeklyPostImage = (games: string[] | null, overrideSettings?: ISettings["weeklyPost"]) => {
+	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance): Promise<string | null> => {
+		const res = await api.post<string>("/games/weeklyPostPreviewImage/", { games, overrideSettings });
+		if (res.data) {
+			return res.data;
+		}
+		return null;
+	};
+};
+
 type PostSubmitResponse = { error?: string };
 export const submitSingleGameImagePost = (values: ISingleGamePostFields) => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
 		const res = await api.post<PostSubmitResponse>(`/games/singleImagePost/`, values);
+		if (res.data && !res.data.error) {
+			toast.success("Post Submitted Successfully");
+		} else {
+			toast.error(res.data.error || "An Unknown Error Occurred");
+		}
+	};
+};
+
+export const submitWeeklyPost = (values: IWeeklyPostFields) => {
+	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
+		const res = await api.post<PostSubmitResponse>(`/games/weeklyPost/`, values);
 		if (res.data && !res.data.error) {
 			toast.success("Post Submitted Successfully");
 		} else {

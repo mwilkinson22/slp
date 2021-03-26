@@ -4,6 +4,7 @@ import { LoadingPage } from "~/client/components/global/LoadingPage";
 interface IProps {
 	allowReloading: boolean;
 	darkBackgroundToggle?: boolean;
+	disabled: boolean;
 	getData: () => Promise<string | null>;
 	loadOnFirstRender?: boolean;
 	renderContent: "image" | "plainText" | "textarea";
@@ -19,6 +20,7 @@ export class ServerContentPreview extends Component<IProps, IState> {
 	static defaultProps = {
 		allowReloading: true,
 		darkBackgroundToggle: false,
+		disabled: false,
 		loadOnFirstRender: false
 	};
 	state: IState = { darkBackground: false, data: null, isLoading: false };
@@ -43,7 +45,7 @@ export class ServerContentPreview extends Component<IProps, IState> {
 	}
 
 	renderLoadButton() {
-		const { allowReloading } = this.props;
+		const { allowReloading, disabled } = this.props;
 		const { data, isLoading } = this.state;
 
 		if (!allowReloading && data) {
@@ -51,7 +53,7 @@ export class ServerContentPreview extends Component<IProps, IState> {
 		}
 
 		return (
-			<button type="button" disabled={isLoading} onClick={() => this.updateBannerPreview()}>
+			<button type="button" disabled={isLoading || disabled} onClick={() => this.updateBannerPreview()}>
 				{data ? "Update" : "Get"} Preview
 			</button>
 		);

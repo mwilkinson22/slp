@@ -10,18 +10,19 @@ import { requireAuth } from "~/middleware/requireAuth";
 import { requireAdmin } from "~/middleware/requireAdmin";
 
 //Models
+import { Competition, ICompetition } from "~/models/Competition";
 import { ISettings } from "~/models/Settings";
-import { Game, IGame, IGameForImagePost, IGameFormFields, ISingleGamePostFields } from "~/models/Game";
+import { Game, IGameForImagePost, IGameFormFields, ISingleGamePostFields, IWeeklyPostFields } from "~/models/Game";
 import { ITeam, Team } from "~/models/Team";
 
 //Helpers
 import { getSettings } from "~/controllers/SettingsController";
+import { postToSocial } from "~/controllers/SocialController";
+import { parseGameVariablesForPost } from "~/helpers/gameHelper";
 
 //Canvases
 import { SingleGameCanvas } from "~/canvas/SingleGameCanvas";
-import { Competition, ICompetition } from "~/models/Competition";
-import { parseGameVariablesForPost } from "~/helpers/gameHelper";
-import { postToSocial } from "~/controllers/SocialController";
+import { WeeklyPostCanvas } from "~/canvas/WeeklyPostCanvas";
 
 //Controller
 @controller("/api/games")
@@ -43,39 +44,34 @@ class GameController {
 		return game;
 	}
 
-	static async createDummyGame(forImage: true): Promise<IGameForImagePost>;
-	static async createDummyGame(forImage: false): Promise<IGame>;
-	static async createDummyGame(forImage: boolean) {
+	static async createDummyImageGames(forImage: true, count: number = 1): Promise<IGameForImagePost[]> {
 		//Pull extra data
-		const teams: ITeam[] = await Team.aggregate([{ $sample: { size: 2 } }]);
-		const competitions: ICompetition[] = await Competition.aggregate([{ $sample: { size: 1 } }]);
-		const _homeTeam = forImage ? teams[0] : teams[0]._id;
-		const _awayTeam = forImage ? teams[1] : teams[1]._id;
-		const _competition = forImage ? competitions[0] : competitions[0]._id;
+		const teams: ITeam[] = await Team.aggregate([{ $sample: { size: 2 * count } }]);
+		const competitions: ICompetition[] = await Competition.aggregate([{ $sample: { size: 2 } }]);
 
 		//Create basic object
-		const game = {
-			_id: "1",
-			_homeTeam,
-			_awayTeam,
-			_competition,
-			date: "2021-01-01",
-			retweeted: false,
-			isOnTv: false,
-			overwriteHashtag: false,
-			postAfterGame: false,
-			includeInWeeklyPost: false
-		};
+		const games: IGameForImagePost[] = [];
+		for (let i = 0; i < count; i++) {
+			const _homeTeam = teams[i * 2];
+			const _awayTeam = teams[i * 2 + 1];
+			const _competition = competitions[Math.round(Math.random())];
 
-		//Add hashtags for image game
-		if (forImage) {
-			return {
-				...game,
+			games.push({
+				_id: "1",
+				_homeTeam,
+				_awayTeam,
+				_competition,
+				date: "2021-01-01",
+				retweeted: false,
+				isOnTv: false,
+				overwriteHashtag: false,
+				postAfterGame: false,
+				includeInWeeklyPost: false,
 				hashtags: ["GrandFinal"]
-			};
+			});
 		}
 
-		return game;
+		return games;
 	}
 
 	/* --------------------------------- */
@@ -162,6 +158,19 @@ class GameController {
 	/* --------------------------------- */
 	/* Images
 	/* --------------------------------- */
+	static async populateGameForImagePost(ids: string[]): Promise<IGameForImagePost[]> {
+		const mongooseResult = await Game.find({ _id: { $in: ids } })
+			.populate({ path: "_homeTeam" })
+			.populate({ path: "_awayTeam" })
+			.populate({ path: "_ground" })
+			.populate({ path: "_competition" });
+
+		//Mongoose's Typescript handling doesn't account for population,
+		//and the JSON parsing makes things even messier. While casting to any and back to the correct
+		//type is ugly, it works
+		return JSON.parse(JSON.stringify(mongooseResult as any)) as IGameForImagePost[];
+	}
+
 	static async getGameForImagePost(_id: string): Promise<IGameForImagePost | false> {
 		//If we've said "any", then we either overwrite _id with that of the next game,
 		//or we set it to "dummy"
@@ -176,23 +185,12 @@ class GameController {
 		}
 
 		//Get the game
-		let game;
 		if (_id === "dummy") {
-			game = await GameController.createDummyGame(true);
+			const dummies = await GameController.createDummyImageGames(true, 1);
+			return dummies[0];
 		} else {
-			game = await Game.findById(_id)
-				.populate({ path: "_homeTeam" })
-				.populate({ path: "_awayTeam" })
-				.populate({ path: "_ground" })
-				.populate({ path: "_competition" });
-		}
-
-		if (game) {
-			//Mongoose's Typescript handling doesn't account for population,
-			//so while this is nasty, it works
-			return (game as any) as IGameForImagePost;
-		} else {
-			return false;
+			const results = await GameController.populateGameForImagePost([_id]);
+			return results[0] || false;
 		}
 	}
 
@@ -263,6 +261,77 @@ class GameController {
 
 		//Create image
 		const canvas = await GameController.generateSingleFixtureImage(game);
+		const image = await canvas.render(true);
+
+		//Post
+		const result = await postToSocial(text, _profile, image, postToFacebook);
+
+		res.send(result);
+	}
+
+	static async generateWeeklyPostImage(
+		games: IGameForImagePost[],
+		optionOverride?: Partial<ISettings["weeklyPost"]>
+	) {
+		//Process options
+		const settingsFromDb = await getSettings<"weeklyPost">("weeklyPost");
+		const options: ISettings["weeklyPost"] = {
+			...settingsFromDb,
+			...optionOverride
+		};
+
+		return new WeeklyPostCanvas(games, options);
+	}
+
+	@post("/weeklyPostPreviewImage/")
+	@use(requireAuth)
+	async previewWeeklyPostImage(req: Request, res: Response) {
+		const gameIds: string[] | null = req.body.games;
+		const overrideSettings: ISettings["weeklyPost"] | undefined = req.body.overrideSettings;
+
+		let games: IGameForImagePost[] = [];
+		if (gameIds) {
+			games = await GameController.populateGameForImagePost(gameIds);
+
+			//Check we have all the games we need
+			const missingGames = gameIds.filter(_id => !games.find(g => g._id === _id));
+			if (missingGames.length) {
+				return GameController.send404(missingGames.join(", "), res);
+			}
+		}
+
+		//Pull 8 random games
+		if (!games.length) {
+			const randomGames = await Game.find({}, "_id").sort("date").limit(8).lean();
+			games = await GameController.populateGameForImagePost(randomGames.map(g => g._id.toString()));
+		}
+
+		//If we have no games, create 8 dummy ones
+		if (!games.length) {
+			games = await GameController.createDummyImageGames(true, 8);
+		}
+
+		const canvas = await GameController.generateWeeklyPostImage(games, overrideSettings);
+		const result = await canvas.render(false);
+		res.send(result);
+	}
+
+	@post("/weeklyPost")
+	@use(requireAuth)
+	async submitWeeklyPost(req: Request, res: Response) {
+		const { games, _profile, text, postToFacebook }: IWeeklyPostFields = req.body;
+
+		//Get Games
+		const gameObjects = await GameController.populateGameForImagePost(games);
+
+		//Check we have all the games we need
+		const missingGames = games.filter(_id => !gameObjects.find(g => g._id === _id));
+		if (missingGames.length) {
+			return GameController.send404(missingGames.join(", "), res);
+		}
+
+		//Create image
+		const canvas = await GameController.generateWeeklyPostImage(gameObjects);
 		const image = await canvas.render(true);
 
 		//Post

@@ -53,6 +53,13 @@ export interface ISingleGamePostFields {
 	postToFacebook: boolean;
 }
 
+export interface IWeeklyPostFields {
+	_profile: string;
+	games: string[];
+	text: string;
+	postToFacebook: boolean;
+}
+
 //Schema
 const GameSchema = new Schema<IGame_Mongoose>(
 	{

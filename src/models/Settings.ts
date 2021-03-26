@@ -15,15 +15,18 @@ export interface ISetting_Mongoose extends ISetting_Root, Document {
 	_id: ISetting_Root["_id"];
 }
 
+type TeamNameOptions = "short" | "long" | "nickname";
 export interface ISettings {
 	singleGamePost: {
 		defaultTweetText: string;
 		defaultImageText: string;
-		teamName: "short" | "long" | "nickname";
+		teamName: TeamNameOptions;
 		backupGroundText: string;
 	};
-	multiGamePost: {
-		defaultText: string;
+	weeklyPost: {
+		defaultTweetText: string;
+		defaultImageText: string;
+		teamName: TeamNameOptions;
 		//"0" = Sunday, "1" = Monday, etc
 		postDate: string;
 		postTime: string;
@@ -46,9 +49,11 @@ export const defaultSettings: ISettings = {
 		teamName: "short",
 		backupGroundText: "the Game"
 	},
-	multiGamePost: {
-		defaultText: "",
-		postDate: "5",
+	weeklyPost: {
+		defaultTweetText: "",
+		defaultImageText: "",
+		teamName: "short",
+		postDate: "1",
 		postTime: "18:00"
 	},
 	twitterApp: {
@@ -64,7 +69,7 @@ export const defaultSettings: ISettings = {
 
 //Schema
 const SettingSchema = new Schema<ISetting_Mongoose>({
-	name: { type: String, required: true, unique: true },
+	name: { type: String, required: true },
 	group: { type: String, required: true },
 	value: { type: String, required: true }
 });

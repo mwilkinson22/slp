@@ -26,6 +26,8 @@ import { TeamListPage } from "~/client/pages/TeamListPage";
 import { UserListPage } from "~/client/pages/UserListPage";
 import { UserPage } from "~/client/pages/UserPage";
 
+import { WeeklyPostPage } from "~/client/pages/WeeklyPostPage";
+
 import { SettingsRouter } from "~/client/pages/settings/SettingsRouter";
 
 const routeMap = {
@@ -36,6 +38,7 @@ const routeMap = {
 	"/competitions/:_id": CompetitionPage,
 	"/competitions": CompetitionListPage,
 
+	"/games/weekly-post": WeeklyPostPage,
 	"/games/:_id/post": GamePostPage,
 	"/games/new": GamePage,
 	"/games/:_id": GamePage,
