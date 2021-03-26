@@ -51,20 +51,20 @@ function _GameListEntry({ bucketPaths, competitions, game, teams }: IProps) {
 	}
 
 	//Single-Game Tweet
-	if (game.tweetId) {
+	if (!game.postAfterGame) {
+		imageMap.push({
+			title: "Not scheduled to auto-tweet",
+			src: GameStatusImages.TweetDisabled
+		});
+	} else if (game.tweetId) {
 		imageMap.push({
 			title: "Tweeted",
 			src: GameStatusImages.TweetSent
 		});
-	} else if (game.postAfterGame) {
+	} else {
 		imageMap.push({
 			title: "Not Yet Tweeted",
 			src: GameStatusImages.TweetNotYetSent
-		});
-	} else {
-		imageMap.push({
-			title: "Not scheduled to auto-tweet",
-			src: GameStatusImages.TweetDisabled
 		});
 	}
 
