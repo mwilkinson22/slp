@@ -27,7 +27,7 @@ type GameVariableMapEntry = {
 export const gameVariableMap: Record<string, GameVariableMapEntry> = {
 	timeCheck: {
 		description: "today/tonight",
-		getValue: game => (new Date(game.date).getHours() > 17 ? "today" : "tonight")
+		getValue: game => (new Date(game.date).getHours() >= 18 ? "tonight" : "today")
 	},
 	homeFull: { description: "Home Team's Full Name", getValue: game => game._homeTeam.name.long },
 	homeShort: { description: "Home Team's Short Name", getValue: game => game._homeTeam.name.short },
