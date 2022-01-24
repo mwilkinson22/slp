@@ -25,8 +25,8 @@ export interface IPassedProps<T, O = any> {
 	includeResetButton?: boolean;
 	initialValues: T;
 	isInitialValid?: boolean;
-	isNew: boolean;
-	itemType: string;
+	isNew?: boolean;
+	itemType?: string;
 	onDelete?: () => any;
 	onReset?: () => any;
 	onSubmit: (values: any, formikProps: FormikHelpers<T>) => any;
@@ -41,7 +41,10 @@ export interface IPassedProps<T, O = any> {
 	useGrid?: boolean;
 	validationSchema: ObjectSchema;
 }
-interface IProps<T, O> extends IPassedProps<T, O>, RouteComponentProps {}
+interface IProps<T, O> extends IPassedProps<T, O>, RouteComponentProps {
+	isNew: boolean;
+	itemType: string;
+}
 interface IState<T, O> {
 	fieldGroups: IProps<T, O>["fieldGroups"];
 	initialValues: IProps<T, O>["initialValues"];
@@ -421,6 +424,8 @@ export class BasicForm<T, O = any> extends Component<IPassedProps<T, O>, IState<
 		fastFieldByDefault: true,
 		includeResetButton: true,
 		isInitialValid: false,
+		isNew: false,
+		itemType: "Item",
 		promptOnExit: true,
 		redirectOnDelete: `/admin/`,
 		showErrorSummary: true,
@@ -441,7 +446,10 @@ export class BasicForm<T, O = any> extends Component<IPassedProps<T, O>, IState<
 	render() {
 		return (
 			<ErrorBoundary>
-				{React.createElement(withRouter(_BasicForm as ComponentType<IProps<T, O>>), this.props)}
+				{React.createElement(withRouter(_BasicForm as ComponentType<IProps<T, O>>), {
+					...BasicForm.defaultProps,
+					...this.props
+				})}
 			</ErrorBoundary>
 		);
 	}

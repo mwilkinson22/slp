@@ -87,8 +87,6 @@ class _BulkGameCompetitionSelector extends Component<IProps, IState> {
 				fieldGroups={fieldGroups}
 				initialValues={{ _competition: "" }}
 				includeResetButton={false}
-				isNew={false}
-				itemType="Competition"
 				submitButtonText="Check For Games"
 				validationSchema={validationSchema}
 			/>

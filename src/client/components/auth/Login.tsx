@@ -92,8 +92,6 @@ class _Login extends Component<IProps, IState> {
 							fieldGroups={this.getFieldGroups()}
 							includeResetButton={false}
 							initialValues={this.getInitialValues()}
-							itemType="User"
-							isNew={false}
 							onSubmit={(values: Fields) => this.handleSubmit(values)}
 							showErrorSummary={false}
 							submitButtonText={"Log In"}

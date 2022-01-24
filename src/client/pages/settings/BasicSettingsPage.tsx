@@ -35,7 +35,6 @@ function _BasicSettingsPage<T extends ISettings[keyof ISettings]>(props: IProps<
 		<BasicForm<T>
 			fieldGroups={fieldGroups}
 			initialValues={settings[settingGroup] as T}
-			isNew={false}
 			itemType={"Settings"}
 			onSubmit={values => updateSettings({ [settingGroup]: values }, "Game Post Settings")}
 			showErrorSummary={false}
