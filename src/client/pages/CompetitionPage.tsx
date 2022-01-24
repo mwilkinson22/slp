@@ -23,7 +23,7 @@ import { RouteComponentProps } from "react-router-dom";
 import { StoreState } from "~/client/reducers";
 import { IUser } from "~/models/User";
 import { ICompetition, ICompetitionFormFields } from "~/models/Competition";
-import { FormFieldTypes, IFieldAny, IFieldGroup } from "~/enum/FormFieldTypes";
+import { FormFieldTypes, IFieldGroup } from "~/enum/FormFieldTypes";
 import { validateHashtag } from "~/helpers/genericHelper";
 
 interface IProps extends ConnectedProps<typeof connector>, RouteComponentProps<any> {}
@@ -73,7 +73,9 @@ class _CompetitionPage extends Component<IProps, IState> {
 			hashtagPrefix: Yup.string().required().test(hashtagTest).label("Hashtag Prefix"),
 			competitionHashtag: Yup.string().test(hashtagTest).label("Competition Hashtag"),
 			isFavourite: Yup.bool().label("Mark as favourite?"),
-			image: Yup.string().required().label("Image")
+			image: Yup.string().required().label("Image"),
+			externalDivId: Yup.number().label("Division ID"),
+			externalCompId: Yup.number().label("Competition ID")
 		});
 
 		this.state = { isNew, show404: false, validationSchema };
@@ -110,7 +112,9 @@ class _CompetitionPage extends Component<IProps, IState> {
 				hashtagPrefix: competition.hashtagPrefix,
 				competitionHashtag: competition.competitionHashtag || "",
 				isFavourite: competition.isFavourite,
-				image: competition.image
+				image: competition.image,
+				externalCompId: competition.externalCompId?.toString() || "",
+				externalDivId: competition.externalDivId?.toString() || ""
 			};
 		} else {
 			return {
@@ -118,7 +122,9 @@ class _CompetitionPage extends Component<IProps, IState> {
 				hashtagPrefix: "",
 				competitionHashtag: "",
 				isFavourite: false,
-				image: ""
+				image: "",
+				externalCompId: "",
+				externalDivId: ""
 			};
 		}
 	}
@@ -144,28 +150,39 @@ class _CompetitionPage extends Component<IProps, IState> {
 				};
 			};
 		}
-		const fields: IFieldAny<ICompetitionFormFields>[] = [
-			{ name: "name", type: FormFieldTypes.text },
-			{ name: "hashtagPrefix", type: FormFieldTypes.text },
+
+		return [
 			{
-				name: "competitionHashtag",
-				type: FormFieldTypes.text,
-				placeholder: "Auto-generated if left blank"
+				fields: [
+					{ name: "name", type: FormFieldTypes.text },
+					{ name: "hashtagPrefix", type: FormFieldTypes.text },
+					{
+						name: "competitionHashtag",
+						type: FormFieldTypes.text,
+						placeholder: "Auto-generated if left blank"
+					},
+					{ name: "isFavourite", type: FormFieldTypes.boolean },
+					{
+						name: "image",
+						type: FormFieldTypes.image,
+
+						path: "images/competitions/",
+						sizeForSelector: "thumbnail",
+						dependentCheck,
+						resize: {
+							thumbnail: { width: 200 }
+						}
+					}
+				]
 			},
-			{ name: "isFavourite", type: FormFieldTypes.boolean },
 			{
-				name: "image",
-				type: FormFieldTypes.image,
-				path: "images/competitions/",
-				sizeForSelector: "thumbnail",
-				dependentCheck,
-				resize: {
-					thumbnail: { width: 200 }
-				}
+				label: "Rugby-league.com Crawl Data",
+				fields: [
+					{ name: "externalCompId", type: FormFieldTypes.number },
+					{ name: "externalDivId", type: FormFieldTypes.number }
+				]
 			}
 		];
-
-		return [{ fields }];
 	}
 
 	render() {

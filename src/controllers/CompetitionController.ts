@@ -10,7 +10,7 @@ import { requireAuth } from "~/middleware/requireAuth";
 import { requireAdmin } from "~/middleware/requireAdmin";
 
 //Models
-import { Competition, ICompetitionFormFields } from "~/models/Competition";
+import { Competition, ICompetitionFormFieldsServerSide } from "~/models/Competition";
 
 //Controller
 @controller("/api/competitions")
@@ -39,7 +39,7 @@ class CompetitionController {
 	@use(requireAuth)
 	@post("/")
 	async createNewCompetition(req: Request, res: Response) {
-		const values: ICompetitionFormFields = req.body;
+		const values: ICompetitionFormFieldsServerSide = req.body;
 		const competition = new Competition(values);
 		await competition.save();
 		res.send(competition);
@@ -50,7 +50,7 @@ class CompetitionController {
 	@put("/:_id")
 	async updateCompetition(req: Request, res: Response) {
 		const { _id } = req.params;
-		const values: ICompetitionFormFields = req.body;
+		const values: ICompetitionFormFieldsServerSide = req.body;
 		const competition = await Competition.findByIdAndUpdate(_id, values, { new: true });
 		if (competition) {
 			res.send(competition);
