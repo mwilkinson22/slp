@@ -266,6 +266,7 @@ export function renderInput<T extends IFormikValuesObject>(field: IFieldAny<T>, 
 
 				//Add clearable status, if we haven't already
 				selectProps.isClearable = mainProps.isClearable ?? !required;
+				selectProps.isSearchable = mainProps.isSearchable ?? true;
 
 				//Add to main props
 				Object.assign(mainProps, selectProps);

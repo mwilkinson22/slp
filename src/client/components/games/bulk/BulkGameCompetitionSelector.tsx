@@ -77,7 +77,17 @@ class _BulkGameCompetitionSelector extends Component<IProps, IState> {
 		}
 
 		const fieldGroups: IFieldGroup<FormFields>[] = [
-			{ fields: [{ name: "_competition", type: FormFieldTypes.select, options }] }
+			{
+				fields: [
+					{
+						name: "_competition",
+						type: FormFieldTypes.select,
+						options,
+						isClearable: false,
+						isSearchable: true
+					}
+				]
+			}
 		];
 		const validationSchema = Yup.object().shape({ _competition: Yup.string().label("Competition") });
 

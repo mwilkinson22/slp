@@ -83,6 +83,7 @@ interface IField_Select_Root<T> extends IField<T> {
 	options: (SelectOption | SelectOptionGroup)[];
 	isMulti?: boolean;
 	isClearable?: boolean;
+	isSearchable?: boolean;
 	closeMenuOnSelect?: boolean;
 	showDropdown?: boolean;
 }
