@@ -105,6 +105,7 @@ class _GameListPage extends Component<IProps, IState> {
 					<HelmetBuilder title={title} />
 					<h1>{title}</h1>
 					<NavCard to={`/games/new`}>Add New Game</NavCard>
+					<NavCard to={`/games/bulk-add`}>Bulk-Add Games</NavCard>
 					{gameLists}
 				</div>
 			</div>

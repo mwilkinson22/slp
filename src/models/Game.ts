@@ -28,6 +28,7 @@ interface IGame_Root {
 export interface IGame extends IGame_Root {
 	_id: string;
 }
+
 export interface IGame_Mongoose extends IGame_Root, Document {
 	_id: IGame_Root["_id"];
 }
@@ -44,6 +45,15 @@ type FormFieldsToOmit = "_id" | "retweeted" | "tweetId";
 export interface IGameFormFields extends Required<Omit<IGame, FormFieldsToOmit>> {
 	time: string;
 	disableRedirectOnAdd?: boolean;
+}
+
+type BulkFields = "_homeTeam" | "_awayTeam" | "date" | "round";
+type IBulkGame = Pick<IGameFormFields, BulkFields>;
+export interface IGameBulkFormFields {
+	games: IBulkGame[];
+	_competition: IGameFormFields["_competition"];
+	postAfterGame: IGameFormFields["postAfterGame"];
+	includeInWeeklyPost: IGameFormFields["includeInWeeklyPost"];
 }
 
 export interface ISingleGamePostFields {

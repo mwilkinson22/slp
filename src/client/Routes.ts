@@ -14,6 +14,7 @@ import { CompetitionListPage } from "~/client/pages/CompetitionListPage";
 import { GamePostPage } from "~/client/pages/GamePostPage";
 import { GamePage } from "~/client/pages/GamePage";
 import { GameListPage } from "~/client/pages/GameListPage";
+import { BulkAddGamePage } from "~/client/pages/BulkAddGamePage";
 
 import { GroundPage } from "~/client/pages/GroundPage";
 import { GroundListPage } from "~/client/pages/GroundListPage";
@@ -38,6 +39,7 @@ const routeMap = {
 	"/competitions/:_id": CompetitionPage,
 	"/competitions": CompetitionListPage,
 
+	"/games/bulk-add": BulkAddGamePage,
 	"/games/weekly-post": WeeklyPostPage,
 	"/games/:_id/post": GamePostPage,
 	"/games/new": GamePage,

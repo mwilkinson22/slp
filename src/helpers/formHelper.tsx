@@ -41,10 +41,17 @@ type KeyOrFunction<T> = KeyOfType<T, string> | ((obj: T) => string);
 export function convertRecordToSelectOptions<T extends { _id: string; isFavourite?: boolean }>(
 	collection: Record<string, T>,
 	display: KeyOrFunction<T>,
-	sortBy?: KeyOrFunction<T>
-): SelectOption[] | SelectOptionGroup[] {
+	sortBy?: KeyOrFunction<T> | null,
+	filter?: (obj: T) => boolean
+): Array<SelectOption | SelectOptionGroup> {
 	//Work out if we need to group by favourites
 	const groupedOptions = _.chain(collection)
+		.filter(i => {
+			if (typeof filter === "function") {
+				return filter(i);
+			}
+			return true;
+		})
 		.groupBy(i => (i.isFavourite ? "Favourites" : "Others"))
 		.map((items, isFavourite) => {
 			const options = _.chain(items)
