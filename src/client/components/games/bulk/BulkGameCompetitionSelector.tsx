@@ -5,19 +5,26 @@ import * as Yup from "yup";
 
 //Components
 import { LoadingPage } from "~/client/components/global/LoadingPage";
+import { BasicForm } from "~/client/components/forms/BasicForm";
 
 //Actions
-import { fetchAllCompetitions } from "~/client/actions/competitionActions";
+import { fetchAllCompetitions, fetchExternalGames } from "~/client/actions/competitionActions";
+
+//Helpers
+import { convertRecordToSelectOptions } from "~/helpers/formHelper";
 
 //Interfaces & Enums
 import { StoreState } from "~/client/reducers";
-import { IGameBulkFormFields } from "~/models/Game";
+import { IBulkGame, IGameBulkFormFields } from "~/models/Game";
 import { FormFieldTypes, IField_Select, IFieldGroup } from "~/enum/FormFieldTypes";
-import { convertRecordToSelectOptions } from "~/helpers/formHelper";
 import { ICompetition } from "~/models/Competition";
-import { BasicForm } from "~/client/components/forms/BasicForm";
+
 interface FormFields extends Pick<IGameBulkFormFields, "_competition"> {}
-interface IProps extends ConnectedProps<typeof connector> {}
+
+interface IProps extends ConnectedProps<typeof connector> {
+	onStartCheck: (_competition: string) => void;
+	onComplete: (rawGames: IBulkGame[]) => void;
+}
 interface IState {
 	isLoadingDependents: boolean;
 	options: IField_Select<FormFields>["options"];
@@ -27,7 +34,7 @@ interface IState {
 function mapStateToProps({ competitions }: StoreState) {
 	return { competitions };
 }
-const mapDispatchToProps = { fetchAllCompetitions };
+const mapDispatchToProps = { fetchAllCompetitions, fetchExternalGames };
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
 class _BulkGameCompetitionSelector extends Component<IProps, IState> {
@@ -56,17 +63,19 @@ class _BulkGameCompetitionSelector extends Component<IProps, IState> {
 		}
 		return {
 			isLoadingDependents: false,
-			options: convertRecordToSelectOptions<ICompetition>(
-				competitions,
-				"name",
-				null,
-				c => c.externalCompId != null
-			)
+			options: convertRecordToSelectOptions<ICompetition>(competitions, "name", {
+				filter: c => c.externalCompId != null
+			})
 		};
 	}
 
-	checkForGames(_competition: FormFields["_competition"]) {
-		console.info(_competition);
+	async checkForGames(_competition: FormFields["_competition"]) {
+		const { fetchExternalGames, onComplete, onStartCheck } = this.props;
+		onStartCheck(_competition);
+		const rawGames = await fetchExternalGames(_competition);
+		if (rawGames) {
+			onComplete(rawGames);
+		}
 	}
 
 	render() {

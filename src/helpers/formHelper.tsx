@@ -41,18 +41,26 @@ type KeyOrFunction<T> = KeyOfType<T, string> | ((obj: T) => string);
 export function convertRecordToSelectOptions<T extends { _id: string; isFavourite?: boolean }>(
 	collection: Record<string, T>,
 	display: KeyOrFunction<T>,
-	sortBy?: KeyOrFunction<T> | null,
-	filter?: (obj: T) => boolean
+	settings: {
+		sortBy?: KeyOrFunction<T>;
+		filter?: (obj: T) => boolean;
+		groupByFavourite?: boolean;
+	} = {}
 ): Array<SelectOption | SelectOptionGroup> {
-	//Work out if we need to group by favourites
 	const groupedOptions = _.chain(collection)
 		.filter(i => {
-			if (typeof filter === "function") {
-				return filter(i);
+			if (typeof settings.filter === "function") {
+				return settings.filter(i);
 			}
 			return true;
 		})
-		.groupBy(i => (i.isFavourite ? "Favourites" : "Others"))
+		//Work out if we need to group by favourites
+		.groupBy(i => {
+			if (settings.groupByFavourite === false) {
+				return "All"; //This will be filtered out later on
+			}
+			return i.isFavourite ? "Favourites" : "Others";
+		})
 		.map((items, isFavourite) => {
 			const options = _.chain(items)
 				.map(object => {
@@ -67,17 +75,17 @@ export function convertRecordToSelectOptions<T extends { _id: string; isFavourit
 
 					//Get sort value
 					let sortValue;
-					if (typeof sortBy === "function") {
-						sortValue = sortBy(object);
-					} else if (typeof sortBy === "string") {
-						sortValue = object[sortBy];
+					if (typeof settings.sortBy === "function") {
+						sortValue = settings.sortBy(object);
+					} else if (typeof settings.sortBy === "string") {
+						sortValue = object[settings.sortBy];
 					} else {
 						//Default to label;
 						sortValue = label;
 					}
 
 					//Check for favourite
-					const isFavourite = object.isFavourite ?? false;
+					const isFavourite = settings.groupByFavourite === false ? false : object.isFavourite ?? false;
 
 					return { value: object._id, label, sortValue, isFavourite };
 				})

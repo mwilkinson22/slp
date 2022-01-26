@@ -48,7 +48,7 @@ export interface IGameFormFields extends Required<Omit<IGame, FormFieldsToOmit>>
 }
 
 type BulkFields = "_homeTeam" | "_awayTeam" | "date" | "round";
-type IBulkGame = Pick<IGameFormFields, BulkFields>;
+export type IBulkGame = Pick<IGameFormFields, BulkFields>;
 export interface IGameBulkFormFields {
 	games: IBulkGame[];
 	_competition: IGameFormFields["_competition"];

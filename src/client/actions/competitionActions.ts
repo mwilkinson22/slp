@@ -9,6 +9,7 @@ import { AxiosInstance } from "axios";
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
 import { ICompetition, ICompetitionFormFields } from "~/models/Competition";
+import { IBulkGame } from "~/models/Game";
 
 //Action Interfaces
 interface FetchCompetitionAction {
@@ -69,5 +70,16 @@ export const deleteCompetition = (id: string) => {
 			return true;
 		}
 		return false;
+	};
+};
+
+export const fetchExternalGames = (id: string) => {
+	return async (dispatch: Dispatch, getState: () => StoreState, api: AxiosInstance) => {
+		const res = await api.get<Record<"games", IBulkGame[]>>(`/competitions/externalGames/${id}`);
+		if (res.data) {
+			return res.data.games;
+		} else {
+			return false;
+		}
 	};
 };

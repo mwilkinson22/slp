@@ -1,6 +1,9 @@
 //Modules
 import _ from "lodash";
 import { Request, Response } from "express";
+import axios from "axios";
+import https from "https";
+import { parse, Node, HTMLElement } from "node-html-parser";
 
 //Decorators
 import { controller, use, get, post, put, del } from "./decorators";
@@ -11,7 +14,7 @@ import { requireAdmin } from "~/middleware/requireAdmin";
 
 //Models
 import { Competition, ICompetitionFormFieldsServerSide } from "~/models/Competition";
-import { Game } from "~/models/Game";
+import { Game, IBulkGame } from "~/models/Game";
 
 //Controller
 @controller("/api/competitions")
@@ -87,5 +90,119 @@ class CompetitionController {
 		//Remove
 		await competition.remove();
 		res.send({});
+	}
+
+	//Crawl games from rugby-league.com
+	@use(requireAuth)
+	@get("/externalGames/:_id")
+	async getExternalGames(req: Request, res: Response) {
+		const { _id } = req.params;
+
+		//Ensure valid comp
+		const competition = await Competition.findById(_id);
+		if (!competition) {
+			return CompetitionController.send404(_id, res);
+		}
+
+		const { externalCompId } = competition;
+
+		//Check it has a valid external competition id
+		if (externalCompId == null) {
+			return res.status(406).send(`The Competition ${competition.name} does not have a configured external ID`);
+		}
+
+		//Send off a web request
+		let html;
+		try {
+			const url = "https://www.rugby-league.com/ajaxAPI";
+			const params = {
+				ajax: 1,
+				type: "loadPlugin",
+				plugin: "match_center",
+				"params[limit]": 100000,
+				"params[comps]": externalCompId,
+				"params[compID]": externalCompId,
+				"params[teamID]": "",
+				"params[teamView]": "",
+				"params[advert_group]": 100000,
+				"params[load-more-button]": "yes",
+				"params[type]": "loadmore",
+				"params[preview_link]": "/match-centre/preview",
+				"params[report_link]": "/match-centre/match-report",
+				"params[displayType]": "fixtures",
+				"params[template]": "main_match_centre.twig",
+				"params[startRow]": 0
+			};
+			const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+			const headers = { "X-Requested-With": "XMLHttpRequest" };
+			const { data } = await axios.get(url, { httpsAgent, headers, params });
+			html = parse(data);
+		} catch (e) {
+			const error = `Error submitting Web Request: ${e.toString()}`;
+			const toLog = { error };
+			return res.status(500).send({ error, toLog });
+		}
+
+		//Get empty array to store games
+		const games: IBulkGame[] = [];
+
+		try {
+			//Loop through the rows
+			let date: string;
+			html.childNodes.forEach((row: Node) => {
+				if (row instanceof HTMLElement) {
+					//Add Date
+					if (row.tagName === "H3") {
+						//Convert Date to Array
+						const dateAsArray = row.rawText.split(" ");
+
+						//Remove day of week
+						dateAsArray.shift();
+
+						//Remove ordinal suffix
+						dateAsArray[0] = dateAsArray[0].replace(/\D/g, "");
+
+						//Create day string
+						date = dateAsArray.join(" ");
+					} else if (row.tagName === "DIV" && row.classNames.indexOf("fixture-card") > -1) {
+						//Check for teams
+						const _homeTeam = row.querySelector(".left .team-name").rawText.trim();
+						const _awayTeam = row.querySelector(".right .team-name").rawText.trim();
+
+						if (_homeTeam && _awayTeam) {
+							//Get time
+							const time = row
+								.querySelector(".fixture-wrap .middle")
+								.rawText.trim()
+								//Split by "UK: " and pop to get the local time for intl games
+								.split("UK: ")
+								.pop();
+
+							//Get Round
+							const roundString = row.querySelector(".fixture-footer").rawText.match(/Round: \d+/);
+							let round = "";
+							if (roundString) {
+								round = roundString[0].replace(/\D/g, "");
+							}
+
+							//Add game to array
+							const game: IBulkGame = {
+								_homeTeam,
+								_awayTeam,
+								round,
+								date: `${date} ${time}:00`
+							};
+							games.push(game);
+						}
+					}
+				}
+			});
+		} catch (e) {
+			const error = `Error parsing game data: ${e.toString()}`;
+			const toLog = { error };
+			return res.status(500).send({ error, toLog });
+		}
+
+		res.send({ games });
 	}
 }
