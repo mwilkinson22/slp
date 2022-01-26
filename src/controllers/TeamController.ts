@@ -15,6 +15,7 @@ import { Team, ITeamFormFields, ITeam } from "~/models/Team";
 //Canvases
 import { TeamBanner } from "~/canvas/TeamBanner";
 import { ISettings } from "~/models/Settings";
+import { Game } from "~/models/Game";
 
 //Controller
 @controller("/api/teams")
@@ -75,7 +76,17 @@ class TeamController {
 			return TeamController.send404(_id, res);
 		}
 
-		//TODO check it's not required for a game
+		//Ensure no games rely on this team
+		const gamesWithThisTeam = await Game.find({ $or: [{ _homeTeam: _id }, { _awayTeam: _id }] }, "_id").lean();
+		if (gamesWithThisTeam.length) {
+			const error = `Cannot delete this team as ${gamesWithThisTeam.length} ${
+				gamesWithThisTeam.length === 1 ? "game depends" : "games depend"
+			} on it`;
+			const toLog = {
+				error
+			};
+			return res.status(406).send({ error, toLog });
+		}
 
 		//Remove
 		await team.remove();

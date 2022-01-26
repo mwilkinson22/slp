@@ -11,6 +11,7 @@ import { requireAdmin } from "~/middleware/requireAdmin";
 
 //Models
 import { Competition, ICompetitionFormFieldsServerSide } from "~/models/Competition";
+import { Game } from "~/models/Game";
 
 //Controller
 @controller("/api/competitions")
@@ -71,7 +72,17 @@ class CompetitionController {
 			return CompetitionController.send404(_id, res);
 		}
 
-		//TODO check it's not required for a game
+		//Ensure no games rely on this competition
+		const gamesInThisCompetition = await Game.find({ _competition: _id }, "_id").lean();
+		if (gamesInThisCompetition.length) {
+			const error = `Cannot delete this competition as ${gamesInThisCompetition.length} ${
+				gamesInThisCompetition.length === 1 ? "game depends" : "games depend"
+			} on it`;
+			const toLog = {
+				error
+			};
+			return res.status(406).send({ error, toLog });
+		}
 
 		//Remove
 		await competition.remove();
