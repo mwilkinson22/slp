@@ -74,7 +74,6 @@ class _CompetitionPage extends Component<IProps, IState> {
 			competitionHashtag: Yup.string().test(hashtagTest).label("Competition Hashtag"),
 			isFavourite: Yup.bool().label("Mark as favourite?"),
 			image: Yup.string().required().label("Image"),
-			externalDivId: Yup.number().label("Division ID"),
 			externalCompId: Yup.number().label("Competition ID")
 		});
 
@@ -113,8 +112,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 				competitionHashtag: competition.competitionHashtag || "",
 				isFavourite: competition.isFavourite,
 				image: competition.image,
-				externalCompId: competition.externalCompId?.toString() || "",
-				externalDivId: competition.externalDivId?.toString() || ""
+				externalCompId: competition.externalCompId?.toString() || ""
 			};
 		} else {
 			return {
@@ -123,8 +121,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 				competitionHashtag: "",
 				isFavourite: false,
 				image: "",
-				externalCompId: "",
-				externalDivId: ""
+				externalCompId: ""
 			};
 		}
 	}
@@ -177,10 +174,7 @@ class _CompetitionPage extends Component<IProps, IState> {
 			},
 			{
 				label: "Rugby-league.com Crawl Data",
-				fields: [
-					{ name: "externalCompId", type: FormFieldTypes.number },
-					{ name: "externalDivId", type: FormFieldTypes.number }
-				]
+				fields: [{ name: "externalCompId", type: FormFieldTypes.number }]
 			}
 		];
 	}
