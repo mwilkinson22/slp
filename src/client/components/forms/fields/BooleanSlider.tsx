@@ -11,12 +11,13 @@ interface IProps {
 export function BooleanSlider(PassedProps: IProps) {
 	const { value, ...props } = PassedProps;
 	const { disabled, name } = props;
+
 	return (
 		<div className={`boolean${disabled ? " read-only" : ""}`}>
 			<input
 				{...props}
 				name={name}
-				defaultChecked={value}
+				checked={value}
 				type="checkbox"
 				className="boolean-checkbox"
 				id={`bool-${name}`}
