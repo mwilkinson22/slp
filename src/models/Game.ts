@@ -47,7 +47,7 @@ export interface IGameFormFields extends Required<Omit<IGame, FormFieldsToOmit>>
 	disableRedirectOnAdd?: boolean;
 }
 
-type BulkFields = "_homeTeam" | "_awayTeam" | "date" | "round";
+type BulkFields = "_homeTeam" | "_awayTeam" | "date" | "round" | "isOnTv";
 export type IBulkGame = Pick<IGameFormFields, BulkFields>;
 export interface IGameBulkFormFields {
 	games: IBulkGame[];

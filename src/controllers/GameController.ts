@@ -138,8 +138,7 @@ class GameController {
 				_ground,
 				_competition: values._competition,
 				postAfterGame: values.postAfterGame,
-				includeInWeeklyPost: values.includeInWeeklyPost,
-				isOnTv: false
+				includeInWeeklyPost: values.includeInWeeklyPost
 			};
 		});
 

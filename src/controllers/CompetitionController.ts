@@ -185,11 +185,15 @@ class CompetitionController {
 								round = roundString[0].replace(/\D/g, "");
 							}
 
+							//Check for tv
+							const tvLogo = row.querySelector(".text-center img");
+
 							//Add game to array
 							const game: IBulkGame = {
 								_homeTeam,
 								_awayTeam,
 								round,
+								isOnTv: Boolean(tvLogo),
 								date: `${date} ${time}:00`
 							};
 							games.push(game);
