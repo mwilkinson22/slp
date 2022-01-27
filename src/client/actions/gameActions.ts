@@ -8,10 +8,18 @@ import { AxiosInstance } from "axios";
 //Enum
 import { ActionTypes } from "./types";
 import { StoreState } from "~/client/reducers";
-import { IGame, IGameForImagePost, IGameFormFields, ISingleGamePostFields, IWeeklyPostFields } from "~/models/Game";
+import {
+	IGame,
+	IGameBulkFormFields,
+	IGameForImagePost,
+	IGameFormFields,
+	ISingleGamePostFields,
+	IWeeklyPostFields
+} from "~/models/Game";
 import { ISettings } from "~/models/Settings";
 
 //Action Interfaces
+type GameRecord = StoreState["games"];
 interface FetchGameAction {
 	type: ActionTypes.FETCH_GAME;
 	payload: IGame;
@@ -20,11 +28,16 @@ interface DeleteGameAction {
 	type: ActionTypes.DELETE_GAME;
 	payload: string;
 }
+interface FetchGamesAction {
+	type: ActionTypes.FETCH_GAMES;
+	payload: GameRecord;
+}
 interface FetchAllGamesAction {
 	type: ActionTypes.FETCH_ALL_GAMES;
-	payload: Record<IGame["_id"], IGame>;
+	payload: GameRecord;
 }
-export type GameAction = FetchGameAction | FetchAllGamesAction | DeleteGameAction;
+
+export type GameAction = FetchGameAction | FetchGamesAction | FetchAllGamesAction | DeleteGameAction;
 
 export const fetchAllGames = () => {
 	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
@@ -39,8 +52,21 @@ export const createGame = (values: IGameFormFields) => {
 		if (res.data) {
 			dispatch<FetchGameAction>({ type: ActionTypes.FETCH_GAME, payload: res.data });
 			toast.success("Game Created Successfully");
-
 			return res.data;
+		} else {
+			return false;
+		}
+	};
+};
+
+export const bulkCreateGames = (values: IGameBulkFormFields) => {
+	return async (dispatch: Dispatch, getState: any, api: AxiosInstance) => {
+		const res = await api.post<GameRecord>("/games/bulk", values);
+		if (res.data) {
+			dispatch<FetchGamesAction>({ type: ActionTypes.FETCH_GAMES, payload: res.data });
+			const gameCount = values.games.length;
+			toast.success(`${gameCount} ${gameCount === 1 ? "Game" : "Games"} Created Successfully`);
+			return true;
 		} else {
 			return false;
 		}

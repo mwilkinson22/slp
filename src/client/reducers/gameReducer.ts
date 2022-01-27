@@ -14,6 +14,12 @@ export default function (state: GameState = null, action: GameAction): GameState
 				[action.payload._id]: action.payload
 			};
 
+		case ActionTypes.FETCH_GAMES:
+			return {
+				...state,
+				...action.payload
+			};
+
 		case ActionTypes.DELETE_GAME: {
 			const newState = { ...state };
 			delete newState[action.payload];

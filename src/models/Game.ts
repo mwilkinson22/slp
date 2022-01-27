@@ -55,9 +55,19 @@ export interface IGameBulkFormFields {
 	postAfterGame: IGameFormFields["postAfterGame"];
 	includeInWeeklyPost: IGameFormFields["includeInWeeklyPost"];
 }
+
 export interface IGameBulkFormFieldsConfirmation extends Omit<IGameBulkFormFields, "games"> {
 	games: Record<string, boolean>;
 }
+
+type BulkGameForMongooseFieldsToOmit =
+	| "image"
+	| "customHashtag"
+	| "overwriteHashtag"
+	| "tweetId"
+	| "retweeted"
+	| "time";
+export interface IBulkGameForMongoose extends Omit<IGameFormFields, BulkGameForMongooseFieldsToOmit> {}
 
 export interface ISingleGamePostFields {
 	_id: string;

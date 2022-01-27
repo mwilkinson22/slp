@@ -12,7 +12,15 @@ import { requireAdmin } from "~/middleware/requireAdmin";
 //Models
 import { Competition, ICompetition } from "~/models/Competition";
 import { ISettings } from "~/models/Settings";
-import { Game, IGameForImagePost, IGameFormFields, ISingleGamePostFields, IWeeklyPostFields } from "~/models/Game";
+import {
+	Game,
+	IBulkGameForMongoose,
+	IGameBulkFormFields,
+	IGameForImagePost,
+	IGameFormFields,
+	ISingleGamePostFields,
+	IWeeklyPostFields
+} from "~/models/Game";
 import { ITeam, Team } from "~/models/Team";
 
 //Helpers
@@ -109,6 +117,39 @@ class GameController {
 		const game = new Game(values);
 		await game.save();
 		res.send(game);
+	}
+
+	//Bulk create new games
+	@use(requireAuth)
+	@post("/bulk")
+	async bulkCreateNewGames(req: Request, res: Response) {
+		const values: IGameBulkFormFields = req.body;
+
+		//Rather than call checkHomeTeamGround several times, we get all home teams together here and
+		//query the database once.
+		const homeTeams = values.games.map(g => g._homeTeam);
+		const teamsWithGrounds = await Team.find({ _id: { $in: homeTeams } }, "_id _ground").lean();
+
+		const gameData: IBulkGameForMongoose[] = values.games.map(g => {
+			//Get the ground
+			const _ground = teamsWithGrounds.find(t => t._id.toString() === g._homeTeam)!._ground;
+			return {
+				...g,
+				_ground,
+				_competition: values._competition,
+				postAfterGame: values.postAfterGame,
+				includeInWeeklyPost: values.includeInWeeklyPost,
+				isOnTv: false
+			};
+		});
+
+		try {
+			const result = await Game.collection.insertMany(gameData);
+			const games = _.keyBy(result.ops, "_id");
+			res.send(games);
+		} catch (e) {
+			res.status(500).send(e.toString());
+		}
 	}
 
 	//Update existing game

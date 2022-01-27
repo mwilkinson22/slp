@@ -226,7 +226,7 @@ class _BasicForm<T extends IFormikValuesObject, O> extends Component<IProps<T, O
 				if (redirectPage) {
 					history.push(redirectPage);
 				}
-			} else if (typeof redirectOnSubmit === "string") {
+			} else if (typeof redirectOnSubmit === "string" && result) {
 				history.push(redirectOnSubmit);
 			}
 

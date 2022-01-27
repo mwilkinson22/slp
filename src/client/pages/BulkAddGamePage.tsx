@@ -1,15 +1,17 @@
 //Modules
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { RouteComponentProps } from "react-router-dom";
 
 //Components
 import { NavCard } from "~/client/components/global/NavCard";
 import { HelmetBuilder } from "~/client/components/hoc/HelmetBuilder";
 import { BulkGameCompetitionSelector } from "~/client/components/games/bulk/BulkGameCompetitionSelector";
-import { IBulkGame, IGameBulkFormFields } from "~/models/Game";
 import { BulkGameTeamSelector } from "~/client/components/games/bulk/BulkGameTeamSelector";
-import { LoadingPage } from "~/client/components/global/LoadingPage";
 import { BulkGameConfirmation } from "~/client/components/games/bulk/BulkGameConfirmation";
+import { LoadingPage } from "~/client/components/global/LoadingPage";
+
+//Interfaces & Enums
+import { IBulkGame } from "~/models/Game";
 
 interface IProps extends RouteComponentProps<any> {}
 interface IState {
@@ -19,8 +21,6 @@ interface IState {
 	rawGames?: IBulkGame[];
 	gamesToConfirm?: IBulkGame[];
 }
-
-//Types
 
 //Component
 export class BulkAddGamePage extends Component<IProps, IState> {
@@ -74,42 +74,12 @@ export class BulkAddGamePage extends Component<IProps, IState> {
 	renderGameConfirmation() {
 		const { _competition, gamesToConfirm } = this.state;
 		if (_competition && gamesToConfirm) {
-			return (
-				<BulkGameConfirmation
-					_competition={_competition}
-					onComplete={values => this.submitGames(values)}
-					gamesToConfirm={gamesToConfirm}
-				/>
-			);
+			return <BulkGameConfirmation _competition={_competition} gamesToConfirm={gamesToConfirm} />;
 		}
-	}
-
-	submitGames(values: IGameBulkFormFields) {
-		this.setState({ isSavingGames: true });
-
-		//Save games
-		console.info(values);
-
-		this.resetState();
 	}
 
 	render() {
-		const { isSavingGames } = this.state;
-
 		const header = "Bulk Add Games";
-
-		let content;
-		if (isSavingGames) {
-			content = <LoadingPage />;
-		} else {
-			content = (
-				<Fragment>
-					{this.renderCompetitionSelector()}
-					{this.renderTeamSelector()}
-					{this.renderGameConfirmation()}
-				</Fragment>
-			);
-		}
 
 		return (
 			<section className="admin-page bulk-game-page">
@@ -117,7 +87,9 @@ export class BulkAddGamePage extends Component<IProps, IState> {
 				<div className="container">
 					<NavCard to={`/games`}>Return to game list</NavCard>
 					<h1>{header}</h1>
-					{content}
+					{this.renderCompetitionSelector()}
+					{this.renderTeamSelector()}
+					{this.renderGameConfirmation()}
 				</div>
 			</section>
 		);

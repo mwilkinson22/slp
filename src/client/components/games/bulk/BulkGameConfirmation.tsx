@@ -8,7 +8,7 @@ import { LoadingPage } from "~/client/components/global/LoadingPage";
 import { BasicForm } from "~/client/components/forms/BasicForm";
 
 //Actions
-import { fetchAllGames } from "~/client/actions/gameActions";
+import { fetchAllGames, bulkCreateGames } from "~/client/actions/gameActions";
 
 //Helpers
 const createGameKey = (i: number) => `game${i}`;
@@ -27,7 +27,6 @@ enum BulkChangeAction {
 //Constants
 interface IProps extends ConnectedProps<typeof connector> {
 	_competition: string;
-	onComplete: (data: IGameBulkFormFields) => void;
 	gamesToConfirm: IBulkGame[];
 }
 interface IState {
@@ -39,7 +38,7 @@ interface IState {
 function mapStateToProps({ games, teams }: StoreState) {
 	return { games, teams };
 }
-const mapDispatchToProps = { fetchAllGames };
+const mapDispatchToProps = { fetchAllGames, bulkCreateGames };
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
 class _BulkGameConfirmation extends Component<IProps, IState> {
@@ -70,7 +69,7 @@ class _BulkGameConfirmation extends Component<IProps, IState> {
 		const validationSchema = Yup.object().shape({
 			games: Yup.object().shape(gameValidation),
 			_competition: Yup.string().label("Competition"),
-			postAfterGame: Yup.boolean().label("Autopost After Game?"),
+			postAfterGame: Yup.boolean().label("Auto-post After Game?"),
 			includeInWeeklyPost: Yup.boolean().label("Include in Weekly Post?")
 		});
 
@@ -175,8 +174,8 @@ class _BulkGameConfirmation extends Component<IProps, IState> {
 		};
 	}
 
-	handleValues(values: IGameBulkFormFieldsConfirmation) {
-		const { gamesToConfirm, onComplete } = this.props;
+	async handleSubmit(values: IGameBulkFormFieldsConfirmation) {
+		const { gamesToConfirm, bulkCreateGames } = this.props;
 
 		const results: IGameBulkFormFields = {
 			...values,
@@ -189,7 +188,7 @@ class _BulkGameConfirmation extends Component<IProps, IState> {
 			}
 		});
 
-		onComplete(results);
+		return await bulkCreateGames(results);
 	}
 
 	render() {
@@ -201,12 +200,13 @@ class _BulkGameConfirmation extends Component<IProps, IState> {
 
 		return (
 			<BasicForm<IGameBulkFormFieldsConfirmation>
-				onSubmit={values => this.handleValues(values)}
+				onSubmit={values => this.handleSubmit(values)}
 				fieldGroups={() => this.getFieldGroups()}
 				initialValues={this.getInitialValues()}
 				isNew={true}
 				itemType="Games"
 				isInitialValid={true}
+				redirectOnSubmit={"/games"}
 				validationSchema={validationSchema}
 			/>
 		);

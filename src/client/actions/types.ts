@@ -18,6 +18,7 @@ export enum ActionTypes {
 
 	//Games
 	FETCH_GAME,
+	FETCH_GAMES,
 	FETCH_ALL_GAMES,
 	DELETE_GAME,
 
