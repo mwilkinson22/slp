@@ -165,9 +165,22 @@ class CompetitionController {
 						//Create day string
 						date = dateAsArray.join(" ");
 					} else if (row.tagName === "DIV" && row.classNames.indexOf("fixture-card") > -1) {
-						//Check for teams
-						const _homeTeam = row.querySelector(".left .team-name").rawText.trim();
-						const _awayTeam = row.querySelector(".right .team-name").rawText.trim();
+						//Check for teams.
+						//There's often more than one, and we want the longest if possible.
+						const getLongestName = (query: string) => {
+							let str = "";
+
+							row.querySelectorAll(query).forEach(element => {
+								const text = element.rawText.toString();
+								if (text.length > str.length) {
+									str = text;
+								}
+							});
+
+							return str;
+						};
+						const _homeTeam = getLongestName(".left .team-name");
+						const _awayTeam = getLongestName(".right .team-name");
 
 						if (_homeTeam && _awayTeam) {
 							//Get time
