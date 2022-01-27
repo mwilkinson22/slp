@@ -159,6 +159,7 @@ class _BulkGameTeamSelector extends Component<IProps, IState> {
 				onSubmit={values => this.returnGames(values)}
 				fieldGroups={this.getFieldGroups()}
 				initialValues={this.getInitialValues()}
+				isInitialValid={true}
 				includeResetButton={false}
 				submitButtonText="Confirm Teams"
 				validationSchema={validationSchema}
