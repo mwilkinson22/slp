@@ -1,10 +1,11 @@
 //Modules
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import * as Yup from "yup";
 
 //Components
 import { LoadingPage } from "~/client/components/global/LoadingPage";
+import { BooleanSlider } from "~/client/components/forms/fields/BooleanSlider";
 import { BasicForm } from "~/client/components/forms/BasicForm";
 
 //Actions
@@ -16,8 +17,7 @@ const createGameKey = (i: number) => `game${i}`;
 //Interfaces & Enums
 import { StoreState } from "~/client/reducers";
 import { IBulkGame, IGameBulkFormFields, IGameBulkFormFieldsConfirmation } from "~/models/Game";
-import { FormFieldTypes, IFieldAny, IFieldGroup } from "~/enum/FormFieldTypes";
-import { FormikProps } from "formik";
+import { FormFieldTypes, IFieldGroup } from "~/enum/FormFieldTypes";
 enum BulkChangeAction {
 	None,
 	All,
@@ -30,6 +30,7 @@ interface IProps extends ConnectedProps<typeof connector> {
 	gamesToConfirm: IBulkGame[];
 }
 interface IState {
+	gameToggles: boolean[];
 	isLoadingDependents: boolean;
 	validationSchema: Yup.ObjectSchema;
 }
@@ -45,7 +46,7 @@ class _BulkGameConfirmation extends Component<IProps, IState> {
 	constructor(props: IProps) {
 		super(props);
 
-		const { fetchAllGames, games, gamesToConfirm, teams } = props;
+		const { fetchAllGames, games, gamesToConfirm } = props;
 
 		let isLoadingDependents = false;
 		if (!games) {
@@ -54,26 +55,16 @@ class _BulkGameConfirmation extends Component<IProps, IState> {
 		}
 
 		//Get Validation Schema
-		const gameValidation: Record<string, Yup.BooleanSchema> = {};
-		gamesToConfirm.forEach((g, i) => {
-			const home = teams![g._homeTeam].name.long;
-			const away = teams![g._awayTeam].name.long;
-			const labelArr = [g.date];
-			if (g.round) {
-				labelArr.push(`Round ${g.round}`);
-			}
-			labelArr.push(`${home} vs ${away}`);
-			gameValidation[createGameKey(i)] = Yup.boolean().label(labelArr.join(" - "));
-		});
-
 		const validationSchema = Yup.object().shape({
-			games: Yup.object().shape(gameValidation),
-			_competition: Yup.string().label("Competition"),
 			postAfterGame: Yup.boolean().label("Auto-post After Game?"),
 			includeInWeeklyPost: Yup.boolean().label("Include in Weekly Post?")
 		});
 
+		//Get Game Toggles
+		const gameToggles = gamesToConfirm.map(() => true);
+
 		this.state = {
+			gameToggles,
 			isLoadingDependents,
 			validationSchema
 		};
@@ -89,42 +80,8 @@ class _BulkGameConfirmation extends Component<IProps, IState> {
 	}
 
 	getFieldGroups(): IFieldGroup<IGameBulkFormFieldsConfirmation>[] {
-		const { gamesToConfirm } = this.props;
-
-		const fields: IFieldAny<IGameBulkFormFieldsConfirmation>[] = gamesToConfirm.map((game, i) => ({
-			name: `games.${createGameKey(i)}`,
-			type: FormFieldTypes.boolean
-		}));
-
-		return [
-			{
-				label: "Confirm Games",
-				render: (values, formik) => {
-					return (
-						<div className="buttons" key="buttons">
-							<button
-								type="button"
-								onClick={() => this.bulkChangeToggles(BulkChangeAction.All, values.games, formik)}
-							>
-								Select All
-							</button>
-							<button
-								type="button"
-								onClick={() => this.bulkChangeToggles(BulkChangeAction.None, values.games, formik)}
-							>
-								Select None
-							</button>
-							<button
-								type="button"
-								onClick={() => this.bulkChangeToggles(BulkChangeAction.Invert, values.games, formik)}
-							>
-								Invert Selection
-							</button>
-						</div>
-					);
-				}
-			},
-			{ fields },
+		const { gameToggles } = this.state;
+		const fieldGroups: IFieldGroup<IGameBulkFormFieldsConfirmation>[] = [
 			{
 				label: "Social Post Settings",
 				fields: [
@@ -133,62 +90,117 @@ class _BulkGameConfirmation extends Component<IProps, IState> {
 				]
 			}
 		];
-	}
 
-	bulkChangeToggles(
-		action: BulkChangeAction,
-		values: Record<string, boolean>,
-		formik: FormikProps<IGameBulkFormFieldsConfirmation>
-	) {
-		const newValues: Record<string, boolean> = {};
-		for (const i in values) {
-			let value;
-			switch (action) {
-				case BulkChangeAction.All:
-					value = true;
-					break;
-				case BulkChangeAction.None:
-					value = false;
-					break;
-				case BulkChangeAction.Invert:
-					value = !values[i];
-					break;
-			}
-			newValues[i] = value;
+		if (gameToggles.filter(g => g).length === 0) {
+			const error: IFieldGroup<IGameBulkFormFieldsConfirmation> = {
+				render: () => (
+					<span className="error" key="gameCountError">
+						Please Select At Least One Game
+					</span>
+				)
+			};
+			fieldGroups.push(error);
 		}
 
-		formik.setFieldValue("games", newValues);
+		return fieldGroups;
 	}
 
 	getInitialValues(): IGameBulkFormFieldsConfirmation {
-		const { _competition, gamesToConfirm } = this.props;
+		const { gamesToConfirm } = this.props;
 
 		const gameValues: Record<string, boolean> = {};
 		gamesToConfirm.forEach((g, i) => (gameValues[createGameKey(i)] = true));
 
 		return {
-			_competition,
 			postAfterGame: true,
-			includeInWeeklyPost: true,
-			games: gameValues
+			includeInWeeklyPost: true
 		};
 	}
 
+	changeSingleToggle(i: number) {
+		const { gameToggles } = this.state;
+		gameToggles[i] = !gameToggles[i];
+		this.setState({ gameToggles });
+	}
+
+	bulkChangeToggles(action: BulkChangeAction) {
+		const { gameToggles } = this.state;
+		const newValues = gameToggles.map(value => {
+			switch (action) {
+				case BulkChangeAction.All:
+					return true;
+				case BulkChangeAction.None:
+					return false;
+				case BulkChangeAction.Invert:
+					return !value;
+			}
+		});
+
+		this.setState({ gameToggles: newValues });
+	}
+
 	async handleSubmit(values: IGameBulkFormFieldsConfirmation) {
-		const { gamesToConfirm, bulkCreateGames } = this.props;
+		const { _competition, gamesToConfirm, bulkCreateGames } = this.props;
+		const { gameToggles } = this.state;
 
 		const results: IGameBulkFormFields = {
 			...values,
+			_competition,
 			games: []
 		};
 
-		Object.values(values.games).forEach((game, i) => {
-			if (values.games[createGameKey(i)]) {
+		gameToggles.forEach((include: boolean, i: number) => {
+			if (include) {
 				results.games.push(gamesToConfirm[i]);
 			}
 		});
 
-		return await bulkCreateGames(results);
+		if (results.games.length) {
+			return await bulkCreateGames(results);
+		} else {
+			return false;
+		}
+	}
+
+	renderBulkToggleButtons() {
+		return (
+			<div className="buttons" key="buttons">
+				<button type="button" onClick={() => this.bulkChangeToggles(BulkChangeAction.All)}>
+					Select All
+				</button>
+				<button type="button" onClick={() => this.bulkChangeToggles(BulkChangeAction.None)}>
+					Select None
+				</button>
+				<button type="button" onClick={() => this.bulkChangeToggles(BulkChangeAction.Invert)}>
+					Invert Selection
+				</button>
+			</div>
+		);
+	}
+
+	renderIndividualGameToggles() {
+		const { gamesToConfirm, teams } = this.props;
+		const { gameToggles } = this.state;
+		return gamesToConfirm.map((game, i) => {
+			const isSelected = gameToggles[i];
+			const name = `game-${i}`;
+
+			//Get Label
+			const home = teams![game._homeTeam].name.long;
+			const away = teams![game._awayTeam].name.long;
+			const labelArr = [game.date];
+			if (game.round) {
+				labelArr.push(`Round ${game.round}`);
+			}
+			labelArr.push(`${home} vs ${away}`);
+
+			return (
+				<div key={name} className="bulk-game-wrapper">
+					<BooleanSlider name={name} value={isSelected} onChange={() => this.changeSingleToggle(i)} />
+					<label className={isSelected ? undefined : "disabled"}>{labelArr.join(" - ")}</label>
+				</div>
+			);
+		});
 	}
 
 	render() {
@@ -199,16 +211,20 @@ class _BulkGameConfirmation extends Component<IProps, IState> {
 		}
 
 		return (
-			<BasicForm<IGameBulkFormFieldsConfirmation>
-				onSubmit={values => this.handleSubmit(values)}
-				fieldGroups={() => this.getFieldGroups()}
-				initialValues={this.getInitialValues()}
-				isNew={true}
-				itemType="Games"
-				isInitialValid={true}
-				redirectOnSubmit={"/games"}
-				validationSchema={validationSchema}
-			/>
+			<Fragment>
+				<div className="form-card card">
+					{this.renderBulkToggleButtons()}
+					{this.renderIndividualGameToggles()}
+				</div>
+				<BasicForm<IGameBulkFormFieldsConfirmation>
+					onSubmit={values => this.handleSubmit(values)}
+					fieldGroups={() => this.getFieldGroups()}
+					initialValues={this.getInitialValues()}
+					isInitialValid={true}
+					redirectOnSubmit={"/games"}
+					validationSchema={validationSchema}
+				/>
+			</Fragment>
 		);
 	}
 }

@@ -56,8 +56,9 @@ export interface IGameBulkFormFields {
 	includeInWeeklyPost: IGameFormFields["includeInWeeklyPost"];
 }
 
-export interface IGameBulkFormFieldsConfirmation extends Omit<IGameBulkFormFields, "games"> {
-	games: Record<string, boolean>;
+export interface IGameBulkFormFieldsConfirmation {
+	postAfterGame: IGameBulkFormFields["postAfterGame"];
+	includeInWeeklyPost: IGameBulkFormFields["includeInWeeklyPost"];
 }
 
 type BulkGameForMongooseFieldsToOmit =

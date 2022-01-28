@@ -51,3 +51,15 @@
 		}
 	}
 }
+
+.bulk-game-wrapper {
+	display: flex;
+	flex-direction: row;
+	margin-bottom: 10pt;
+	label {
+		margin-left: 10pt;
+		&.disabled {
+			color: #888;
+		}
+	}
+}
