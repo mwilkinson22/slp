@@ -29,9 +29,10 @@ export interface IGame extends IGame_Root {
 	_id: string;
 }
 
-export interface IGame_Mongoose extends IGame_Root, Document {
-	_id: IGame_Root["_id"];
-}
+type OptionalInMongoose = "overwriteHashtag" | "isOnTv" | "postAfterGame" | "includeInWeeklyPost" | "retweeted";
+export interface IGame_Mongoose
+	extends Omit<IGame_Root, "_id" | OptionalInMongoose>,
+		Partial<Pick<IGame_Root, OptionalInMongoose>> {}
 
 export interface IGameForImagePost extends Omit<IGame, "_homeTeam" | "_awayTeam" | "_ground" | "_competition"> {
 	_homeTeam: ITeam;
@@ -61,15 +62,6 @@ export interface IGameBulkFormFieldsConfirmation {
 	includeInWeeklyPost: IGameBulkFormFields["includeInWeeklyPost"];
 }
 
-type BulkGameForMongooseFieldsToOmit =
-	| "image"
-	| "customHashtag"
-	| "overwriteHashtag"
-	| "tweetId"
-	| "retweeted"
-	| "time";
-export interface IBulkGameForMongoose extends Omit<IGameFormFields, BulkGameForMongooseFieldsToOmit> {}
-
 export interface ISingleGamePostFields {
 	_id: string;
 	_profile: string;
@@ -85,7 +77,7 @@ export interface IWeeklyPostFields {
 }
 
 //Schema
-const GameSchema = new Schema<IGame_Mongoose>(
+const GameSchema = new Schema<IGame_Mongoose & Document>(
 	{
 		_homeTeam: { type: Schema.Types.ObjectId, ref: "teams", required: true },
 		_awayTeam: { type: Schema.Types.ObjectId, ref: "teams", required: true },
@@ -144,4 +136,4 @@ GameSchema.query.forImage = function () {
 };
 
 //Assign to mongoose
-export const Game = mongoose.model<IGame_Mongoose>("games", GameSchema);
+export const Game = mongoose.model<IGame_Mongoose & Document>("games", GameSchema);

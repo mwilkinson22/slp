@@ -14,7 +14,7 @@ import { Competition, ICompetition } from "~/models/Competition";
 import { ISettings } from "~/models/Settings";
 import {
 	Game,
-	IBulkGameForMongoose,
+	IGame_Mongoose,
 	IGameBulkFormFields,
 	IGameForImagePost,
 	IGameFormFields,
@@ -130,11 +130,13 @@ class GameController {
 		const homeTeams = values.games.map(g => g._homeTeam);
 		const teamsWithGrounds = await Team.find({ _id: { $in: homeTeams } }, "_id _ground").lean();
 
-		const gameData: IBulkGameForMongoose[] = values.games.map(g => {
+		const gameData: IGame_Mongoose[] = values.games.map(g => {
 			//Get the ground
 			const _ground = teamsWithGrounds.find(t => t._id.toString() === g._homeTeam)!._ground;
 			return {
 				...g,
+				date: new Date(g.date).toISOString(),
+				round: g.round || undefined, //Mongoose will then convert this to null
 				_ground,
 				_competition: values._competition,
 				postAfterGame: values.postAfterGame,
@@ -143,8 +145,8 @@ class GameController {
 		});
 
 		try {
-			const result = await Game.collection.insertMany(gameData);
-			const games = _.keyBy(result.ops, "_id");
+			const result = await Game.insertMany(gameData);
+			const games = _.keyBy(result, "_id");
 			res.send(games);
 		} catch (e) {
 			res.status(500).send(e.toString());
