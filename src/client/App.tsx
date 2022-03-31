@@ -27,9 +27,9 @@ function mapStateToProps({ config }: StoreState) {
 
 //App Component
 class _App extends Component<IProps, IState> {
-	state = {};
+	state: IState = {};
 
-	static getDerivedStateFromProps(nextProps: IProps) {
+	static getDerivedStateFromProps(nextProps: IProps): IState {
 		const { authUser } = nextProps;
 		return { authUser };
 	}
@@ -46,7 +46,8 @@ class _App extends Component<IProps, IState> {
 	}
 
 	render() {
-		const { authUser, route } = this.props;
+		const { route } = this.props;
+		const { authUser } = this.state;
 
 		if (!authUser) {
 			return <Login />;

@@ -3,6 +3,7 @@ export enum ActionTypes {
 	//Config
 	GET_CORE_CONFIG,
 	GET_SETTINGS,
+	GET_ALL_SETTINGS,
 	FETCH_CURRENT_USER,
 	LOGOUT,
 

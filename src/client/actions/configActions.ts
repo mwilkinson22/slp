@@ -44,7 +44,7 @@ export interface GetSettingsAction {
 }
 
 export interface GetAllSettingsAction {
-	type: ActionTypes.GET_SETTINGS;
+	type: ActionTypes.GET_ALL_SETTINGS;
 	payload: ISettings;
 }
 

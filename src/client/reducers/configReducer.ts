@@ -31,6 +31,15 @@ export default function (state: ConfigState = null, action: ConfigAction | UserA
 			return state;
 		}
 
+		case ActionTypes.GET_ALL_SETTINGS: {
+			if (state) {
+				const newState = { ...state };
+				newState.settings = action.payload;
+				return newState;
+			}
+			return state;
+		}
+
 		default:
 			return state;
 	}

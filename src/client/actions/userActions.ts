@@ -56,7 +56,7 @@ export const login = (data: LoginParams) => {
 			//We need to fetch settings before dispatching the user
 			const settingsCall = await api.get<ISettings>("/settings");
 			if (settingsCall.data) {
-				dispatch<GetAllSettingsAction>({ type: ActionTypes.GET_SETTINGS, payload: settingsCall.data });
+				dispatch<GetAllSettingsAction>({ type: ActionTypes.GET_ALL_SETTINGS, payload: settingsCall.data });
 			}
 
 			dispatch<FetchCurrentUserAction>({ type: ActionTypes.FETCH_CURRENT_USER, payload: res.data });
